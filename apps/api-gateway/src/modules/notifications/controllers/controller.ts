@@ -1,6 +1,7 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { NotificationService } from '@modules/notifications/services/service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { NotificationRequestDTO } from '@modules/notifications/dtos';
 
 @ApiTags('Notifications')
 @Controller({
@@ -12,7 +13,7 @@ export class NotificationControllerV1 {
 
   @ApiOperation({ summary: 'Отправка уведомления' })
   @Post()
-  public async receiveNotification() {
-    return this.notificationService.receiveNotification();
+  public async receiveNotification(@Body() body: NotificationRequestDTO) {
+    return this.notificationService.receiveNotification(body);
   }
 }

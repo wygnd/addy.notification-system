@@ -1,5 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
+import { normalizeError } from '@shared/utils/errors';
 
 @Catch()
 export class TransformErrorFilter implements ExceptionFilter {
@@ -9,21 +10,13 @@ export class TransformErrorFilter implements ExceptionFilter {
     const context = host.switchToHttp();
     const response = context.getResponse() as FastifyReply;
 
-    response.status(response.statusCode).send({
+    const { code, message } = normalizeError(exception);
+
+    response.status(code).send({
       ok: false,
-      err_code: 'Error', // fixme
-      err_detail: 'Coming soon', // fixme
+      err_code: code, // fixme
+      err_detail: message,
       timestamp: new Date().toISOString(),
     });
-  }
-  private isGrpcError(
-    exception: unknown,
-  ): exception is { code: number; details: string } {
-    return (
-      typeof exception === 'object' &&
-      exception !== null &&
-      'code' in exception &&
-      'details' in exception
-    );
   }
 }

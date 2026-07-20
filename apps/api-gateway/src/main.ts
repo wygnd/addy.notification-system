@@ -23,20 +23,20 @@ async function bootstrap() {
   const logger = new Logger('Application');
   const PORT = config.get<number>('PORT') ?? 3000;
 
-  // Формируем документацию
-  setupAppDocs(app);
-
   // Формируем версионирование для эндпоинтов
   setupAppVersioning(app);
-
-  // Формируем PIPES
-  setupAppPipes(app);
 
   // Добавляем CORS
   setupAppCors(app);
 
   // Формируем фильтры
   setupAppFilters(app);
+
+  // Формируем PIPES
+  setupAppPipes(app);
+
+  // Формируем документацию
+  setupAppDocs(app);
 
   await app.listen(PORT, '0.0.0.0');
   logger.log(`Server started http://0.0.0.0:${PORT}`);

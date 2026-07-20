@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { INotificationRequest } from '@modules/notifications/interfaces/request/interface';
 
 @Injectable()
 export class NotificationService {
@@ -14,9 +15,12 @@ export class NotificationService {
   /**
    * Обработка входящих запросов на отправку уведомлений
    */
-  public async receiveNotification() {
+  public async receiveNotification(fields: INotificationRequest) {
     try {
-      // todo
+
+      return {
+        message: 'Mock data',
+      };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
