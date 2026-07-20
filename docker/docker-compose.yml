@@ -1,0 +1,26 @@
+services:
+  gateway:
+    build:
+      context: ../apps/api-gateway
+      dockerfile: ./Dockerfile
+    container_name: 'notification-system_gateway'
+    ports:
+      - "127.0.0.1:${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
+    restart: always
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  rabbitmq:
+    image: rabbitmq:4.3.2-management
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER="${RABBITMQ_USER}"
+      - RABBITMQ_DEFAULT_PASS="${RABBITMQ_PASSWORD}"
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
+    ports:
+      - 15672:15672
+      - 5672:5672
