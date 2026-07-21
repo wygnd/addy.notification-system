@@ -24,12 +24,12 @@ import { IdentityService } from '@modules/identity/services/service';
                 durable: true,
                 autoDelete: false,
                 arguments: {
-                  'x-message-ttl': 60000, // сообщение живёт максимум 60с, потом дропается или уходит в DLX
                   'x-dead-letter-exchange': 'notifications.dlx', // куда падают сообщения, которые не смогли обработать/протухли
                   'x-dead-letter-routing-key': 'failed-notifications',
                   'x-max-priority': 10, // включает приоритеты сообщений (0-10)
                 },
               },
+              prefetchCount: 10, // Кол-во одновременных обработок сообщений брокером
             },
           }),
           imports: [ConfigModule],

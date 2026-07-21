@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { VK_RABBITMQ_SERVICE } from '@modules/vk/constants/constants';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { VkProvider } from '@modules/vk/providers/service';
+import { VkProvider } from '@modules/vk/providers/provider';
 import { VkService } from '@modules/vk/services/service';
 
 @Module({
@@ -19,15 +19,15 @@ import { VkService } from '@modules/vk/services/service';
               urls: [configService.getOrThrow<string>('RABBITMQ_URL')],
               queue: configService.getOrThrow<string>('RABBITMQ_QUEUE_NAME_VK'),
               queueOptions: {
-                durable: false,
+                durable: true,
                 autoDelete: false,
                 arguments: {
-                  'x-message-ttl': 60000, // сообщение живёт максимум 60с, потом дропается или уходит в DLX
                   'x-dead-letter-exchange': 'notifications.dlx', // куда падают сообщения, которые не смогли обработать/протухли
                   'x-dead-letter-routing-key': 'failed-notifications',
                   'x-max-priority': 10, // включает приоритеты сообщений (0-10)
                 },
               },
+              prefetchCount: 10, // Кол-во одновременных обработок сообщений брокером
             },
           }),
           imports: [ConfigModule],
@@ -36,5 +36,6 @@ import { VkService } from '@modules/vk/services/service';
     }),
   ],
   providers: [VkProvider, VkService],
+  exports: [VkService],
 })
 export class VkModule {}

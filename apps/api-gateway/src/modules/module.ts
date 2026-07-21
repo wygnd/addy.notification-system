@@ -6,11 +6,16 @@ import { TransformSuccessResponseInterceptor } from '@shared/interceptors';
 import { HealthModule } from '@modules/health/module';
 import { VkModule } from '@modules/vk/module';
 import { IdentityModule } from '@modules/identity/module';
+import { DatabaseModule } from '@modules/database/module';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
   imports: [
     ConfigModule.forRoot({}),
+    CqrsModule.forRoot(),
+
     HealthModule,
+    DatabaseModule,
     NotificationModule,
     VkModule,
     IdentityModule,

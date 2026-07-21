@@ -1,4 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Headers,
+  BadRequestException,
+} from '@nestjs/common';
 import { NotificationService } from '@modules/notifications/services/service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { NotificationRequestDTO } from '@modules/notifications/dtos';
@@ -13,7 +19,19 @@ export class NotificationControllerV1 {
 
   @ApiOperation({ summary: 'Отправка уведомления' })
   @Post()
-  public async receiveNotification(@Body() body: NotificationRequestDTO) {
-    return this.notificationService.receiveNotification(body);
+  public async receiveNotification(
+    @Headers('host') host: string,
+    @Headers('X-Request-ID') requestId: string,
+    @Body() body: NotificationRequestDTO,
+  ) {
+    if (!requestId) {
+      throw new BadRequestException('X-Request-ID is required');
+    }
+
+    return this.notificationService.receiveNotification({
+      ...body,
+      requestId: requestId,
+      host: host,
+    });
   }
 }

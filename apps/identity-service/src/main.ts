@@ -25,7 +25,7 @@ async function bootstrap() {
         durable: true,
         autoDelete: false,
         arguments: {
-          'x-dead-letter-exchange': 'notifiications.dlx', // куда падают сообщения, которые не смогли обработать/протухли
+          'x-dead-letter-exchange': 'notifications.dlx', // куда падают сообщения, которые не смогли обработать/протухли
           'x-dead-letter-routing-key': 'failed-notifications',
           'x-max-priority': 10, // включает приоритеты сообщений (0-10)
         },

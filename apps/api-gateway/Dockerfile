@@ -3,22 +3,25 @@ LABEL authors="wygnd"
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install -g pnpm@11.3.0
 
-RUN corepack enable
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+ENV CI=true
 RUN pnpm run build
 
 FROM node:24-alpine AS production
 
 WORKDIR /app
 
-RUN corepack enable
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install -g pnpm@11.3.0
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-
+ENV CI=true
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile --prod
 
 COPY --from=builder /app/dist ./dist

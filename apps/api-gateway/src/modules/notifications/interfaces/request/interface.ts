@@ -9,3 +9,8 @@ export interface INotificationRequest {
   platform: PlatformEnum;
   payload: INotificationRequestPayload;
 }
+
+export interface INotification extends INotificationRequest {
+  requestId: string;
+  host: string;
+}

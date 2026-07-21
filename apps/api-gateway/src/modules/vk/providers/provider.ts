@@ -6,6 +6,9 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { VK_RABBITMQ_SERVICE } from '@modules/vk/constants/constants';
+import { firstValueFrom } from 'rxjs';
+import { VkPattern } from '@modules/vk/enums';
+import { IVkEventEmitMap } from '@modules/vk/interfaces';
 
 @Injectable()
 export class VkProvider implements OnModuleInit, OnModuleDestroy {
@@ -14,11 +17,18 @@ export class VkProvider implements OnModuleInit, OnModuleDestroy {
     private readonly client: ClientProxy,
   ) {}
 
-  public async onModuleInit(): Promise<void> {
+  async onModuleInit(): Promise<void> {
     await this.client.connect();
   }
 
-  public async onModuleDestroy(): Promise<void> {
+  async onModuleDestroy(): Promise<void> {
     await this.client.close();
+  }
+
+  public async emit<T extends VkPattern>(
+    pattern: T,
+    data: IVkEventEmitMap[T],
+  ): Promise<void> {
+    await firstValueFrom(this.client.emit(pattern, data));
   }
 }
