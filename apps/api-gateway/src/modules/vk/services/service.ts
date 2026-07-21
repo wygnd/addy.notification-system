@@ -1,13 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { VK_RABBITMQ_SERVICE } from '@modules/vk/constants/constants';
+import { Injectable } from '@nestjs/common';
+import { VkProvider } from '@modules/vk/providers/service';
 
 @Injectable()
 export class VkService {
-  constructor(
-    @Inject(VK_RABBITMQ_SERVICE)
-    private readonly client: ClientProxy,
-  ) {}
-
-  public async sendMessage() {}
+  constructor(private readonly vkProvider: VkProvider) {}
 }

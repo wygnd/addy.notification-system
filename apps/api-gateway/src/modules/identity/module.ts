@@ -1,25 +1,27 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { VK_RABBITMQ_SERVICE } from '@modules/vk/constants/constants';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { VkProvider } from '@modules/vk/providers/service';
-import { VkService } from '@modules/vk/services/service';
+import { IDENTITY_RABBITMQ_SERVICE } from '@modules/identity/constants/constants';
+import { IdentityProvider } from '@modules/identity/providers/provider';
+import { IdentityService } from '@modules/identity/services/service';
 
 @Module({
   imports: [
     ClientsModule.registerAsync({
       clients: [
         {
-          name: VK_RABBITMQ_SERVICE,
+          name: IDENTITY_RABBITMQ_SERVICE,
           inject: [ConfigService],
           useFactory: (configService: ConfigService) => ({
-            name: VK_RABBITMQ_SERVICE,
+            name: IDENTITY_RABBITMQ_SERVICE,
             transport: Transport.RMQ,
             options: {
               urls: [configService.getOrThrow<string>('RABBITMQ_URL')],
-              queue: configService.getOrThrow<string>('RABBITMQ_QUEUE_NAME_VK'),
+              queue: configService.getOrThrow<string>(
+                'RABBITMQ_QUEUE_NAME_IDENTITY',
+              ),
               queueOptions: {
-                durable: false,
+                durable: true,
                 autoDelete: false,
                 arguments: {
                   'x-message-ttl': 60000, // сообщение живёт максимум 60с, потом дропается или уходит в DLX
@@ -35,6 +37,6 @@ import { VkService } from '@modules/vk/services/service';
       ],
     }),
   ],
-  providers: [VkProvider, VkService],
+  providers: [IdentityProvider, IdentityService],
 })
-export class VkModule {}
+export class IdentityModule {}
