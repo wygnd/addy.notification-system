@@ -3,7 +3,7 @@ import {
   NotificationLogStatusEnum,
 } from '@modules/notifications/interfaces';
 import { PlatformEnum } from '@shared/interfaces';
-import { VkPatternEnum } from '@modules/vk/enums';
+import { VkEmitPatternEnum } from '@modules/vk/enums';
 import { Expose } from 'class-transformer';
 
 export class NotificationLogDTO implements INotificationLogEntity {
@@ -17,7 +17,7 @@ export class NotificationLogDTO implements INotificationLogEntity {
   channel: PlatformEnum;
 
   @Expose()
-  pattern: VkPatternEnum;
+  pattern: VkEmitPatternEnum;
 
   @Expose()
   status: NotificationLogStatusEnum;

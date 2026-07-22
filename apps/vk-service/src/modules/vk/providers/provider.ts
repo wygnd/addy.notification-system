@@ -1,10 +1,16 @@
-import { Inject, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { NOTIFICATION_RABBITMQ_SERVICE_RESULT } from '@modules/vk/constants/constants';
 import { firstValueFrom } from 'rxjs';
 import { INotificationEmitMap } from '@shared/interfaces';
 import { NotificationPatternEnum } from '@shared/enums';
 
+@Injectable()
 export class VkNotificationProvider implements OnModuleInit, OnModuleDestroy {
   constructor(
     @Inject(NOTIFICATION_RABBITMQ_SERVICE_RESULT)

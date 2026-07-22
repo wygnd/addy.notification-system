@@ -1,3 +1,3 @@
 export * from './service';
-
-export * from './notification-log/service';
+export * from './notification-log';
+export * from './result';

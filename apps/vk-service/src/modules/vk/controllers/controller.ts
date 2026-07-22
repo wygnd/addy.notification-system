@@ -20,30 +20,14 @@ export class VkController {
     @Payload() data: IVkEventEmitMap[VkPatternEnum.SEND_MESSAGE],
     @Ctx() context: RmqContext,
   ) {
-    const channel = context.getChannelRef() as Channel;
-    const originalMsg = context.getMessage() as Message;
-    const { correlationId } = data;
+    return this.vkBotService.handleSendNotification(context, data);
+  }
 
-    try {
-      await this.vkBotService.sendMessageResult(
-        correlationId,
-        NotificationResultEnum.PROCESSING,
-      );
-
-      await this.vkBotService.sendMessage(data.userId, data.text);
-
-      await this.vkBotService.sendMessageResult(
-        correlationId,
-        NotificationResultEnum.COMPLETED,
-      );
-
-      channel.ack(originalMsg);
-    } catch (error) {
-      channel.nack(originalMsg, false, false);
-      await this.vkBotService.sendMessageResult(
-        correlationId,
-        NotificationResultEnum.FAILED,
-      );
-    }
+  @MessagePattern(VkPatternEnum.SEND_CHECK_CLIENT_IN_GROUP)
+  public async checkUserInGroup(
+    @Payload() data: IVkEventEmitMap[VkPatternEnum.SEND_CHECK_CLIENT_IN_GROUP],
+    @Ctx() context: RmqContext,
+  ) {
+    return this.vkBotService.handleCheckUserInGroup(context, data);
   }
 }

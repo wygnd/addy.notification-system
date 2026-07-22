@@ -38,5 +38,6 @@ import { IdentityService } from '@modules/identity/services/service';
     }),
   ],
   providers: [IdentityProvider, IdentityService],
+  exports: [IdentityService],
 })
 export class IdentityModule {}

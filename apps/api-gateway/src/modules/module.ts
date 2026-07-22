@@ -8,6 +8,8 @@ import { VkModule } from '@modules/vk/module';
 import { IdentityModule } from '@modules/identity/module';
 import { DatabaseModule } from '@modules/database/module';
 import { CqrsModule } from '@nestjs/cqrs';
+import { RedisModule } from '@modules/redis/module';
+import { UsersModule } from '@modules/users/module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { CqrsModule } from '@nestjs/cqrs';
     NotificationModule,
     VkModule,
     IdentityModule,
+    RedisModule,
+    UsersModule,
   ],
   providers: [
     {

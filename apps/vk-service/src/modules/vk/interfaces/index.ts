@@ -1,1 +1,2 @@
-export * from './emit/interface'
+export * from './emit'
+export * from './api'

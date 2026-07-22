@@ -11,6 +11,7 @@ import { setupAppVersioning } from '@common/versioning';
 import { setupAppPipes } from '@common/pipes';
 import { setupAppCors } from '@common/cors';
 import { setupAppFilters } from '@common/filters';
+import { connectAppMicroservices } from '@common/microservices';
 
 async function bootstrap() {
   const adapter = new FastifyAdapter();
@@ -37,6 +38,9 @@ async function bootstrap() {
 
   // Формируем документацию
   setupAppDocs(app);
+
+  // Подключаем микросервисы
+  await connectAppMicroservices(app);
 
   await app.listen(PORT, '0.0.0.0');
   logger.log(`Server started http://0.0.0.0:${PORT}`);
