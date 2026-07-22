@@ -1,10 +1,11 @@
-import { VkPattern } from '@modules/vk/enums';
+import { VkPatternEnum } from '@modules/vk/enums';
 
 interface VkSendMessagePayload {
   userId: number;
   text: string;
+  correlationId: string;
 }
 
 export interface IVkEventEmitMap {
-  [VkPattern.SEND_MESSAGE]: VkSendMessagePayload;
+  [VkPatternEnum.SEND_MESSAGE]: VkSendMessagePayload;
 }

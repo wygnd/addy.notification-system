@@ -1,5 +1,4 @@
 import { PlatformEnum } from '@shared/interfaces';
-import { VkPattern } from '@modules/vk/enums';
 import { Optional } from '@shared/types';
 
 export enum NotificationLogStatusEnum {

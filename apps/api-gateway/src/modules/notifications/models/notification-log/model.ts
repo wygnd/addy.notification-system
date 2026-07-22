@@ -2,7 +2,6 @@ import {
   Column,
   CreatedAt,
   DataType,
-  Index,
   Model,
   Table,
   UpdatedAt,
@@ -13,7 +12,7 @@ import {
   NotificationLogStatusEnum,
 } from '@modules/notifications/interfaces';
 import { PlatformEnum } from '@shared/interfaces';
-import { VkPattern } from '@modules/vk/enums';
+import { VkPatternEnum } from '@modules/vk/enums';
 
 @Table({
   tableName: 'notification_logs',
@@ -55,7 +54,7 @@ export class NotificationLogModel extends Model<
     type: DataType.STRING,
     allowNull: false,
   })
-  declare pattern: VkPattern;
+  declare pattern: VkPatternEnum;
 
   @Column({
     type: DataType.STRING,

@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { INotification } from '@modules/notifications/interfaces/request/interface';
 import { VkService } from '@modules/vk/services/service';
-import { VkPattern } from '@modules/vk/enums';
+import { VkPatternEnum } from '@modules/vk/enums';
 import { PlatformEnum } from '@shared/interfaces';
 import { NotificationLogService } from '@modules/notifications/services/notification-log/service';
 import { NotificationLogStatusEnum } from '@modules/notifications/interfaces';
@@ -50,9 +50,10 @@ export class NotificationService {
 
       switch (fields.platform) {
         case PlatformEnum.VK:
-          await this.vkService.emitEvent(VkPattern.SEND_MESSAGE, {
+          await this.vkService.emitEvent(VkPatternEnum.SEND_MESSAGE, {
             text: fields.payload.text,
             userId: fields.userId,
+            correlationId: requestId,
           });
           break;
 

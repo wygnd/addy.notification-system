@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { VkProvider } from '@modules/vk/providers/provider';
-import { VkPattern } from '@modules/vk/enums';
+import { VkPatternEnum } from '@modules/vk/enums';
 import { IVkEventEmitMap } from '@modules/vk/interfaces';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class VkService {
   /**
    * Отправляет событие в VK Service
    */
-  public async emitEvent<T extends VkPattern>(
+  public async emitEvent<T extends VkPatternEnum>(
     pattern: T,
     data: IVkEventEmitMap[T],
   ): Promise<void> {

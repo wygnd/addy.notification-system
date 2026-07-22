@@ -6,8 +6,9 @@
     - [ ] Эндпоинты
     - [ ] Авторизация
     - [ ] Сохранение запросов в БД со статусами
-    - [ ] Rabbit MQ
+    - [x] Rabbit MQ
 - [ ] identity-service
 - [ ] telegram-service
 - [ ] vk-service
 - [ ] max-service
+- [ ] Сделать отдельную shared либу для переиспользуемых компонентов
