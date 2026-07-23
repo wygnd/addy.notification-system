@@ -2,17 +2,7 @@ import { INormalizeError } from '@shared/interfaces';
 import { HttpException } from '@nestjs/common';
 import { isAxiosError } from 'axios';
 import { ERRNO_CODE_MAP } from '@shared/constants';
-
-const isRpcError = (error: unknown): boolean => {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'error' in error &&
-    typeof (error as any).error === 'object' &&
-    'type' in (error as any).error &&
-    (error as any).error.type === 'rpc'
-  );
-};
+import { isRpcError } from '@shared/types';
 
 const isErrnoException = (error: unknown): error is NodeJS.ErrnoException => {
   return error instanceof Error && 'code' in error;
@@ -25,11 +15,9 @@ const isObjectWithMessage = (val: unknown): val is { message: string } => {
 export const normalizeError = (error: unknown): INormalizeError => {
   // RPC ошибка
   if (isRpcError(error)) {
-    const rpcError = (error as any).error;
-
     return {
-      code: rpcError.statusCode ?? rpcError.status ?? 500,
-      message: rpcError.message ?? 'RPC ошибка',
+      code: error.statusCode ?? 500,
+      message: error.message ?? 'RPC ошибка',
     };
   }
 

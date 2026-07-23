@@ -3,12 +3,13 @@
 ## TODOS
 
 - [ ] api-gateway
-    - [ ] Эндпоинты
+    - [x] Эндпоинты
     - [ ] Авторизация
-    - [ ] Сохранение запросов в БД со статусами
+    - [x] Сохранение запросов в БД со статусами
     - [x] Rabbit MQ
 - [ ] identity-service
 - [ ] telegram-service
-- [ ] vk-service
+- [x] vk-service
 - [ ] max-service
 - [ ] Сделать отдельную shared либу для переиспользуемых компонентов
+  

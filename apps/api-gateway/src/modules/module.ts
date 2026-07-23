@@ -10,6 +10,7 @@ import { DatabaseModule } from '@modules/database/module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { RedisModule } from '@modules/redis/module';
 import { UsersModule } from '@modules/users/module';
+import { RpcExceptionInterceptor } from '@shared/interceptors/exception';
 
 @Module({
   imports: [
@@ -25,6 +26,10 @@ import { UsersModule } from '@modules/users/module';
     UsersModule,
   ],
   providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RpcExceptionInterceptor,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformSuccessResponseInterceptor,

@@ -24,8 +24,7 @@ export class RedisService {
             isString(value) ? value : JSON.stringify(value),
           );
       return true;
-    } catch (error) {
-      console.log('REDIS ERROR: ', error);
+    } catch {
       return false;
     }
   }

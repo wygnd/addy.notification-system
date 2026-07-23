@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from '@modules/module';
 import { Transport } from '@nestjs/microservices';
 import { Logger } from '@nestjs/common';
+import { ExceptionsToRpcFilter } from '@shared/exceptions';
 
 async function bootstrap() {
   const rabbitMQUrl = process.env.RABBITMQ_URL;
@@ -34,6 +35,8 @@ async function bootstrap() {
       prefetchCount: 10, // Кол-во одновременных обработок сообщений брокером
     },
   });
+
+  app.useGlobalFilters(new ExceptionsToRpcFilter());
 
   const logger = new Logger('Application');
 

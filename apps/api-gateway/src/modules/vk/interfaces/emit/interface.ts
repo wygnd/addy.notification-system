@@ -13,7 +13,7 @@ export interface IVkSendMessageResponseMap {
 }
 
 interface VkSendMessagePayload {
-  userId: number;
+  userId: string;
   text: string;
   correlationId: string;
 }
