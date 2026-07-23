@@ -2,6 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserService } from '@modules/users/services/service';
 import { UserConnectRequestDTO } from '@modules/users/dtos';
+import { UserMapper } from '@modules/users/mappers';
 
 @ApiTags('Users')
 @Controller({
@@ -14,9 +15,6 @@ export class UserControllerV1 {
   @ApiOperation({ summary: 'Отправить запрос на подключение пользователя' })
   @Post('connect')
   public async connectUser(@Body() body: UserConnectRequestDTO) {
-    // return this.userService.connectUser({
-    //   userId: body.user_id,
-    //   platform: body.platform,
-    // });
+    return this.userService.connectUser(UserMapper.toDomainModel(body));
   }
 }

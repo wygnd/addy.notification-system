@@ -32,6 +32,14 @@ export class UserConnectRequestDTO {
   @IsString()
   user_id: string;
 
+  @ApiProperty({
+    type: String,
+    description: `Обязательно при platform=${PlatformEnum.VK}`,
+    required: false,
+    example: '12334',
+  })
+  @IsOptional()
+  @IsString()
   @HasVkId()
   platform_user_id?: string;
 }

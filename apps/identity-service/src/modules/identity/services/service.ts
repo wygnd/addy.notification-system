@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RmqContext } from '@nestjs/microservices';
 import {
-  IIdentityMessageSendConnectPayload,
+  IIdentityMessageSendConnectPayloadFields,
   IIdentityMessageSendConnectResponse,
 } from '@modules/identity/interfaces';
 import { PlatformEnum } from '@shared/enums';
@@ -46,7 +46,7 @@ export class IdentityService {
   }
 
   public async connectClient(
-    data: IIdentityMessageSendConnectPayload,
+    data: IIdentityMessageSendConnectPayloadFields,
   ): Promise<IIdentityMessageSendConnectResponse> {
     const { userId, platform } = data;
 
@@ -67,7 +67,7 @@ export class IdentityService {
 
   public async handleConnectClient(
     context: RmqContext,
-    data: IIdentityMessageSendConnectPayload,
+    data: IIdentityMessageSendConnectPayloadFields,
   ) {
     return this.handleSendWithAck(context, () => this.connectClient(data));
   }

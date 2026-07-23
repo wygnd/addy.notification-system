@@ -6,7 +6,11 @@ import {
   Logger,
   MethodNotAllowedException,
 } from '@nestjs/common';
-import { IUserBlock, IUserCode, IUserConnect } from '@modules/users/interfaces';
+import {
+  IUserBlock,
+  IUserCode,
+  IUserConnectFields,
+} from '@modules/users/interfaces';
 import { PlatformEnum } from '@shared/interfaces';
 import { VkService } from '@modules/vk/services/service';
 import { normalizeError } from '@shared/utils/errors';
@@ -28,7 +32,7 @@ export class UserService {
   ) {}
 
   public async connectUser(
-    request: IUserConnect,
+    request: IUserConnectFields,
   ): Promise<IUserConnectResponse> {
     try {
       const { userId, platform } = request;
@@ -44,7 +48,7 @@ export class UserService {
       if (userWasBlocked) {
         throw new MethodNotAllowedException(
           'User was blocked on 15 minutes.' +
-            `Next attempt is available on ${new Date(userWasBlocked.blockedAt + 15 * 60 * 60)}`,
+            `Next attempts is available on ${new Date(userWasBlocked.blockedAt + 15 * 60 * 60)}`,
         );
       }
 
@@ -64,17 +68,14 @@ export class UserService {
         );
       }
 
-      switch (platform) {
+      switch (request.platform) {
         case PlatformEnum.VK:
-          await this.connectUserToVK(userId);
+          await this.connectUserToVK(userId, request.platformUserId);
           break;
 
         case PlatformEnum.TELEGRAM:
         case PlatformEnum.MAX:
-          response = await this.identityService.connectClient({
-            userId,
-            platform,
-          });
+          response = await this.identityService.connectClient(request);
           break;
 
         default:
@@ -127,7 +128,7 @@ export class UserService {
     }
   }
 
-  private async connectUserToVK(userId: string) {
+  private async connectUserToVK(userId: string, vkUserId: string) {
     const response = await this.vkService.sendMessage<
       IVkSendMessageResponseMap[VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP]
     >(VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP, {
@@ -139,8 +140,9 @@ export class UserService {
     }
 
     await this.identityService.connectClient({
-      userId: userId,
       platform: PlatformEnum.VK,
+      userId: userId,
+      platformUserId: vkUserId,
     });
   }
 }

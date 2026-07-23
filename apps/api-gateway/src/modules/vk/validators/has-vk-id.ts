@@ -2,9 +2,34 @@ import {
   registerDecorator,
   ValidationArguments,
   ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from 'class-validator';
 import { UserConnectRequestDTO } from '@modules/users/dtos';
 import { PlatformEnum } from '@shared/interfaces';
+
+@ValidatorConstraint({ name: 'hasVkId', async: false })
+class HasVkIdConstraint implements ValidatorConstraintInterface {
+  validate(value: any, validationArguments?: ValidationArguments): boolean {
+    const object = validationArguments?.object as UserConnectRequestDTO;
+
+    if (object.platform === PlatformEnum.VK) {
+      return typeof value === 'string' && value.length > 0;
+    }
+
+    return value === undefined;
+  }
+
+  defaultMessage(validationArguments?: ValidationArguments): string {
+    const object = validationArguments?.object as UserConnectRequestDTO;
+
+    if (object.platform === PlatformEnum.VK) {
+      return `${validationArguments?.property} is required when platform is ${PlatformEnum.VK}`;
+    }
+
+    return `${validationArguments?.property} must not be present unless platform is ${PlatformEnum.VK}}`;
+  }
+}
 
 export function HasVkId(validationOptions?: ValidationOptions) {
   return (object: any, propertyName: string) =>
@@ -14,24 +39,6 @@ export function HasVkId(validationOptions?: ValidationOptions) {
       propertyName: propertyName,
       constraints: [],
       options: validationOptions,
-      validator: {
-        validate(value, { object }: ValidationArguments) {
-          if (
-            object instanceof UserConnectRequestDTO &&
-            object.platform === PlatformEnum.VK
-          ) {
-            if (
-              !value ||
-              typeof value !== 'string'
-            ) {
-              return false;
-            }
-          }
-
-          return true;
-        },
-        defaultMessage: (validationArguments?: ValidationArguments): string =>
-          `${validationArguments?.property} should not be an empty for ${PlatformEnum.VK} platform`,
-      },
+      validator: HasVkIdConstraint,
     });
 }

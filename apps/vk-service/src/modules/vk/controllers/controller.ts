@@ -8,8 +8,6 @@ import {
 } from '@nestjs/microservices';
 import { VkPatternEnum } from '../enums';
 import { IVkEventEmitMap } from '../interfaces';
-import { Channel, Message } from 'amqplib';
-import { NotificationResultEnum } from '@shared/enums';
 
 @Controller()
 export class VkController {
