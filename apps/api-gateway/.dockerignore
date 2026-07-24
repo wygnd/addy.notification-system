@@ -1,5 +1,5 @@
 dist
 node_modules
-.prettierrc
+prettier.config.mjs
 eslint.config.mjs
 README.md
