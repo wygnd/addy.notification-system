@@ -3,12 +3,15 @@ import { PlatformEnum } from '@shared/interfaces';
 
 export interface IIdentityMessageMap {
   [IdentityPatternEnum.SEND_CONNECT]: IIdentityMessageSendConnectPayloadFields;
+  [IdentityPatternEnum.CHECK_CONNECT]: IIdentityMessageCheckConnectionPayload;
 }
 
 export interface IIdentityMessageResponseMap {
   [IdentityPatternEnum.SEND_CONNECT]: IIdentityMessageSendConnectResponse;
+  [IdentityPatternEnum.CHECK_CONNECT]: IIdentityMessageCheckConnectionResponse;
 }
 
+// ============= SEND CONNECT =============
 interface IIdentityMessageSendConnectPayloadBase {
   userId: string;
 }
@@ -39,4 +42,15 @@ type IIdentityMessageSendConnectPayloadFields =
 export interface IIdentityMessageSendConnectResponse {
   code?: number;
   message: string;
+}
+
+// ============= CHECK CONNECT =============
+interface IIdentityMessageCheckConnectionPayload {
+  userId: string;
+  platform: PlatformEnum;
+}
+
+export interface IIdentityMessageCheckConnectionResponse {
+  status: boolean;
+  clientId: string;
 }

@@ -1,14 +1,18 @@
 import { PlatformEnum } from '@shared/enums';
 import { IdentityPatternEnum } from '@modules/identity/enums';
+import { IdentityDTO } from '@modules/identity/dtos';
 
 export interface IIdentityMessageMap {
   [IdentityPatternEnum.SEND_CONNECT]: IIdentityMessageSendConnectPayloadFields;
+  [IdentityPatternEnum.CHECK_CONNECT]: IIdentityMessageCheckConnectPayload;
 }
 
 export interface IIdentityMessageResponseMap {
   [IdentityPatternEnum.SEND_CONNECT]: IIdentityMessageSendConnectResponse;
+  [IdentityPatternEnum.CHECK_CONNECT]: IIdentityMessageCheckConnectResponse;
 }
 
+// ============= SEND CONNECT =============
 interface IIdentityMessageSendConnectPayloadBase {
   userId: string;
 }
@@ -39,4 +43,15 @@ export type IIdentityMessageSendConnectPayloadFields =
 export interface IIdentityMessageSendConnectResponse {
   code?: number;
   message: string;
+}
+
+// ============= CHECK CONNECT =============
+export interface IIdentityMessageCheckConnectPayload {
+  userId: string;
+  platform: PlatformEnum;
+}
+
+export interface IIdentityMessageCheckConnectResponse {
+  status: boolean;
+  clientId: string;
 }

@@ -40,12 +40,12 @@ export class IdentityProvider implements OnModuleInit, OnModuleDestroy {
     data: IIdentityMessageMap[T],
   ): Promise<IIdentityMessageResponseMap[T]> {
     return firstValueFrom(
-      this.client.send<IIdentityMessageResponseMap[T]>(pattern, data).pipe(
-        timeout(10_000),
-        catchError((err) => {
-          throw err;
-        }),
-      ),
+      this.client
+        .send<IIdentityMessageResponseMap[T]>(pattern, data)
+        .pipe(timeout(10_000),
+           catchError((err) => {
+             throw err;
+           })),
     );
   }
 }

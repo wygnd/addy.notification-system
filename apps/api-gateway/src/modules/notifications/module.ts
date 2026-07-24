@@ -7,9 +7,14 @@ import { VkModule } from '@modules/vk/module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { notificationProviders } from '@modules/notifications/providers';
 import { NotificationLogModel } from '@modules/notifications/models';
+import { IdentityModule } from '@modules/identity/module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([NotificationLogModel]), VkModule],
+  imports: [
+    SequelizeModule.forFeature([NotificationLogModel]),
+    VkModule,
+    IdentityModule,
+  ],
   controllers: [NotificationControllerV1, NotificationRMQController],
   providers: [...notificationProviders],
 })

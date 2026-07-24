@@ -27,6 +27,8 @@ export class NotificationRMQController {
     const channel = context.getChannelRef() as Channel;
     const originalMessage = context.getMessage() as Message;
 
+    console.log('receive result', data);
+
     try {
       await this.notificationResultService.receiveNotificationResult(data);
 

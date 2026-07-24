@@ -1,6 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import VkBot from 'node-vk-bot-api';
 import { normalizeError } from '@shared/utils';
 import { NotificationPatternEnum, NotificationResultEnum } from '@shared/enums';
 import { VkNotificationProvider } from '@modules/vk/providers/provider';
@@ -10,24 +8,17 @@ import {
   VkCheckClientInGroupPayload,
   VkSendMessagePayload,
 } from '@modules/vk/interfaces';
-import { IGroupGetMembersResponse } from '@modules/vk/interfaces/api/groups';
+import { VkGroupService, VkMessageService } from '@modules/vk/services';
 
 @Injectable()
 export class VkService {
   private readonly logger = new Logger(VkService.name);
-  private readonly bot: VkBot;
-  private readonly vkGroupId: string;
 
   constructor(
-    private readonly configService: ConfigService,
     private readonly vkNotificationProvider: VkNotificationProvider,
-  ) {
-    const token = this.configService.getOrThrow<string>('VK_BOT_API_KEY');
-
-    this.bot = new VkBot(token);
-
-    this.vkGroupId = this.configService.getOrThrow<string>('VK_ADDY_GROUP_ID');
-  }
+    private readonly vkGroupService: VkGroupService,
+    private readonly vkMessageService: VkMessageService,
+  ) {}
 
   private async handleEmitWithAck<T>(
     context: RmqContext,
@@ -63,14 +54,6 @@ export class VkService {
     }
   }
 
-  public async sendMessage(userId: number, message: string): Promise<void> {
-    try {
-      await this.bot.sendMessage(userId, message);
-    } catch (err) {
-      this.logger.error(normalizeError(err));
-    }
-  }
-
   /**
    * Отправляет событие обратно продюсеру через отдельную очередь
    * @param correlationId
@@ -95,38 +78,47 @@ export class VkService {
   }
 
   private async handleSendMessage(data: VkSendMessagePayload) {
-    const { correlationId } = data;
+    const { correlationId, userId, text } = data;
+    try {
+      const isAllowedSendMessage =
+        await this.vkGroupService.isAllowSendMessage(userId);
 
-    await this.sendMessageResult(
-      correlationId,
-      NotificationResultEnum.PROCESSING,
-    );
+      if (!isAllowedSendMessage) {
+        throw new Error('User not receive messages from groups');
+      }
 
-    await this.sendMessage(data.userId, data.text);
+      await this.sendMessageResult(
+        correlationId,
+        NotificationResultEnum.PROCESSING,
+      );
 
-    await this.sendMessageResult(
-      correlationId,
-      NotificationResultEnum.COMPLETED,
-    );
+      await this.vkMessageService.sendMessage(userId, text);
+
+      await this.sendMessageResult(
+        correlationId,
+        NotificationResultEnum.COMPLETED,
+      );
+    } catch (error) {
+      const { message } = normalizeError(error);
+
+      await this.sendMessageResult(
+        correlationId,
+        NotificationResultEnum.FAILED,
+      );
+    }
   }
 
   private async checkUserInGroup(data: VkCheckClientInGroupPayload) {
     try {
-      const response: IGroupGetMembersResponse =
-        await this.bot.execute('groups.getMembers', {
-          group_id: this.vkGroupId,
-        });
-
-      if (response.items.includes(Number(data.userId))) {
-        return {
-          status: true,
-          message: 'Пользователь подписан на сообщество',
-        };
-      }
+      const exists = await this.vkGroupService.checkUserIdGroup(
+        Number(data.userId),
+      );
 
       return {
-        status: false,
-        message: 'Пользователь не подписан на сообщество',
+        status: exists,
+        message: exists
+          ? 'Пользователь подписан на сообщество'
+          : 'Пользователь не подписан на сообщество',
       };
     } catch (error) {
       this.logger.error(normalizeError(error));

@@ -15,6 +15,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
         password: configService.getOrThrow<string>('DB_PASSWORD'),
         autoLoadModels: true,
         synchronize: true,
+        logging: false,
       }),
       imports: [ConfigModule],
     }),

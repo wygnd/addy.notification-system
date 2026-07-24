@@ -1,4 +1,4 @@
-import { Controller, Logger } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
@@ -7,12 +7,13 @@ import {
 } from '@nestjs/microservices';
 import { IdentityService } from '@modules/identity/services/service';
 import { IdentityPatternEnum } from '@modules/identity/enums';
-import { IIdentityMessageMap } from '@modules/identity/interfaces';
+import {
+  IIdentityMessageCheckConnectPayload,
+  IIdentityMessageMap,
+} from '@modules/identity/interfaces';
 
 @Controller()
 export class IdentityRMQController {
-  private readonly logger = new Logger(IdentityRMQController.name);
-
   constructor(private readonly identityService: IdentityService) {}
 
   @MessagePattern(IdentityPatternEnum.SEND_CONNECT)
@@ -21,5 +22,13 @@ export class IdentityRMQController {
     @Ctx() context: RmqContext,
   ) {
     return this.identityService.handleConnectClient(context, data);
+  }
+
+  @MessagePattern(IdentityPatternEnum.CHECK_CONNECT)
+  public async checkClientConnection(
+    @Payload() data: IIdentityMessageMap[IdentityPatternEnum.CHECK_CONNECT],
+    @Ctx() context: RmqContext,
+  ) {
+    return this.identityService.handleCheckClientConnection(context, data);
   }
 }

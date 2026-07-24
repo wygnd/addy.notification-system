@@ -13,6 +13,7 @@ import { PlatformEnum } from '@shared/interfaces';
 import { NotificationLogService } from '@modules/notifications/services/notification-log/service';
 import { NotificationLogStatusEnum } from '@modules/notifications/interfaces';
 import { normalizeError } from '@shared/utils/errors';
+import { IdentityService } from '@modules/identity/services/service';
 
 @Injectable()
 export class NotificationService {
@@ -21,6 +22,7 @@ export class NotificationService {
   constructor(
     private readonly vkService: VkService,
     private readonly notificationLogService: NotificationLogService,
+    private readonly identityService: IdentityService,
   ) {}
 
   /**
@@ -35,24 +37,27 @@ export class NotificationService {
       throw new ConflictException('Request was handled');
     }
 
+    const { clientId } = await this.identityService.checkClientConnection({
+      userId: userId.toString(),
+      platform: platform,
+    });
+
+    await this.notificationLogService.receiveLog({
+      userId: userId.toString(),
+      correlationId: requestId,
+      channel: platform,
+      pattern: `${platform}.message.send`,
+      payload: fields,
+      status: NotificationLogStatusEnum.RECEIVED,
+      source: host || null,
+    });
+
     try {
-      // todo identity
-
-      await this.notificationLogService.receiveLog({
-        userId: userId.toString(),
-        correlationId: requestId,
-        channel: platform,
-        pattern: `${platform}.message.send`,
-        payload: fields,
-        status: NotificationLogStatusEnum.RECEIVED,
-        source: host || null,
-      });
-
       switch (fields.platform) {
         case PlatformEnum.VK:
           await this.vkService.emitEvent(VkEmitPatternEnum.SEND_MESSAGE, {
             text: fields.payload.text,
-            userId: fields.userId,
+            userId: clientId,
             correlationId: requestId,
           });
           break;
@@ -69,17 +74,9 @@ export class NotificationService {
     } catch (error) {
       const { message } = normalizeError(error);
 
-      this.notificationLogService.markFailed(requestId, message);
+      await this.notificationLogService.markFailed(requestId, message);
 
-      if (error instanceof HttpException) {
-        throw error;
-      }
-
-      this.logger.error(error);
-
-      throw new InternalServerErrorException(
-        'Произошла непредвиденная ошибка на сервере',
-      );
+      throw error;
     }
   }
 }
