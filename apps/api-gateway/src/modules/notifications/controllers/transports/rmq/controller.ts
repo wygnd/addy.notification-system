@@ -1,3 +1,6 @@
+import { normalizeError } from '@addy/common';
+import { INotificationResultMap, NotificationResultEnum } from '@addy/common';
+import { NotificationResultService } from '@modules/notifications/services';
 import { Controller, Logger } from '@nestjs/common';
 import {
   Ctx,
@@ -6,10 +9,6 @@ import {
   RmqContext,
 } from '@nestjs/microservices';
 import { Channel, Message } from 'amqplib';
-import { NotificationResultService } from '@modules/notifications/services';
-import { NotificationResultEnum } from '@modules/notifications/enums';
-import { INotificationResultMap } from '@modules/notifications/interfaces';
-import { normalizeError } from '@shared/utils/errors';
 
 @Controller()
 export class NotificationRMQController {
@@ -26,8 +25,6 @@ export class NotificationRMQController {
   ) {
     const channel = context.getChannelRef() as Channel;
     const originalMessage = context.getMessage() as Message;
-
-    console.log('receive result', data);
 
     try {
       await this.notificationResultService.receiveNotificationResult(data);

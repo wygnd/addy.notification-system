@@ -1,8 +1,12 @@
-import { IdentityModel } from '@modules/identity/models';
+import { PlatformEnum } from '@addy/common';
 import { TIdentityCreationEntity } from '@modules/identity/interfaces';
-import { PlatformEnum } from '@shared/enums';
+import { IdentityModel } from '@modules/identity/models';
 
 export interface IIdentityRepositoryPort {
   create(fields: TIdentityCreationEntity): Promise<IdentityModel>;
   exists(userId: string, platform: PlatformEnum): Promise<IdentityModel | null>;
+  existsOnPlatform(
+    platformUserId: string,
+    platform: PlatformEnum,
+  ): Promise<IdentityModel | null>;
 }

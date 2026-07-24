@@ -1,6 +1,6 @@
-import { NestFastifyApplication } from '@nestjs/platform-fastify';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export const connectAppMicroservices = async (app: NestFastifyApplication) => {
   const config = app.get(ConfigService);

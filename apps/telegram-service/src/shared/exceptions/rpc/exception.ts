@@ -1,7 +1,7 @@
+import { normalizeError } from '@addy/common';
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
-import { throwError } from 'rxjs';
 import { RpcException } from '@nestjs/microservices';
-import { normalizeError } from '@shared/utils';
+import { throwError } from 'rxjs';
 
 @Catch()
 export class ExceptionsToRpcFilter implements ExceptionFilter {

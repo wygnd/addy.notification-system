@@ -1,19 +1,19 @@
 import {
+  normalizeError,
+  NotificationLogStatusEnum,
+  VkEmitPatternEnum,
+} from '@addy/common';
+import { PlatformEnum } from '@addy/common';
+import { IdentityService } from '@modules/identity/services/service';
+import { INotification } from '@modules/notifications/interfaces/request/interface';
+import { NotificationLogService } from '@modules/notifications/services/notification-log/service';
+import { VkService } from '@modules/vk/services/service';
+import {
   ConflictException,
-  HttpException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   MethodNotAllowedException,
 } from '@nestjs/common';
-import { INotification } from '@modules/notifications/interfaces/request/interface';
-import { VkService } from '@modules/vk/services/service';
-import { VkEmitPatternEnum } from '@modules/vk/enums';
-import { PlatformEnum } from '@shared/interfaces';
-import { NotificationLogService } from '@modules/notifications/services/notification-log/service';
-import { NotificationLogStatusEnum } from '@modules/notifications/interfaces';
-import { normalizeError } from '@shared/utils/errors';
-import { IdentityService } from '@modules/identity/services/service';
 
 @Injectable()
 export class NotificationService {

@@ -1,10 +1,10 @@
-import { IdentityExistsQuery } from '@modules/identity/queries/exists/query';
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { IdentityDTO } from '@modules/identity/dtos';
-import { Inject, Injectable } from '@nestjs/common';
-import { type IIdentityRepositoryPort } from '@modules/identity/interfaces';
 import { IDENTITY_REPOSITORY } from '@modules/identity/constants/constants';
+import { IdentityDTO } from '@modules/identity/dtos';
+import { type IIdentityRepositoryPort } from '@modules/identity/interfaces';
 import { IdentityMapper } from '@modules/identity/mappres/mapper';
+import { IdentityExistsQuery } from '@modules/identity/queries/exists/query';
+import { Inject, Injectable } from '@nestjs/common';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 @QueryHandler(IdentityExistsQuery)
 export class IdentityExistsQueryHandler implements IQueryHandler<IdentityExistsQuery> {

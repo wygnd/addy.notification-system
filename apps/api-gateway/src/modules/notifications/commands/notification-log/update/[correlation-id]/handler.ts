@@ -1,8 +1,8 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { NotificationLogUpdateByCorrelationIdCommand } from './command';
+import { NOTIFICATION_LOG_REPOSITORY } from '@modules/notifications/constants';
 import { type INotificationLogRepositoryPort } from '@modules/notifications/interfaces';
 import { Inject } from '@nestjs/common';
-import { NOTIFICATION_LOG_REPOSITORY } from '@modules/notifications/constants';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { NotificationLogUpdateByCorrelationIdCommand } from './command';
 
 @CommandHandler(NotificationLogUpdateByCorrelationIdCommand)
 export class NotificationLogUpdateByCorrelationIdCommandHandler implements ICommandHandler<NotificationLogUpdateByCorrelationIdCommand> {

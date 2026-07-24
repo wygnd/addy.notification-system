@@ -1,14 +1,18 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { normalizeError } from '@shared/utils';
-import { NotificationPatternEnum, NotificationResultEnum } from '@shared/enums';
-import { VkNotificationProvider } from '@modules/vk/providers/provider';
-import { PlatformEnum } from '@shared/interfaces';
-import { RmqContext } from '@nestjs/microservices';
 import {
+  normalizeError,
+  NotificationLogStatusEnum,
+  NotificationResultEnum,
+  PlatformEnum,
   VkCheckClientInGroupPayload,
   VkSendMessagePayload,
-} from '@modules/vk/interfaces';
-import { VkGroupService, VkMessageService } from '@modules/vk/services';
+} from '@addy/common';
+import '@modules/vk/interfaces';
+import { VkNotificationProvider } from '@modules/vk/providers/provider';
+import { Injectable, Logger } from '@nestjs/common';
+import { RmqContext } from '@nestjs/microservices';
+import { Channel, Message } from 'amqplib';
+import { VkGroupService } from './group';
+import { VkMessageService } from './message';
 
 @Injectable()
 export class VkService {
@@ -24,8 +28,8 @@ export class VkService {
     context: RmqContext,
     handler: () => Promise<T>,
   ): Promise<void> {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
+    const channel = context.getChannelRef() as Channel;
+    const originalMsg = context.getMessage() as Message;
 
     try {
       await handler();
@@ -40,8 +44,8 @@ export class VkService {
     context: RmqContext,
     handler: () => Promise<T>,
   ): Promise<T> {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
+    const channel = context.getChannelRef() as Channel;
+    const originalMsg = context.getMessage() as Message;
 
     try {
       const response = await handler();
@@ -58,18 +62,21 @@ export class VkService {
    * Отправляет событие обратно продюсеру через отдельную очередь
    * @param correlationId
    * @param status
+   * @param errMessage
    */
   public async sendMessageResult(
     correlationId: string,
-    status: NotificationResultEnum,
+    status: NotificationLogStatusEnum,
+    errMessage?: string,
   ): Promise<void> {
     try {
       await this.vkNotificationProvider.emit(
-        NotificationPatternEnum.SEND_RESULT,
+        NotificationResultEnum.SEND_RESULT,
         {
           correlationId: correlationId,
           channel: PlatformEnum.VK,
           status: status,
+          errorMessage: errMessage,
         },
       );
     } catch (error) {
@@ -80,8 +87,9 @@ export class VkService {
   private async handleSendMessage(data: VkSendMessagePayload) {
     const { correlationId, userId, text } = data;
     try {
-      const isAllowedSendMessage =
-        await this.vkGroupService.isAllowSendMessage(userId);
+      const isAllowedSendMessage = await this.vkGroupService.isAllowSendMessage(
+        Number(userId),
+      );
 
       if (!isAllowedSendMessage) {
         throw new Error('User not receive messages from groups');
@@ -89,21 +97,22 @@ export class VkService {
 
       await this.sendMessageResult(
         correlationId,
-        NotificationResultEnum.PROCESSING,
+        NotificationLogStatusEnum.PROCESSING,
       );
 
       await this.vkMessageService.sendMessage(userId, text);
 
       await this.sendMessageResult(
         correlationId,
-        NotificationResultEnum.COMPLETED,
+        NotificationLogStatusEnum.COMPLETED,
       );
     } catch (error) {
       const { message } = normalizeError(error);
 
       await this.sendMessageResult(
         correlationId,
-        NotificationResultEnum.FAILED,
+        NotificationLogStatusEnum.FAILED,
+        message,
       );
     }
   }

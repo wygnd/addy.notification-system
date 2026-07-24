@@ -1,8 +1,8 @@
-import { NestFastifyApplication } from '@nestjs/platform-fastify';
+import { RequestMethod } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
-import { RequestMethod } from '@nestjs/common';
 
 export const setupAppDocs = (app: NestFastifyApplication): void => {
   app.setGlobalPrefix('api', {
@@ -11,8 +11,10 @@ export const setupAppDocs = (app: NestFastifyApplication): void => {
 
   const config = app.get(ConfigService);
   const title =
-    config.get('SWAGGER_DOCS_TITLE', { infer: true }) ?? 'Api Gateway Documentation';
-  const description = config.get('SWAGGER_DOCS_DESCRIPTION', { infer: true }) ?? '';
+    config.get('SWAGGER_DOCS_TITLE', { infer: true }) ??
+    'Api Gateway Documentation';
+  const description =
+    config.get('SWAGGER_DOCS_DESCRIPTION', { infer: true }) ?? '';
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle(title)

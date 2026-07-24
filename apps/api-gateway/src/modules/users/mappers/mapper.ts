@@ -1,6 +1,6 @@
+import { PlatformEnum } from '@addy/common';
 import { UserConnectRequestDTO } from '@modules/users/dtos';
 import { IUserConnectFields } from '@modules/users/interfaces';
-import { PlatformEnum } from '@shared/interfaces';
 
 export class UserMapper {
   public static toDomainModel(dto: UserConnectRequestDTO): IUserConnectFields {

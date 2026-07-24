@@ -1,9 +1,9 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { NotificationLogGetByCorrelationIdQuery } from '@modules/notifications/queries/notification-log/[correlation-id]/query';
-import { type INotificationLogRepositoryPort } from '@modules/notifications/interfaces';
-import { Inject } from '@nestjs/common';
 import { NOTIFICATION_LOG_REPOSITORY } from '@modules/notifications/constants';
+import { type INotificationLogRepositoryPort } from '@modules/notifications/interfaces';
 import { NotificationLogMapper } from '@modules/notifications/mappers';
+import { NotificationLogGetByCorrelationIdQuery } from '@modules/notifications/queries/notification-log/[correlation-id]/query';
+import { Inject } from '@nestjs/common';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 @QueryHandler(NotificationLogGetByCorrelationIdQuery)
 export class NotificationLogGetByCorrelationIdQueryHandler implements IQueryHandler<NotificationLogGetByCorrelationIdQuery> {

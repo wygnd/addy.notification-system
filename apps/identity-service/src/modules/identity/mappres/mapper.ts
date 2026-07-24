@@ -1,5 +1,5 @@
-import { IdentityModel } from '@modules/identity/models';
 import { IdentityDTO } from '@modules/identity/dtos';
+import { IdentityModel } from '@modules/identity/models';
 import { plainToClass } from 'class-transformer';
 
 export class IdentityMapper {

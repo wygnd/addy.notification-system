@@ -1,15 +1,15 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { NotificationModule } from '@modules/notifications/module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { TransformSuccessResponseInterceptor } from '@shared/interceptors';
-import { HealthModule } from '@modules/health/module';
-import { VkModule } from '@modules/vk/module';
-import { IdentityModule } from '@modules/identity/module';
 import { DatabaseModule } from '@modules/database/module';
-import { CqrsModule } from '@nestjs/cqrs';
+import { HealthModule } from '@modules/health/module';
+import { IdentityModule } from '@modules/identity/module';
+import { NotificationModule } from '@modules/notifications/module';
 import { RedisModule } from '@modules/redis/module';
 import { UsersModule } from '@modules/users/module';
+import { VkModule } from '@modules/vk/module';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { CqrsModule } from '@nestjs/cqrs';
+import { TransformSuccessResponseInterceptor } from '@shared/interceptors';
 import { RpcExceptionInterceptor } from '@shared/interceptors/exception';
 
 @Module({

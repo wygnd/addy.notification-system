@@ -1,4 +1,6 @@
-import { PlatformEnum } from '@shared/interfaces';
+import { PlatformEnum } from '@addy/common';
+import { HasVkId } from '@modules/vk/validators';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsIn,
   IsNotEmpty,
@@ -6,8 +8,6 @@ import {
   IsString,
   Validate,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { HasVkId } from '@modules/vk/validators';
 
 export class UserConnectRequestDTO {
   @ApiProperty({

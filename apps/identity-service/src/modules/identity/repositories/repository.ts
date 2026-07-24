@@ -1,13 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { PlatformEnum } from '@addy/common';
 import {
-  IdentityStatusEnum,
   IIdentityRepositoryPort,
   TIdentityCreationEntity,
 } from '@modules/identity/interfaces';
 import { IdentityModel } from '@modules/identity/models';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { PlatformEnum } from '@shared/enums';
-import { Op } from 'sequelize';
 
 @Injectable()
 export class IdentityRepository implements IIdentityRepositoryPort {
@@ -27,6 +25,18 @@ export class IdentityRepository implements IIdentityRepositoryPort {
     return this.repo.findOne({
       where: {
         externalUserId: userId,
+        platform: platform,
+      },
+    });
+  }
+
+  public async existsOnPlatform(
+    platformUserId: string,
+    platform: PlatformEnum,
+  ): Promise<IdentityModel | null> {
+    return this.repo.findOne({
+      where: {
+        platformUserId: platformUserId,
         platform: platform,
       },
     });

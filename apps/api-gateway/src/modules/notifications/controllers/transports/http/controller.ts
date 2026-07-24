@@ -1,13 +1,15 @@
+import { NotificationRequestDTO } from '@modules/notifications/dtos';
+import { NotificationService } from '@modules/notifications/services/service';
 import {
+  BadRequestException,
   Body,
   Controller,
-  Post,
   Headers,
-  BadRequestException,
+  HttpCode,
+  HttpStatus,
+  Post,
 } from '@nestjs/common';
-import { NotificationService } from '@modules/notifications/services/service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { NotificationRequestDTO } from '@modules/notifications/dtos';
 
 @ApiTags('Notifications')
 @Controller({
@@ -18,6 +20,7 @@ export class NotificationControllerV1 {
   constructor(private readonly notificationService: NotificationService) {}
 
   @ApiOperation({ summary: 'Отправка уведомления' })
+  @HttpCode(HttpStatus.ACCEPTED)
   @Post()
   public async receiveNotification(
     @Headers('host') host: string,

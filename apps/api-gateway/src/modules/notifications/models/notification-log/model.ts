@@ -1,3 +1,8 @@
+import { NotificationLogStatusEnum, PlatformEnum } from '@addy/common';
+import {
+  INotificationLogCreateEntity,
+  INotificationLogEntity,
+} from '@modules/notifications/interfaces';
 import {
   Column,
   CreatedAt,
@@ -6,12 +11,6 @@ import {
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
-import {
-  INotificationLogCreateEntity,
-  INotificationLogEntity,
-  NotificationLogStatusEnum,
-} from '@modules/notifications/interfaces';
-import { PlatformEnum } from '@shared/interfaces';
 
 @Table({
   tableName: 'notification_logs',

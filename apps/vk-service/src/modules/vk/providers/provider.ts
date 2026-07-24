@@ -1,3 +1,5 @@
+import { INotificationResultMap, NotificationResultEnum } from '@addy/common';
+import { NOTIFICATION_RABBITMQ_SERVICE_RESULT } from '@modules/vk/constants/constants';
 import {
   Inject,
   Injectable,
@@ -5,10 +7,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { NOTIFICATION_RABBITMQ_SERVICE_RESULT } from '@modules/vk/constants/constants';
 import { firstValueFrom } from 'rxjs';
-import { INotificationEmitMap } from '@shared/interfaces';
-import { NotificationPatternEnum } from '@shared/enums';
 
 @Injectable()
 export class VkNotificationProvider implements OnModuleInit, OnModuleDestroy {
@@ -25,9 +24,9 @@ export class VkNotificationProvider implements OnModuleInit, OnModuleDestroy {
     await this.client.close();
   }
 
-  public async emit<T extends NotificationPatternEnum>(
+  public async emit<T extends NotificationResultEnum>(
     pattern: T,
-    data: INotificationEmitMap[T],
+    data: INotificationResultMap[T],
   ): Promise<void> {
     await firstValueFrom(this.client.emit(pattern, data));
   }

@@ -1,10 +1,10 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { IdentityAddCommand } from './comman';
 import { IDENTITY_REPOSITORY } from '@modules/identity/constants/constants';
-import { Inject } from '@nestjs/common';
+import { IdentityDTO } from '@modules/identity/dtos';
 import { type IIdentityRepositoryPort } from '@modules/identity/interfaces';
 import { IdentityMapper } from '@modules/identity/mappres/mapper';
-import { IdentityDTO } from '@modules/identity/dtos';
+import { Inject } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { IdentityAddCommand } from './comman';
 
 @CommandHandler(IdentityAddCommand)
 export class IdentityAddCommandHandler implements ICommandHandler<IdentityAddCommand> {

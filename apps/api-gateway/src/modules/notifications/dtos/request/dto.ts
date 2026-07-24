@@ -1,8 +1,10 @@
+import { PlatformEnum } from '@addy/common';
 import {
   INotificationRequest,
   type INotificationRequestPayload,
 } from '@modules/notifications/interfaces/request/interface';
-import { PlatformEnum } from '@shared/interfaces';
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsIn,
   IsInt,
@@ -11,8 +13,6 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 
 export class NotificationRequestPayloadDTO implements INotificationRequestPayload {
   @ApiProperty({

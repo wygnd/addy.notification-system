@@ -1,9 +1,6 @@
-import {
-  INotificationLogEntity,
-  NotificationLogStatusEnum,
-} from '@modules/notifications/interfaces';
-import { PlatformEnum } from '@shared/interfaces';
-import { VkEmitPatternEnum } from '@modules/vk/enums';
+import { NotificationLogStatusEnum, VkEmitPatternEnum } from '@addy/common';
+import { PlatformEnum } from '@addy/common';
+import { INotificationLogEntity } from '@modules/notifications/interfaces';
 import { Expose } from 'class-transformer';
 
 export class NotificationLogDTO implements INotificationLogEntity {

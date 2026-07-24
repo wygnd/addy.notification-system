@@ -1,7 +1,7 @@
-import { NestFactory } from '@nestjs/core';
 import { AppModule } from '@modules/module';
-import { Transport } from '@nestjs/microservices';
 import { Logger } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { Transport } from '@nestjs/microservices';
 import { ExceptionsToRpcFilter } from '@shared/exceptions';
 
 async function bootstrap() {

@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { VkController } from './controllers/controller';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { NOTIFICATION_RABBITMQ_SERVICE_RESULT } from '@modules/vk/constants/constants';
 import { vkProviders } from '@modules/vk/providers';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { VkController } from './controllers/controller';
 
 @Module({
   imports: [

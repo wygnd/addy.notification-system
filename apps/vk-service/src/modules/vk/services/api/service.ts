@@ -1,8 +1,8 @@
+import { normalizeError } from '@addy/common';
+import { IVkApiPort, VkApiMethods } from '@modules/vk/interfaces';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import VkBot from 'node-vk-bot-api';
-import { normalizeError } from '@shared/utils';
-import { IVkApiPort, VkApiMethods } from '@modules/vk/interfaces';
 
 @Injectable()
 export class VkApiService implements IVkApiPort {

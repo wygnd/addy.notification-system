@@ -1,3 +1,4 @@
+import { isRpcError } from '@addy/common';
 import {
   CallHandler,
   ExecutionContext,
@@ -8,7 +9,6 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { catchError, Observable, TimeoutError } from 'rxjs';
-import { isRpcError } from '@shared/types';
 
 @Injectable()
 export class RpcExceptionInterceptor implements NestInterceptor {

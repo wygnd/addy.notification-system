@@ -1,4 +1,2 @@
-export interface INormalizeError {
-  code: number;
-  message: string;
-}
+export * from './normalize';
+export * from './rpc';

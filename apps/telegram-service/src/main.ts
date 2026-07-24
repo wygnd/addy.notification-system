@@ -1,10 +1,10 @@
-import { NestFactory } from '@nestjs/core';
 import { AppModule } from '@modules/module';
-import { ExceptionsToRpcFilter } from '@shared/exceptions';
+import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { ExceptionsToRpcFilter } from '@shared/exceptions';
 import { connectAndStartAppMicroservices } from './common/microservices';
 
 async function bootstrap() {

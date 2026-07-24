@@ -1,3 +1,5 @@
+import { PlatformEnum } from '@addy/common';
+import { UserConnectRequestDTO } from '@modules/users/dtos';
 import {
   registerDecorator,
   ValidationArguments,
@@ -5,8 +7,6 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { UserConnectRequestDTO } from '@modules/users/dtos';
-import { PlatformEnum } from '@shared/interfaces';
 
 @ValidatorConstraint({ name: 'hasVkId', async: false })
 class HasVkIdConstraint implements ValidatorConstraintInterface {

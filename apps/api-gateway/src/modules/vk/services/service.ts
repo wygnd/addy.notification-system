@@ -1,7 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {
+  IVkEventEmitMap,
+  IVkSendMessageMap,
+  VkEmitPatternEnum,
+  VkSendPatternEnum,
+} from '@addy/common';
 import { VkProvider } from '@modules/vk/providers/provider';
-import { VkEmitPatternEnum, VkSendPatternEnum } from '@modules/vk/enums';
-import { IVkEventEmitMap, IVkSendMessageMap } from '@modules/vk/interfaces';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class VkService {

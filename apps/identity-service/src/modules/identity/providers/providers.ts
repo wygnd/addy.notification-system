@@ -1,8 +1,9 @@
-import { IDENTITY_REPOSITORY } from '@modules/identity/constants/constants';
-import { IdentityRepository } from '@modules/identity/repositories/repository';
 import { IdentityAddCommandHandler } from '@modules/identity/commands';
-import { IdentityService } from '@modules/identity/services/service';
+import { IDENTITY_REPOSITORY } from '@modules/identity/constants/constants';
 import { IdentityExistsQueryHandler } from '@modules/identity/queries/exists/handler';
+import { IdentityExitsPlatformQueryHandler } from '@modules/identity/queries/exists/platform/handler';
+import { IdentityRepository } from '@modules/identity/repositories/repository';
+import { IdentityService } from '@modules/identity/services/service';
 
 export const identityProviders = [
   // SERVICES
@@ -19,4 +20,5 @@ export const identityProviders = [
 
   // QUERY HANDLERS
   IdentityExistsQueryHandler,
+  IdentityExitsPlatformQueryHandler,
 ];

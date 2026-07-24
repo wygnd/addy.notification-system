@@ -1,17 +1,17 @@
-import { NestFactory } from '@nestjs/core';
+import { setupAppCors } from '@common/cors';
+import { setupAppDocs } from '@common/documentation';
+import { setupAppFilters } from '@common/filters';
+import { connectAppMicroservices } from '@common/microservices';
+import { setupAppPipes } from '@common/pipes';
+import { setupAppVersioning } from '@common/versioning';
 import { AppModule } from '@modules/module';
+import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { setupAppDocs } from '@common/documentation';
-import { setupAppVersioning } from '@common/versioning';
-import { setupAppPipes } from '@common/pipes';
-import { setupAppCors } from '@common/cors';
-import { setupAppFilters } from '@common/filters';
-import { connectAppMicroservices } from '@common/microservices';
 
 async function bootstrap() {
   const adapter = new FastifyAdapter();

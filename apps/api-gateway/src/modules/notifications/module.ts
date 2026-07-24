@@ -1,13 +1,13 @@
-import { Module } from '@nestjs/common';
+import { IdentityModule } from '@modules/identity/module';
 import {
   NotificationControllerV1,
   NotificationRMQController,
 } from '@modules/notifications/controllers';
-import { VkModule } from '@modules/vk/module';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { notificationProviders } from '@modules/notifications/providers';
 import { NotificationLogModel } from '@modules/notifications/models';
-import { IdentityModule } from '@modules/identity/module';
+import { notificationProviders } from '@modules/notifications/providers';
+import { VkModule } from '@modules/vk/module';
+import { Module } from '@nestjs/common';
+import { SequelizeModule } from '@nestjs/sequelize';
 
 @Module({
   imports: [

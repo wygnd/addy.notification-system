@@ -1,10 +1,4 @@
-import { PlatformEnum } from '@shared/enums';
-
-export enum IdentityStatusEnum {
-  PENDING = 'pending',
-  VERIFIED = 'verified',
-  REVOKED = 'revoked',
-}
+import { IdentityStatusEnum, PlatformEnum } from '@addy/common';
 
 export interface IIdentityEntity {
   id: string;

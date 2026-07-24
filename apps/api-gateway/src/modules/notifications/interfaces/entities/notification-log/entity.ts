@@ -1,15 +1,5 @@
-import { PlatformEnum } from '@shared/interfaces';
-import { Optional } from '@shared/types';
-
-export enum NotificationLogStatusEnum {
-  RECEIVED = 'received',
-  QUEUED = 'queued',
-  SENT_TO_BROKER = 'sent_to_broker',
-  PROCESSING = 'processing',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-  UNKNOWN = 'unknown',
-}
+import { NotificationLogStatusEnum, Optional } from '@addy/common';
+import { PlatformEnum } from '@addy/common';
 
 export interface INotificationLogEntity {
   id: string;

@@ -2,8 +2,8 @@ import {
   INotificationLogCreateEntity,
   INotificationLogRepositoryPort,
 } from '@modules/notifications/interfaces';
-import { Injectable } from '@nestjs/common';
 import { NotificationLogModel } from '@modules/notifications/models';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()

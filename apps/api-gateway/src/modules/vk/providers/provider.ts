@@ -1,14 +1,18 @@
 import {
+  IVkEventEmitMap,
+  IVkSendMessageMap,
+  VkEmitPatternEnum,
+  VkSendPatternEnum,
+} from '@addy/common';
+import { VK_RABBITMQ_SERVICE } from '@modules/vk/constants/constants';
+import {
   Inject,
   Injectable,
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { VK_RABBITMQ_SERVICE } from '@modules/vk/constants/constants';
 import { catchError, firstValueFrom, timeout } from 'rxjs';
-import { VkEmitPatternEnum, VkSendPatternEnum } from '@modules/vk/enums';
-import { IVkEventEmitMap, IVkSendMessageMap } from '@modules/vk/interfaces';
 
 @Injectable()
 export class VkProvider implements OnModuleInit, OnModuleDestroy {

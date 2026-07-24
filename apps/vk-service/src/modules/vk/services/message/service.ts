@@ -1,6 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { type IVkApiPort } from '@modules/vk/interfaces';
 import { VK_API_SERVICE } from '@modules/vk/constants';
+import { type IVkApiPort } from '@modules/vk/interfaces';
+import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class VkMessageService {

@@ -1,10 +1,10 @@
+import { NOTIFICATION_LOG_REPOSITORY } from '@modules/notifications/constants';
+import { NotificationLogDTO } from '@modules/notifications/dtos/entities/notification-log/dto';
+import { type INotificationLogRepositoryPort } from '@modules/notifications/interfaces';
+import { NotificationLogMapper } from '@modules/notifications/mappers';
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotificationLogAddCommand } from './command';
-import { type INotificationLogRepositoryPort } from '@modules/notifications/interfaces';
-import { NOTIFICATION_LOG_REPOSITORY } from '@modules/notifications/constants';
-import { Inject } from '@nestjs/common';
-import { NotificationLogDTO } from '@modules/notifications/dtos/entities/notification-log/dto';
-import { NotificationLogMapper } from '@modules/notifications/mappers';
 
 @CommandHandler(NotificationLogAddCommand)
 export class NotificationLogAddCommandHandler implements ICommandHandler<NotificationLogAddCommand> {

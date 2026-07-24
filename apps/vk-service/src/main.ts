@@ -1,5 +1,5 @@
-import { NestFactory } from '@nestjs/core';
 import { AppModule } from '@modules/module';
+import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ExceptionsToRpcFilter } from '@shared/exceptions';
 

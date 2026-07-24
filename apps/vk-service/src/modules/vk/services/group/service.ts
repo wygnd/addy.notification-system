@@ -1,11 +1,11 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { VK_API_SERVICE } from '@modules/vk/constants';
 import { type IVkApiPort } from '@modules/vk/interfaces';
 import {
   IGroupGetMembersResponse,
   IVkMessageAllowedResponse,
 } from '@modules/vk/interfaces/api/groups';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class VkGroupService {
@@ -36,14 +36,15 @@ export class VkGroupService {
   }
 
   public async isAllowSendMessage(userId: number) {
-    const {is_allowed} = await this.vkApiService.execute<IVkMessageAllowedResponse>(
-      'messages.isMessagesFromGroupAllowed',
-      {
-        group_id: this.vkGroupId,
-        user_id: userId,
-      },
-    );
+    const { is_allowed } =
+      await this.vkApiService.execute<IVkMessageAllowedResponse>(
+        'messages.isMessagesFromGroupAllowed',
+        {
+          group_id: this.vkGroupId,
+          user_id: userId,
+        },
+      );
 
-    return is_allowed !== 0
+    return is_allowed !== 0;
   }
 }

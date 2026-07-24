@@ -1,8 +1,5 @@
-import {
-  IdentityStatusEnum,
-  IIdentityEntity,
-} from '@modules/identity/interfaces';
-import { PlatformEnum } from '@shared/enums';
+import { IdentityStatusEnum, PlatformEnum } from '@addy/common';
+import { IIdentityEntity } from '@modules/identity/interfaces';
 import { Expose } from 'class-transformer';
 
 export class IdentityDTO implements IIdentityEntity {

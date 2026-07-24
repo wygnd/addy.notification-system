@@ -1,28 +1,38 @@
 import {
-  ConflictException,
-  Injectable,
-  MethodNotAllowedException,
-  NotFoundException,
-} from '@nestjs/common';
-import { RmqContext } from '@nestjs/microservices';
+  IIdentityMessageExistsClientPlatformPayload,
+  IIdentityMessageExistsClientPlatformResponse,
+  normalizeError,
+  PlatformEnum,
+} from '@addy/common';
 import {
   IdentityStatusEnum,
   IIdentityMessageCheckConnectPayload,
   IIdentityMessageCheckConnectResponse,
   IIdentityMessageSendConnectPayloadFields,
   IIdentityMessageSendConnectResponse,
-  TIdentityCreationEntity,
-} from '@modules/identity/interfaces';
-import { PlatformEnum } from '@shared/enums';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+} from '@addy/common';
 import { IdentityAddCommand } from '@modules/identity/commands';
+import { TIdentityCreationEntity } from '@modules/identity/interfaces';
+import { IdentityExistsPlatformQuery } from '@modules/identity/queries/exists/platform/query';
 import { IdentityExistsQuery } from '@modules/identity/queries/exists/query';
+import { REDIS_KEYS } from '@modules/redis/constants/constants';
+import { RedisService } from '@modules/redis/services/service';
+import {
+  ConflictException,
+  Injectable,
+  MethodNotAllowedException,
+  NotFoundException,
+} from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { RmqContext } from '@nestjs/microservices';
+import { randomInt } from 'node:crypto';
 
 @Injectable()
 export class IdentityService {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly redisService: RedisService,
   ) {}
 
   private async handleEmitWithAck<T>(
@@ -95,8 +105,25 @@ export class IdentityService {
       new IdentityAddCommand(identityCreationFields),
     );
 
+    if (platform === PlatformEnum.VK) {
+      return {
+        message: `Client was connected to ${platform}`,
+      };
+    }
+
+    const code = randomInt(100000, 999999);
+
+    await this.redisService.set(
+      REDIS_KEYS.OTP + `${platform}:${userId}`,
+      code,
+      5 * 60,
+    );
+
+    // todo
+
     return {
-      message: `Клиент подключен к ${platform}`,
+      message: `Waiting client connection until 5 minutes on ${platform}`,
+      code: code,
     };
   }
 
@@ -121,8 +148,10 @@ export class IdentityService {
       throw new MethodNotAllowedException('User was revoked');
     }
 
-    if(!client.platformUserId) {
-      throw new MethodNotAllowedException('User not matched with platform user account');
+    if (!client.platformUserId) {
+      throw new MethodNotAllowedException(
+        'User not matched with platform user account',
+      );
     }
 
     return {
@@ -131,6 +160,43 @@ export class IdentityService {
     };
   }
 
+  private async checkClientPlatformExists(
+    data: IIdentityMessageExistsClientPlatformPayload,
+  ): Promise<IIdentityMessageExistsClientPlatformResponse> {
+    try {
+      const { platform, platformUserId } = data;
+
+      const client = await this.queryBus.execute(
+        new IdentityExistsPlatformQuery(platformUserId, platform),
+      );
+
+      if (!client) {
+        throw new Error('User not found');
+      }
+
+      if (client.status === IdentityStatusEnum.PENDING) {
+        throw new Error('User not verified');
+      }
+
+      if (client.status === IdentityStatusEnum.REVOKED) {
+        throw new Error('User was revoked');
+      }
+
+      return {
+        status: true,
+        message: 'User successfully found',
+      };
+    } catch (error) {
+      const { message } = normalizeError(error);
+
+      return {
+        status: false,
+        message: message,
+      };
+    }
+  }
+
+  /* ========================== PUBLIC HANDLERS ========================== */
   public async handleConnectClient(
     context: RmqContext,
     data: IIdentityMessageSendConnectPayloadFields,
@@ -144,6 +210,15 @@ export class IdentityService {
   ) {
     return this.handleSendWithAck(context, () =>
       this.checkClientConnection(data),
+    );
+  }
+
+  public async handleCheckClientPlatformExists(
+    context: RmqContext,
+    data: IIdentityMessageExistsClientPlatformPayload,
+  ) {
+    return this.handleSendWithAck(context, () =>
+      this.checkClientPlatformExists(data),
     );
   }
 }

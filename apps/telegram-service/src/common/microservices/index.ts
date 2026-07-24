@@ -1,6 +1,6 @@
-import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export const connectAndStartAppMicroservices = async (
   app: NestFastifyApplication,
@@ -11,7 +11,7 @@ export const connectAndStartAppMicroservices = async (
     transport: Transport.RMQ,
     options: {
       urls: [config.getOrThrow<string>('RABBITMQ_URL')],
-      queue: config.getOrThrow<string>('RABBIT_MQ_QUEUE_NAME'),
+      queue: config.getOrThrow<string>('RABBITMQ_QUEUE_NAME'),
       queueOptions: {
         durable: true,
         autoDelete: false,

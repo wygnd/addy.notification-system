@@ -1,5 +1,5 @@
-import { Command } from '@nestjs/cqrs';
 import { INotificationLogCreateEntity } from '@modules/notifications/interfaces';
+import { Command } from '@nestjs/cqrs';
 
 export class NotificationLogUpdateByCorrelationIdCommand extends Command<boolean> {
   constructor(

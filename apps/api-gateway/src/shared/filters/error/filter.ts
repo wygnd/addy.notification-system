@@ -1,6 +1,6 @@
+import { normalizeError } from '@addy/common';
 import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
-import { normalizeError } from '@shared/utils/errors';
 
 @Catch()
 export class TransformErrorFilter implements ExceptionFilter {
@@ -8,7 +8,7 @@ export class TransformErrorFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost) {
     const context = host.switchToHttp();
-    const response = context.getResponse() as FastifyReply;
+    const response = context.getResponse();
 
     const { code, message } = normalizeError(exception);
 

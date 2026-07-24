@@ -1,8 +1,9 @@
+import { RedisModule } from '@modules/redis/module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { IdentityModule } from './identity/module';
-import { DatabaseModule } from './database/module';
 import { CqrsModule } from '@nestjs/cqrs';
+import { DatabaseModule } from './database/module';
+import { IdentityModule } from './identity/module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { CqrsModule } from '@nestjs/cqrs';
     CqrsModule.forRoot(),
     DatabaseModule,
     IdentityModule,
+    RedisModule,
   ],
 })
 export class AppModule {}

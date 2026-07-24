@@ -1,5 +1,5 @@
-import { notificationLogProviders } from './notification-log/providers';
 import { NotificationService } from '@modules/notifications/services';
+import { notificationLogProviders } from './notification-log/providers';
 import { notificationResultProviders } from './result/providers';
 
 export const notificationProviders = [

@@ -1,12 +1,10 @@
+import { NotificationLogStatusEnum } from '@addy/common';
+import { NotificationLogUpdateByCorrelationIdCommand } from '@modules/notifications/commands/notification-log';
+import { NotificationLogAddCommand } from '@modules/notifications/commands/notification-log/add/command';
+import { INotificationLogCreateEntity } from '@modules/notifications/interfaces';
+import { NotificationLogGetByCorrelationIdQuery } from '@modules/notifications/queries/notification-log/[correlation-id]/query';
 import { Injectable } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import {
-  INotificationLogCreateEntity,
-  NotificationLogStatusEnum,
-} from '@modules/notifications/interfaces';
-import { NotificationLogAddCommand } from '@modules/notifications/commands/notification-log/add/command';
-import { NotificationLogGetByCorrelationIdQuery } from '@modules/notifications/queries/notification-log/[correlation-id]/query';
-import { NotificationLogUpdateByCorrelationIdCommand } from '@modules/notifications/commands/notification-log';
 
 @Injectable()
 export class NotificationLogService {

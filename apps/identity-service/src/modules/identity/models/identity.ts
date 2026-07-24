@@ -1,3 +1,8 @@
+import { IdentityStatusEnum, PlatformEnum } from '@addy/common';
+import {
+  IIdentityEntity,
+  TIdentityCreationEntity,
+} from '@modules/identity/interfaces';
 import {
   Column,
   CreatedAt,
@@ -6,12 +11,6 @@ import {
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
-import {
-  IdentityStatusEnum,
-  IIdentityEntity,
-  TIdentityCreationEntity,
-} from '@modules/identity/interfaces';
-import { PlatformEnum } from '@shared/enums';
 
 @Table({
   tableName: 'platform_identities',

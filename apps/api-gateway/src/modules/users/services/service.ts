@@ -1,25 +1,22 @@
-import {
-  BadRequestException,
-  HttpException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  MethodNotAllowedException,
-} from '@nestjs/common';
+import { IVkSendMessageResponseMap, VkSendPatternEnum } from '@addy/common';
+import { PlatformEnum } from '@addy/common';
+import { IdentityService } from '@modules/identity/services/service';
+import { REDIS_KEYS } from '@modules/redis/constants/constants';
+import { RedisService } from '@modules/redis/services/service';
 import {
   IUserBlock,
   IUserCode,
   IUserConnectFields,
 } from '@modules/users/interfaces';
-import { PlatformEnum } from '@shared/interfaces';
-import { VkService } from '@modules/vk/services/service';
-import { normalizeError } from '@shared/utils/errors';
-import { VkSendPatternEnum } from '@modules/vk/enums';
 import { IUserConnectResponse } from '@modules/users/interfaces/connect/response';
-import { IVkSendMessageResponseMap } from '@modules/vk/interfaces';
-import { IdentityService } from '@modules/identity/services/service';
-import { RedisService } from '@modules/redis/services/service';
-import { REDIS_KEYS } from '@modules/redis/constants/constants';
+import { VkService } from '@modules/vk/services/service';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  MethodNotAllowedException,
+} from '@nestjs/common';
 
 @Injectable()
 export class UserService {

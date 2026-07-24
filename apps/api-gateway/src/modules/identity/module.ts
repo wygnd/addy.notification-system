@@ -1,19 +1,18 @@
-import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { IDENTITY_RABBITMQ_SERVICE } from '@modules/identity/constants/constants';
+import { IDENTITY_SERVICE } from '@modules/identity/constants/constants';
 import { IdentityProvider } from '@modules/identity/providers/provider';
 import { IdentityService } from '@modules/identity/services/service';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
     ClientsModule.registerAsync({
       clients: [
         {
-          name: IDENTITY_RABBITMQ_SERVICE,
+          name: IDENTITY_SERVICE,
           inject: [ConfigService],
           useFactory: (configService: ConfigService) => ({
-            name: IDENTITY_RABBITMQ_SERVICE,
             transport: Transport.RMQ,
             options: {
               urls: [configService.getOrThrow<string>('RABBITMQ_URL')],

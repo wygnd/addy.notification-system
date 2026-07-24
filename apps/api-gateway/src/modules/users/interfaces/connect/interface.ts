@@ -1,4 +1,4 @@
-import { PlatformEnum } from '@shared/interfaces';
+import { PlatformEnum } from '@addy/common';
 
 export interface IUserConnectBase {
   userId: string;
