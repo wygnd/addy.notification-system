@@ -12,7 +12,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 export class UserControllerV1 {
   constructor(private readonly userService: UserService) {}
 
-  @ApiOperation({ summary: 'Отправить запрос на подключение пользователя' })
+  @ApiOperation({ summary: 'Подключение пользователя' })
   @Post('connect')
   public async connectUser(@Body() body: UserConnectRequestDTO) {
     return this.userService.connectUser(UserMapper.toDomainModel(body));

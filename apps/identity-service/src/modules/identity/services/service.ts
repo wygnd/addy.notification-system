@@ -119,8 +119,6 @@ export class IdentityService {
       5 * 60,
     );
 
-    // todo
-
     return {
       message: `Waiting client connection until 5 minutes on ${platform}`,
       code: code,
