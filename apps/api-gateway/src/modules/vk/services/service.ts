@@ -1,6 +1,7 @@
 import {
   IVkEventEmitMap,
   IVkSendMessageMap,
+  IVkSendMessageResponseMap,
   VkEmitPatternEnum,
   VkSendPatternEnum,
 } from '@addy/common';
@@ -14,17 +15,29 @@ export class VkService {
   /**
    * Отправляет событие в VK Service
    */
-  public async emitEvent<T extends VkEmitPatternEnum = VkEmitPatternEnum>(
+  private async emit<T extends VkEmitPatternEnum = VkEmitPatternEnum>(
     pattern: T,
     data: IVkEventEmitMap[T],
   ): Promise<void> {
     return this.vkProvider.emit(pattern, data);
   }
 
-  public async sendMessage<T, U extends VkSendPatternEnum = VkSendPatternEnum>(
+  private async send<T, U extends VkSendPatternEnum = VkSendPatternEnum>(
     pattern: U,
     data: IVkSendMessageMap[U],
-  ): Promise<T> {
+  ): Promise<IVkSendMessageResponseMap[U]> {
     return this.vkProvider.send(pattern, data);
+  }
+
+  public async sendMessage(
+    data: IVkEventEmitMap[VkEmitPatternEnum.SEND_MESSAGE],
+  ): Promise<void> {
+    await this.vkProvider.emit(VkEmitPatternEnum.SEND_MESSAGE, data);
+  }
+
+  public async clientInGroup(
+    data: IVkSendMessageMap[VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP],
+  ) {
+    return this.send(VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP, data);
   }
 }

@@ -1,6 +1,5 @@
 import { normalizeError } from '@addy/common';
 import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
-import { FastifyReply } from 'fastify';
 
 @Catch()
 export class TransformErrorFilter implements ExceptionFilter {

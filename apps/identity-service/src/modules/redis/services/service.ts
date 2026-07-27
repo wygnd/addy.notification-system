@@ -10,7 +10,7 @@ export class RedisService {
     private readonly redisClient: Redis,
   ) {}
 
-  async set<T>(key: string, value: T, ttlSecond?: number) {
+  public async set<T>(key: string, value: T, ttlSecond?: number) {
     try {
       ttlSecond
         ? await this.redisClient.set(
@@ -29,7 +29,7 @@ export class RedisService {
     }
   }
 
-  async get<T>(key: string): Promise<T | null> {
+  public async get<T>(key: string): Promise<T | null> {
     const data = await this.redisClient.get(key);
 
     if (!data) return null;
@@ -37,7 +37,15 @@ export class RedisService {
     return isJSON(data) ? (JSON.parse(data) as T) : (data as T);
   }
 
-  async del(key: string) {
+  public async del(key: string) {
     return this.redisClient.del(key);
+  }
+
+  public async incr(key: string) {
+    return this.redisClient.incr(key);
+  }
+
+  public async expire(key: string, seconds: number) {
+    await this.redisClient.expire(key, seconds);
   }
 }

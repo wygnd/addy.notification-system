@@ -15,4 +15,15 @@ export class IdentityService {
       },
     );
   }
+
+  public async verifyCode(userId: string, code: string) {
+    return this.identityProvider.send<IdentitySendPatternEnum.VERIFY_CONNECT>(
+      IdentitySendPatternEnum.VERIFY_CONNECT,
+      {
+        platform: PlatformEnum.TELEGRAM,
+        platformUserId: userId,
+        code: code,
+      },
+    );
+  }
 }

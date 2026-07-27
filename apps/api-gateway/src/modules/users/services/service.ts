@@ -1,4 +1,8 @@
-import { IVkSendMessageResponseMap, VkSendPatternEnum } from '@addy/common';
+import {
+  IIdentityMessageSendConnectResponse,
+  IVkSendMessageResponseMap,
+  VkSendPatternEnum,
+} from '@addy/common';
 import { PlatformEnum } from '@addy/common';
 import { IdentityService } from '@modules/identity/services/service';
 import { REDIS_KEYS } from '@modules/redis/constants/constants';
@@ -32,53 +36,7 @@ export class UserService {
     request: IUserConnectFields,
   ): Promise<IUserConnectResponse> {
     const { userId, platform } = request;
-    const keyTail = `${platform}:${userId}`,
-      redisKeyUserBlock = REDIS_KEYS.OTP_BLOCK + keyTail,
-      redisKeyUserCode = REDIS_KEYS.OTP_CODE + keyTail;
-    let response: IUserConnectResponse | null = null;
-    const [userWasBlocked, userAttempts] = await Promise.all([
-      this.redisService.get<IUserBlock>(redisKeyUserBlock),
-      this.redisService.get<IUserCode>(redisKeyUserCode),
-    ]);
-
-    if (userWasBlocked) {
-      throw new MethodNotAllowedException(
-        'User was blocked on 15 minutes. ' +
-          `Next attempts is available on ${new Date(userWasBlocked.blockedAt + 15 * 60 * 60).toISOString()}`,
-      );
-    }
-
-    if (userAttempts) {
-      if (userAttempts.attempts > 2) {
-        this.redisService.set<IUserBlock>(
-          redisKeyUserBlock,
-          {
-            blockedAt: Date.now(),
-            reason: 'max_attempts',
-          },
-          15 * 60,
-        );
-
-        throw new MethodNotAllowedException(
-          'User was blocked on 15 minutes. ' +
-            `Next attempt is available on ${new Date(Date.now() + 15 * 60 * 60).toISOString()}`,
-        );
-      } else {
-        this.redisService.set<IUserCode>(redisKeyUserCode, {
-          code: userAttempts.code,
-          attempts: userAttempts.attempts + 1,
-          createdAt: userAttempts.createdAt,
-        });
-      }
-    }
-
-    if (!userAttempts) {
-      this.redisService.set<IUserCode>(redisKeyUserCode, {
-        code: '',
-        attempts: 1,
-        createdAt: Date.now(),
-      });
-    }
+    let response: IIdentityMessageSendConnectResponse | null = null;
 
     switch (request.platform) {
       case PlatformEnum.VK:
@@ -94,51 +52,34 @@ export class UserService {
         throw new MethodNotAllowedException();
     }
 
-    if (!response && platform === PlatformEnum.VK) {
-      Promise.all([
-        this.redisService.del(redisKeyUserCode),
-        this.redisService.del(redisKeyUserBlock),
-      ]);
-
-      return {
-        message: `Client was successfully connected to ${platform}`,
-      };
-    }
-
-    if (!response || !response.code) {
+    if (!response || response.platform === PlatformEnum.UNKNOWN) {
       throw new InternalServerErrorException(
         `Invalid create code for ${platform}`,
       );
     }
 
-    let newUserAttempts: IUserCode;
+    if (!response.status) {
+      throw new BadRequestException(response.message);
+    }
 
-    if (userAttempts) {
-      newUserAttempts = {
-        code: response.code.toString(),
-        attempts: userAttempts.attempts + 1,
-        createdAt: userAttempts.createdAt,
-      };
-    } else {
-      newUserAttempts = {
-        code: response.code.toString(),
-        attempts: 0,
-        createdAt: Date.now(),
+    if (response.platform === PlatformEnum.VK) {
+      return {
+        message: `Client was successfully connected to ${platform}`,
       };
     }
 
-    this.redisService.set(redisKeyUserCode, newUserAttempts, 5 * 60);
+    if (response.platform === PlatformEnum.MAX) {
+      throw new MethodNotAllowedException();
+    }
 
     return {
       code: response.code,
-      message: 'Код сгенерирован',
+      message: 'Code was successfully generated',
     };
   }
 
   private async connectUserToVK(userId: string, vkUserId: string) {
-    const response = await this.vkService.sendMessage<
-      IVkSendMessageResponseMap[VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP]
-    >(VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP, {
+    const response = await this.vkService.clientInGroup({
       userId: vkUserId,
     });
 

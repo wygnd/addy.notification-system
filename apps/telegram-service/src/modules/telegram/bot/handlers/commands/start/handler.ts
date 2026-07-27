@@ -5,13 +5,12 @@ import { Context, InlineKeyboard } from 'grammy';
 
 @Injectable()
 export class TelegramBotStartCommandHandler implements ITelegramCommandHandler {
-  readonly command = 'start';
+  public readonly command = 'start';
   private readonly helloText = 'Ну приветикс';
 
   constructor(private readonly identityService: IdentityService) {}
 
   public async handle(ctx: Context): Promise<void> {
-    console.time(`Start receive message: ${ctx.message?.message_id}`);
     if (!ctx.from?.id) {
       await ctx.reply(this.helloText);
       return;
@@ -22,19 +21,15 @@ export class TelegramBotStartCommandHandler implements ITelegramCommandHandler {
       ctx.from.id.toString(),
     );
 
-    // Если нашли, отправляем приветственное письмо без кнопки
-    if (existUser.status) {
-      await ctx.reply(this.helloText);
-      return;
+    let inlineKeyboard: InlineKeyboard | undefined = undefined;
+
+    // Если не нашли пользователя, отправляем приветственное письмо с кнопкой
+    if (!existUser.status) {
+      inlineKeyboard = new InlineKeyboard().text('Авторизация', 'data');
     }
-
-    // todo
-
-    const inlineKeyboard = new InlineKeyboard().text('Авторизация', 'data');
 
     await ctx.reply(this.helloText, {
       reply_markup: inlineKeyboard,
     });
-    console.timeEnd(`Start receive message: ${ctx.message?.message_id}`);
   }
 }

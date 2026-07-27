@@ -1,4 +1,4 @@
-import { PlatformEnum, VkEmitPatternEnum } from '@src/enums';
+import { VkEmitPatternEnum } from '@src/enums';
 
 export interface IVkEventEmitMap {
   [VkEmitPatternEnum.SEND_MESSAGE]: VkSendMessagePayload;

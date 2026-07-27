@@ -1,3 +1,4 @@
+import { OtpModule } from '@modules/opt/module';
 import { RedisModule } from '@modules/redis/module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -12,6 +13,7 @@ import { IdentityModule } from './identity/module';
     DatabaseModule,
     IdentityModule,
     RedisModule,
+    OtpModule,
   ],
 })
 export class AppModule {}

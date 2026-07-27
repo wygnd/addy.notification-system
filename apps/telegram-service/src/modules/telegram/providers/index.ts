@@ -2,7 +2,9 @@ import {
   TelegramBotRegistrator,
   TelegramBotStartCommandHandler,
 } from '@modules/telegram/bot';
+import { TelegramBotConnectCommandHandler } from '@modules/telegram/bot/handlers/commands/connect/handler';
 import { TELEGRAM_BOT } from '@modules/telegram/constants';
+import { TelegramNotificationProvider } from '@modules/telegram/providers/provider';
 import {
   TelegramBotApiService,
   TelegramService,
@@ -37,7 +39,14 @@ export const TelegramProviders = [
     },
   },
 
+  // COMMANDS
   TelegramBotStartCommandHandler,
+  TelegramBotConnectCommandHandler,
+
+  // PROVIDERS
+  TelegramNotificationProvider,
+
+  // SERVICES
   TelegramBotRegistrator,
   TelegramBotApiService,
   TelegramService,

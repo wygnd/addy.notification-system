@@ -1,4 +1,5 @@
 import { TelegramBotStartCommandHandler } from '@modules/telegram/bot';
+import { TelegramBotConnectCommandHandler } from '@modules/telegram/bot/handlers/commands/connect/handler';
 import { TELEGRAM_BOT } from '@modules/telegram/constants';
 import { ITelegramCommandHandler } from '@modules/telegram/interfaces';
 import { Inject, Injectable, Logger } from '@nestjs/common';
@@ -13,8 +14,10 @@ export class TelegramBotRegistrator {
     @Inject(TELEGRAM_BOT)
     private readonly bot: Bot,
     private readonly startHandler: TelegramBotStartCommandHandler,
+    private readonly connectHandler: TelegramBotConnectCommandHandler,
   ) {
     this.commandHandlerList.push(this.startHandler);
+    this.commandHandlerList.push(this.connectHandler);
   }
 
   public register(): void {

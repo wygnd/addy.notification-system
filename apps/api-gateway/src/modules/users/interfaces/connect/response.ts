@@ -1,4 +1,4 @@
 export interface IUserConnectResponse {
-  code?: number;
+  code?: string;
   message: string;
 }

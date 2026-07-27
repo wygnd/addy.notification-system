@@ -7,6 +7,7 @@ export interface IVkSendMessageMap {
 
 export interface IVkSendMessageResponseMap {
   [VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP]: VkCheckClientInGroupResponse;
+  [VkSendPatternEnum.SEND_CONNECT_CLIENT]: {};
 }
 
 export interface VkCheckClientInGroupPayload {

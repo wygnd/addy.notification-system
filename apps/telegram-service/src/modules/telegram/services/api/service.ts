@@ -27,6 +27,10 @@ export class TelegramBotApiService
     const useWebhook =
       this.configService.getOrThrow<string>('TELEGRAM_USE_WEBHOOK') === 'true';
 
+    this.bot.catch((err) => {
+      this.logger.error(`Bot error: ${err.message}`);
+    });
+
     this.telegramBotRegistrator.register();
 
     if (useWebhook) {
@@ -53,11 +57,6 @@ export class TelegramBotApiService
         },
       });
     }
-
-    this.bot.catch((err) => {
-      this.logger.error(`Bot error: ${err.message}`);
-    });
-
   }
 
   public async onModuleDestroy(): Promise<void> {

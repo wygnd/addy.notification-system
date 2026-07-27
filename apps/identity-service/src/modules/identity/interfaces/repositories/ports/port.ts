@@ -9,4 +9,8 @@ export interface IIdentityRepositoryPort {
     platformUserId: string,
     platform: PlatformEnum,
   ): Promise<IdentityModel | null>;
+  update(
+    id: string,
+    updateFields: Partial<TIdentityCreationEntity>,
+  ): Promise<boolean>;
 }

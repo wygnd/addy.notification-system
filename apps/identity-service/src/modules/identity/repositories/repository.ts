@@ -41,4 +41,15 @@ export class IdentityRepository implements IIdentityRepositoryPort {
       },
     });
   }
+
+  public async update(
+    id: string,
+    updateFields: Partial<TIdentityCreationEntity>,
+  ): Promise<boolean> {
+    const updated = await this.repo.update(updateFields, {
+      where: { id: id },
+    });
+
+    return updated[0] > 0;
+  }
 }

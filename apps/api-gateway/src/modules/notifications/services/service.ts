@@ -7,6 +7,7 @@ import { PlatformEnum } from '@addy/common';
 import { IdentityService } from '@modules/identity/services/service';
 import { INotification } from '@modules/notifications/interfaces/request/interface';
 import { NotificationLogService } from '@modules/notifications/services/notification-log/service';
+import { TelegramService } from '@modules/telegram/services/service';
 import { VkService } from '@modules/vk/services/service';
 import {
   ConflictException,
@@ -23,6 +24,7 @@ export class NotificationService {
     private readonly vkService: VkService,
     private readonly notificationLogService: NotificationLogService,
     private readonly identityService: IdentityService,
+    private readonly telegramService: TelegramService,
   ) {}
 
   /**
@@ -55,7 +57,15 @@ export class NotificationService {
     try {
       switch (fields.platform) {
         case PlatformEnum.VK:
-          await this.vkService.emitEvent(VkEmitPatternEnum.SEND_MESSAGE, {
+          await this.vkService.sendMessage({
+            text: fields.payload.text,
+            userId: clientId,
+            correlationId: requestId,
+          });
+          break;
+
+        case PlatformEnum.TELEGRAM:
+          await this.telegramService.sendMessage({
             text: fields.payload.text,
             userId: clientId,
             correlationId: requestId,

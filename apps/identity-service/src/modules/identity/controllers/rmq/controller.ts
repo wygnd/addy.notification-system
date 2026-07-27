@@ -38,4 +38,22 @@ export class IdentityRMQController {
   ) {
     return this.identityService.handleCheckClientPlatformExists(context, data);
   }
+
+  @MessagePattern(IdentitySendPatternEnum.VERIFY_CONNECT)
+  public async verifyClientConnection(
+    @Payload()
+    data: IIdentitySendMessageMap[IdentitySendPatternEnum.VERIFY_CONNECT],
+    @Ctx() context: RmqContext,
+  ) {
+    return this.identityService.handleVerifyClientConnection(context, data);
+  }
+
+  @MessagePattern(IdentitySendPatternEnum.DISCONNECT)
+  public async disconnectClientAccount(
+    @Payload()
+    data: IIdentitySendMessageMap[IdentitySendPatternEnum.DISCONNECT],
+    @Ctx() context: RmqContext,
+  ) {
+    return this.identityService.handleDisconnectAccount(context, data);
+  }
 }
