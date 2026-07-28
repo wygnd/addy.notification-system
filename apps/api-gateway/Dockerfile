@@ -11,6 +11,7 @@ COPY apps/api-gateway/package.json ./apps/api-gateway/
 COPY libs/common/package.json ./libs/common/
 
 RUN corepack enable
+RUN pnpm --filter @addy/common install --frozen-lockfile
 RUN pnpm --filter @addy/api-gateway install --frozen-lockfile
 
 COPY apps/api-gateway ./apps/api-gateway
