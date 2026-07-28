@@ -9,6 +9,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 # Копируем файлы сервиса
 COPY apps/api-gateway/package.json ./apps/api-gateway/
 
+RUN corepack enable
 RUN pnpm --filter @addy/api-gateway install --frozen-lockfile
 
 COPY apps/api-gateway ./apps/api-gateway
@@ -29,6 +30,7 @@ COPY --from=builder /app/libs/common/package.json ./libs/common/
 # Копируем корневые файлы
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
+RUN corepack enable
 RUN pnpm --filter @addy/api-gateway install --frozen-lockfile --prod
 
 EXPOSE 3000
