@@ -25,14 +25,13 @@ api-gateway ──(RabbitMQ)──▶ vk-service ──(VK API)──▶ ВКо�
 
 ## Переменные окружения
 
-| Переменная                   | Описание                                | Пример                           |
-|------------------------------|-----------------------------------------|----------------------------------|
-| `PORT`                       | Порт HTTP-сервера (для callback/health) | `3002`                           |
-| `RABBITMQ_URL`               | Строка подключения к RabbitMQ           | `amqp://user:pass@rabbitmq:5672` |
-| `RABBITMQ_QUEUE_NAME`        | Строка подключения к RabbitMQ           | `notify.vk`                      |
-| `RABBITMQ_QUEUE_NAME_RESULT` | Строка подключения к RabbitMQ           | `notify.result`                  |
-| `VK_BOT_API_KEY`             | Токен сообщества VK (Bots API)          | —                                |
-| `VK_ADDY_GROUP_ID`           | ID сообщества VK                        | —                                |
+| Переменная                   | Описание                       | Пример                           |
+|------------------------------|--------------------------------|----------------------------------|
+| `RABBITMQ_URL`               | Строка подключения к RabbitMQ  | `amqp://user:pass@rabbitmq:5672` |
+| `RABBITMQ_QUEUE_NAME`        | Строка подключения к RabbitMQ  | `notify.vk`                      |
+| `RABBITMQ_QUEUE_NAME_RESULT` | Строка подключения к RabbitMQ  | `notify.result`                  |
+| `VK_BOT_API_KEY`             | Токен сообщества VK (Bots API) | —                                |
+| `VK_ADDY_GROUP_ID`           | ID сообщества VK               | —                                |
 
 См. `.env.example` для полного списка.
 

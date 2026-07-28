@@ -3,28 +3,33 @@ LABEL authors="wygnd"
 
 WORKDIR /app
 
-RUN npm config set registry https://registry.npmmirror.com && \
-    npm install -g pnpm@11.3.0
+# Копируем корневые файлы
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-RUN pnpm install --frozen-lockfile
+# Копируем файлы сервиса
+COPY apps/api-gateway/package.json ./apps/api-gateway/
 
-COPY . .
-ENV CI=true
-RUN pnpm run build
+RUN pnpm --filter @addy/api-gateway install --frozen-lockfile
+
+COPY apps/api-gateway ./apps/api-gateway
+COPY libs/common ./libs/common
+
+RUN pnpm --filter @addy/common run build
+RUN pnpm --filter @addy/api-gateway run build
 
 FROM node:24-alpine AS production
 
 WORKDIR /app
 
-RUN npm config set registry https://registry.npmmirror.com && \
-    npm install -g pnpm@11.3.0
+COPY --from=builder /app/apps/api-gateway/dist ./dist
+COPY --from=builder /app/apps/api-gateway/package.json ./
+COPY --from=builder /app/libs/common/dist ./libs/common/dist
+COPY --from=builder /app/libs/common/package.json ./libs/common/
 
-ENV CI=true
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-RUN pnpm install --frozen-lockfile --prod
+# Копируем корневые файлы
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-COPY --from=builder /app/dist ./dist
+RUN pnpm --filter @addy/api-gateway install --frozen-lockfile --prod
 
 EXPOSE 3000
 
