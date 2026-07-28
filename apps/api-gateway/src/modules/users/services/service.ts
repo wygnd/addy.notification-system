@@ -1,23 +1,16 @@
 import {
+  AppException,
+  ErrorCodeEnum,
   IIdentityMessageSendConnectResponse,
-  IVkSendMessageResponseMap,
-  VkSendPatternEnum,
 } from '@addy/common';
 import { PlatformEnum } from '@addy/common';
 import { IdentityService } from '@modules/identity/services/service';
-import { REDIS_KEYS } from '@modules/redis/constants/constants';
-import { RedisService } from '@modules/redis/services/service';
-import {
-  IUserBlock,
-  IUserCode,
-  IUserConnectFields,
-} from '@modules/users/interfaces';
+import { IUserConnectFields } from '@modules/users/interfaces';
 import { IUserConnectResponse } from '@modules/users/interfaces/connect/response';
 import { VkService } from '@modules/vk/services/service';
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   MethodNotAllowedException,
 } from '@nestjs/common';
@@ -29,7 +22,6 @@ export class UserService {
   constructor(
     private readonly vkService: VkService,
     private readonly identityService: IdentityService,
-    private readonly redisService: RedisService,
   ) {}
 
   public async connectUser(
@@ -44,7 +36,6 @@ export class UserService {
         break;
 
       case PlatformEnum.TELEGRAM:
-      case PlatformEnum.MAX:
         response = await this.identityService.connectClient(request);
         break;
 
@@ -52,30 +43,14 @@ export class UserService {
         throw new MethodNotAllowedException();
     }
 
-    if (!response || response.platform === PlatformEnum.UNKNOWN) {
-      throw new InternalServerErrorException(
-        `Invalid create code for ${platform}`,
+    if (!response) {
+      throw new AppException(
+        ErrorCodeEnum.INTERNAL_ERROR,
+        `Не удалось подключить пользователя к ${platform}`,
       );
     }
 
-    if (!response.status) {
-      throw new BadRequestException(response.message);
-    }
-
-    if (response.platform === PlatformEnum.VK) {
-      return {
-        message: `Client was successfully connected to ${platform}`,
-      };
-    }
-
-    if (response.platform === PlatformEnum.MAX) {
-      throw new MethodNotAllowedException();
-    }
-
-    return {
-      code: response.code,
-      message: 'Code was successfully generated',
-    };
+    return response;
   }
 
   private async connectUserToVK(userId: string, vkUserId: string) {

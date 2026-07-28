@@ -16,6 +16,9 @@ import { SequelizeModule } from '@nestjs/sequelize';
         autoLoadModels: true,
         synchronize: true,
         logging: false,
+        sync: {
+          alter: true,
+        },
       }),
       imports: [ConfigModule],
     }),

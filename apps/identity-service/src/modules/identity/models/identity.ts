@@ -18,11 +18,6 @@ import {
   underscored: true,
   indexes: [
     {
-      name: 'idx_platform_identities_external_user',
-      fields: ['external_user_id', 'platform'],
-      unique: true,
-    },
-    {
       name: 'idx_platform_identities_platform_user',
       fields: ['platform', 'platform_user_id'],
       unique: true,

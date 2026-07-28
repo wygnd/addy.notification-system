@@ -36,6 +36,7 @@ export interface IIdentityMessageSendConnectResponseBase {
 export interface IIdentityMessageSendConnectResponseTelegram extends IIdentityMessageSendConnectResponseBase {
   platform: PlatformEnum.TELEGRAM;
   code?: string;
+  connectionLink?: string;
 }
 
 export interface IIdentityMessageSendConnectResponseVK extends IIdentityMessageSendConnectResponseBase {

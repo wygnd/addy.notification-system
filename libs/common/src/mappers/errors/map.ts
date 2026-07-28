@@ -20,6 +20,10 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
     status: HttpStatus.METHOD_NOT_ALLOWED,
     message: 'Пользователь не подключен',
   },
+  [ErrorCodeEnum.USER_WAS_CONNECTING_TO_PLATFORM]: {
+    status: HttpStatus.BAD_REQUEST,
+    message: 'Пользователь уже подключен к площадке',
+  },
 
   /* ======================= NOTIFICATIONS ======================= */
   [ErrorCodeEnum.NOTIFICATION_NOT_FOUND]: {
@@ -59,5 +63,9 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
   [ErrorCodeEnum.REQUEST_TIMEOUT]: {
     status: HttpStatus.REQUEST_TIMEOUT,
     message: 'Превышено время ожидания ответа',
+  },
+  [ErrorCodeEnum.NOT_ALLOWED]: {
+    status: HttpStatus.METHOD_NOT_ALLOWED,
+    message: 'Метод недоступен',
   },
 };

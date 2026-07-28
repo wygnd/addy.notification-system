@@ -26,4 +26,15 @@ export class IdentityService {
       },
     );
   }
+
+  public async confirmTokenConnect(userId: string, token: string) {
+    return this.identityProvider.send<IdentitySendPatternEnum.CONFIRM_CONNECT>(
+      IdentitySendPatternEnum.CONFIRM_CONNECT,
+      {
+        platform: PlatformEnum.TELEGRAM,
+        platformUserId: userId,
+        code: token,
+      },
+    );
+  }
 }

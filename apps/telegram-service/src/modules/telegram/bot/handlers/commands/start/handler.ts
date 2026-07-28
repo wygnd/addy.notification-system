@@ -1,7 +1,7 @@
 import { IdentityService } from '@modules/identity/services/service';
 import { ITelegramCommandHandler } from '@modules/telegram/interfaces';
 import { Injectable } from '@nestjs/common';
-import { Context, InlineKeyboard } from 'grammy';
+import { Context } from 'grammy';
 
 @Injectable()
 export class TelegramBotStartCommandHandler implements ITelegramCommandHandler {
@@ -16,20 +16,36 @@ export class TelegramBotStartCommandHandler implements ITelegramCommandHandler {
       return;
     }
 
-    // Отправляем запрос в сервис, чтобы узнать, подключался ли пользователь
-    const existUser = await this.identityService.checkClientPlatform(
-      ctx.from.id.toString(),
-    );
+    const userId = ctx.from.id.toString();
 
-    let inlineKeyboard: InlineKeyboard | undefined = undefined;
+    // Отправляем запрос в сервис, чтобы узнать, подключался ли пользователь
+    const existUser = await this.identityService.checkClientPlatform(userId);
+
+    let message = this.helloText + '\n';
 
     // Если не нашли пользователя, отправляем приветственное письмо с кнопкой
     if (!existUser.status) {
-      inlineKeyboard = new InlineKeyboard().text('Авторизация', 'data');
+      const token = ctx.match as string;
+
+      if (!token) {
+        await ctx.reply(
+          this.helloText +
+            '\n' +
+            'Чтобы подключить аккаунт, перейдите по ссылке из личного кабинета или введите команду /connect <КОД>',
+        );
+        return;
+      }
+
+      const { status, message: resultMessage } =
+        await this.identityService.confirmTokenConnect(userId, token);
+
+      if (status) {
+        message += resultMessage;
+      } else {
+        message += 'Не удалось подключить аккаунт. Попробуйте чуть позже!';
+      }
     }
 
-    await ctx.reply(this.helloText, {
-      reply_markup: inlineKeyboard,
-    });
+    await ctx.reply(message);
   }
 }

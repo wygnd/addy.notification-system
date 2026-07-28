@@ -17,6 +17,7 @@ import {
 export interface IIdentitySendMessageMap {
   [IdentitySendPatternEnum.SEND_CONNECT]: IIdentityMessageSendConnectPayloadFields;
   [IdentitySendPatternEnum.VERIFY_CONNECT]: IIdentityMessageVerifyConnectPayload;
+  [IdentitySendPatternEnum.CONFIRM_CONNECT]: IIdentityMessageVerifyConnectPayload;
   [IdentitySendPatternEnum.CHECK_CONNECT]: IIdentityMessageCheckConnectPayload;
   [IdentitySendPatternEnum.EXISTS_CLIENT_PLATFORM]: IIdentityMessageExistsClientPlatformPayload;
   [IdentitySendPatternEnum.DISCONNECT]: IIdentityMessageDisconnectPayload;
@@ -25,6 +26,7 @@ export interface IIdentitySendMessageMap {
 export interface IIdentitySendMessageResponseMap {
   [IdentitySendPatternEnum.SEND_CONNECT]: IIdentityMessageSendConnectResponse;
   [IdentitySendPatternEnum.VERIFY_CONNECT]: IIdentityMessageVerifyConnectResponse;
+  [IdentitySendPatternEnum.CONFIRM_CONNECT]: IIdentityMessageVerifyConnectResponse;
   [IdentitySendPatternEnum.CHECK_CONNECT]: IIdentityMessageCheckConnectResponse;
   [IdentitySendPatternEnum.EXISTS_CLIENT_PLATFORM]: IIdentityMessageExistsClientPlatformResponse;
   [IdentitySendPatternEnum.DISCONNECT]: IIdentityMessageDisconnectResponse;
