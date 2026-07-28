@@ -6,10 +6,11 @@ WORKDIR /app
 # Копируем корневые файлы
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Копируем файлы сервиса
+# Копируем файлы сервисов
 COPY apps/api-gateway/package.json ./apps/api-gateway/
+COPY libs/common/package.json ./libs/common/
 
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
 RUN pnpm --filter @addy/api-gateway install --frozen-lockfile
 
 COPY apps/api-gateway ./apps/api-gateway
@@ -22,17 +23,17 @@ FROM node:24-alpine AS production
 
 WORKDIR /app
 
-COPY --from=builder /app/apps/api-gateway/dist ./dist
-COPY --from=builder /app/apps/api-gateway/package.json ./
-COPY --from=builder /app/libs/common/dist ./libs/common/dist
-COPY --from=builder /app/libs/common/package.json ./libs/common/
-
 # Копируем корневые файлы
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
-RUN corepack enable
+COPY --from=builder /app/apps/api-gateway/package.json ./apps/api-gateway/
+COPY --from=builder /app/apps/api-gateway/dist ./apps/api-gateway/dist
+COPY --from=builder /app/libs/common/package.json ./libs/common/
+COPY --from=builder /app/libs/common/dist ./libs/common/dist
+
+RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
 RUN pnpm --filter @addy/api-gateway install --frozen-lockfile --prod
 
 EXPOSE 3000
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "apps/api-gateway/dist/main.js"]
