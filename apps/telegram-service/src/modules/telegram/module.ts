@@ -1,4 +1,5 @@
 import { IdentityModule } from '@modules/identity/module';
+import { NOTIFICATION_RABBITMQ_SERVICE_RESULT } from '@modules/telegram/constants';
 import {
   TelegramHttpControllerV1,
   TelegramRMQController,
@@ -7,7 +8,6 @@ import { TelegramProviders } from '@modules/telegram/providers';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { NOTIFICATION_RABBITMQ_SERVICE_RESULT } from '@modules/telegram/constants';
 
 @Module({
   imports: [

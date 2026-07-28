@@ -9,11 +9,15 @@ export class TransformErrorFilter implements ExceptionFilter {
     const context = host.switchToHttp();
     const response = context.getResponse();
 
-    const { code, message } = normalizeError(exception);
+    const { code, statusCode, message } = normalizeError(exception);
 
-    response.status(code).send({
+    if (statusCode >= 500) {
+      this.logger.fatal(exception);
+    }
+
+    response.status(statusCode).send({
       ok: false,
-      err_code: code, // fixme
+      err_code: code,
       err_detail: message,
       timestamp: new Date().toISOString(),
     });

@@ -21,6 +21,12 @@ export class NotificationResultService {
 
     if (status === NotificationLogStatusEnum.FAILED && errorMessage) {
       updateFields.errorMessage = errorMessage;
+      updateFields.completedAt = null;
+    }
+
+    if (status === NotificationLogStatusEnum.COMPLETED) {
+      updateFields.completedAt = new Date().toISOString();
+      updateFields.errorMessage = null;
     }
 
     await this.commandBus.execute(

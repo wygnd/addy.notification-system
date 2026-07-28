@@ -1,4 +1,6 @@
 import {
+  AppRpcException,
+  ErrorCodeEnum,
   IdentityStatusEnum,
   IIdentityMessageCheckConnectPayload,
   IIdentityMessageCheckConnectResponse,
@@ -18,18 +20,15 @@ import { TIdentityCreationEntity } from '@modules/identity/interfaces';
 import { IdentityExistsPlatformQuery } from '@modules/identity/queries/exists/platform/query';
 import { IdentityExistsQuery } from '@modules/identity/queries/exists/query';
 import { OtpService } from '@modules/opt/services/service';
-import { REDIS_KEYS } from '@modules/redis/constants/constants';
 import { RedisService } from '@modules/redis/services/service';
 import {
   ConflictException,
   Injectable,
   MethodNotAllowedException,
-  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { RmqContext } from '@nestjs/microservices';
-import { randomBytes } from 'node:crypto';
 
 @Injectable()
 export class IdentityService {
@@ -172,21 +171,19 @@ export class IdentityService {
     );
 
     if (!client) {
-      throw new NotFoundException('User not found');
+      throw new AppRpcException(ErrorCodeEnum.USER_NOT_FOUND);
     }
 
     if (client.status === IdentityStatusEnum.PENDING) {
-      throw new MethodNotAllowedException('User not verified');
+      throw new AppRpcException(ErrorCodeEnum.USER_NOT_VERIFIED);
     }
 
     if (client.status === IdentityStatusEnum.REVOKED) {
-      throw new MethodNotAllowedException('User was revoked');
+      throw new AppRpcException(ErrorCodeEnum.USER_WAS_REVOKED);
     }
 
     if (!client.platformUserId) {
-      throw new MethodNotAllowedException(
-        'User not matched with platform user account',
-      );
+      throw new AppRpcException(ErrorCodeEnum.USER_NOT_MATCHED);
     }
 
     return {
@@ -198,37 +195,28 @@ export class IdentityService {
   private async checkClientPlatformExists(
     data: IIdentityMessageExistsClientPlatformPayload,
   ): Promise<IIdentityMessageExistsClientPlatformResponse> {
-    try {
-      const { platform, platformUserId } = data;
+    const { platform, platformUserId } = data;
 
-      const client = await this.queryBus.execute(
-        new IdentityExistsPlatformQuery(platformUserId, platform),
-      );
+    const client = await this.queryBus.execute(
+      new IdentityExistsPlatformQuery(platformUserId, platform),
+    );
 
-      if (!client) {
-        throw new Error('User not found');
-      }
-
-      if (client.status === IdentityStatusEnum.PENDING) {
-        throw new Error('User not verified');
-      }
-
-      if (client.status === IdentityStatusEnum.REVOKED) {
-        throw new Error('User was revoked');
-      }
-
-      return {
-        status: true,
-        message: 'User successfully found',
-      };
-    } catch (error) {
-      const { message } = normalizeError(error);
-
-      return {
-        status: false,
-        message: message,
-      };
+    if (!client) {
+      throw new AppRpcException(ErrorCodeEnum.USER_NOT_FOUND);
     }
+
+    if (client.status === IdentityStatusEnum.PENDING) {
+      throw new AppRpcException(ErrorCodeEnum.USER_NOT_VERIFIED);
+    }
+
+    if (client.status === IdentityStatusEnum.REVOKED) {
+      throw new AppRpcException(ErrorCodeEnum.USER_WAS_REVOKED);
+    }
+
+    return {
+      status: true,
+      message: 'User successfully found',
+    };
   }
 
   private async verifyClientConnection(
@@ -267,9 +255,7 @@ export class IdentityService {
         message: `Аккаунт подключен к ${platform}`,
       };
     } catch (error) {
-      const { code, message } = normalizeError(error);
-
-      console.log(code, message);
+      const { message } = normalizeError(error);
 
       return {
         status: false,

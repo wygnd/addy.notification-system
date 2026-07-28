@@ -11,6 +11,7 @@ export interface INotificationLogEntity {
   errorMessage: string | null;
   userId: string;
   source: string | null;
+  retryCount: number;
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;
@@ -18,5 +19,5 @@ export interface INotificationLogEntity {
 
 export type INotificationLogCreateEntity = Optional<
   Omit<INotificationLogEntity, 'id' | 'updatedAt' | 'createdAt'>,
-  'errorMessage' | 'source' | 'completedAt'
+  'errorMessage' | 'source' | 'retryCount' | 'completedAt'
 >;

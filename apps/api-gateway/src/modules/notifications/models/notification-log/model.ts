@@ -80,6 +80,13 @@ export class NotificationLogModel extends Model<
   declare userId: string;
 
   @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+  })
+  declare retryCount: number;
+
+  @Column({
     type: DataType.DATE,
     allowNull: true,
   })

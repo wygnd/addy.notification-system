@@ -1,4 +1,7 @@
+import { ErrorCodeEnum } from '@src/enums';
+
 export interface INormalizeError {
-  code: number;
+  statusCode: number;
+  code: ErrorCodeEnum;
   message: string;
 }

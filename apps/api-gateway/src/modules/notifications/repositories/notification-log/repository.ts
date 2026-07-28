@@ -37,4 +37,8 @@ export class NotificationLogRepository implements INotificationLogRepositoryPort
 
     return updated > 0;
   }
+
+  public async getById(id: string): Promise<NotificationLogModel | null> {
+    return this.repo.findByPk(id);
+  }
 }

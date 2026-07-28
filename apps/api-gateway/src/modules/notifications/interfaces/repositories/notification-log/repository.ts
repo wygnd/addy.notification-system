@@ -10,4 +10,5 @@ export interface INotificationLogRepositoryPort {
   getByCorrelationId(
     correlationId: string,
   ): Promise<NotificationLogModel | null>;
+  getById(id: string): Promise<NotificationLogModel | null>;
 }

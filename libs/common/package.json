@@ -40,6 +40,8 @@
   "dependencies": {
     "@nestjs/common": "^11.1.28",
     "@nestjs/core": "^11.1.28",
-    "axios": "^1.18.1"
+    "@nestjs/microservices": "^11.1.28",
+    "axios": "^1.18.1",
+    "node-vk-bot-api": "^3.5.0"
   }
 }

@@ -43,7 +43,6 @@ export class IdentityProvider implements OnModuleInit, OnModuleDestroy {
       this.client.send<IIdentitySendMessageResponseMap[T]>(pattern, data).pipe(
         timeout(10_000),
         catchError((err) => {
-          console.log(err);
           throw err;
         }),
       ),
