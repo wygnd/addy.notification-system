@@ -4,7 +4,7 @@ LABEL authors="wygnd"
 WORKDIR /app
 
 # Копируем корневые файлы
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Копируем файлы сервиса
 COPY apps/api-gateway/package.json ./apps/api-gateway/
@@ -27,7 +27,7 @@ COPY --from=builder /app/libs/common/dist ./libs/common/dist
 COPY --from=builder /app/libs/common/package.json ./libs/common/
 
 # Копируем корневые файлы
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
 RUN pnpm --filter @addy/api-gateway install --frozen-lockfile --prod
 
