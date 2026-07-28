@@ -3,7 +3,7 @@ services:
   # NODE SERVICES
   gateway:
     build:
-      context: ../..
+      context: ../
       dockerfile: apps/api-gateway/Dockerfile
     container_name: 'notification-system_gateway'
     env_file:
