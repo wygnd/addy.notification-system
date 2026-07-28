@@ -10,7 +10,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api-gateway/package.json ./apps/api-gateway/
 COPY libs/common/package.json ./libs/common/
 
-RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
+RUN corepack enable
 RUN pnpm --filter @addy/api-gateway install --frozen-lockfile
 
 COPY apps/api-gateway ./apps/api-gateway
@@ -31,7 +31,7 @@ COPY --from=builder /app/apps/api-gateway/dist ./apps/api-gateway/dist
 COPY --from=builder /app/libs/common/package.json ./libs/common/
 COPY --from=builder /app/libs/common/dist ./libs/common/dist
 
-RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
+RUN corepack enable
 RUN pnpm --filter @addy/api-gateway install --frozen-lockfile --prod
 
 EXPOSE 3000
