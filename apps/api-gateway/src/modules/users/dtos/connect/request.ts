@@ -6,7 +6,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  Validate,
 } from 'class-validator';
 
 export class UserConnectRequestDTO {

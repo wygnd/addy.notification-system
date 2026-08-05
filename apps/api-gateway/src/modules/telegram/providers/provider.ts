@@ -1,10 +1,6 @@
 import {
   ITelegramEventEmitMap,
-  IVkEventEmitMap,
-  IVkSendMessageMap,
   TelegramEmitPatternEnum,
-  VkEmitPatternEnum,
-  VkSendPatternEnum,
 } from '@addy/common';
 import { TELEGRAM_RABBITMQ_SERVICE } from '@modules/telegram/constants/constants';
 import {
