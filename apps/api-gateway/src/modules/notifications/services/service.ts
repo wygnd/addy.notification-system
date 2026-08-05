@@ -16,11 +16,7 @@ import { NotificationMapper } from '@modules/notifications/mappers';
 import { NotificationLogService } from '@modules/notifications/services/notification-log/service';
 import { TelegramService } from '@modules/telegram/services/service';
 import { VkService } from '@modules/vk/services/service';
-import {
-  ConflictException,
-  Injectable,
-  MethodNotAllowedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class NotificationService {
@@ -42,7 +38,7 @@ export class NotificationService {
     const isExists = await this.notificationLogService.exists(requestId);
 
     if (isExists) {
-      throw new ConflictException('Request was handled');
+      throw new AppException(ErrorCodeEnum.NOTIFICATION_WAS_RECEIVED);
     }
 
     const { clientId } = await this.identityService.checkClientConnection({
@@ -79,7 +75,7 @@ export class NotificationService {
           break;
 
         default:
-          throw new MethodNotAllowedException('Invalid platform');
+          throw new AppException(ErrorCodeEnum.NOT_ALLOWED, 'Invalid platform');
       }
 
       await this.notificationLogService.markQueued(requestId);
@@ -157,7 +153,7 @@ export class NotificationService {
           break;
 
         default:
-          throw new MethodNotAllowedException('Invalid platform');
+          throw new AppException(ErrorCodeEnum.NOT_ALLOWED, 'Invalid platform');
       }
 
       return {

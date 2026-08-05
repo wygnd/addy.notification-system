@@ -39,7 +39,7 @@ export class OtpService {
   public async verify(identity: string, inputCode: string): Promise<string> {
     const normalizeCode = inputCode.toUpperCase().replace(/\s./g, '');
     const rateLimitRedisKey =
-      REDIS_KEYS.CLIENT_CONNECT_LIMIT + `${identity}:${inputCode}`;
+      REDIS_KEYS.CLIENT_CONNECT_VERIFY_LIMIT + `${identity}:${inputCode}`;
 
     const attempts = await this.redisService.incr(rateLimitRedisKey);
 

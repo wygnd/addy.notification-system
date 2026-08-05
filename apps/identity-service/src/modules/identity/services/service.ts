@@ -106,6 +106,16 @@ export class IdentityService {
   ): Promise<IIdentityMessageSendConnectResponse> {
     const { userId, platform } = data;
 
+    const rateLimitRedisKey =
+      REDIS_KEYS.CLIENT_CONNECT_LIMIT + `${platform}:${userId}`;
+    const connectionAttempts = await this.redisService.incr(rateLimitRedisKey);
+
+    await this.redisService.expire(rateLimitRedisKey, 300);
+
+    if (connectionAttempts > 5) {
+      throw new AppRpcException(ErrorCodeEnum.TOO_MANY_ATTEMPTS);
+    }
+
     const existsRow = await this.queryBus.execute(
       new IdentityExistsQuery(userId, platform),
     );
@@ -139,6 +149,8 @@ export class IdentityService {
     await this.commandBus.execute(
       new IdentityAddCommand(identityCreationFields),
     );
+
+    await this.redisService.del(rateLimitRedisKey);
 
     if (platform === PlatformEnum.VK) {
       return {

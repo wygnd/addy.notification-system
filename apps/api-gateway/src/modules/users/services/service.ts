@@ -8,12 +8,7 @@ import { IdentityService } from '@modules/identity/services/service';
 import { IUserConnectFields } from '@modules/users/interfaces';
 import { IUserConnectResponse } from '@modules/users/interfaces/connect/response';
 import { VkService } from '@modules/vk/services/service';
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  MethodNotAllowedException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
@@ -40,7 +35,7 @@ export class UserService {
         break;
 
       default:
-        throw new MethodNotAllowedException();
+        throw new AppException(ErrorCodeEnum.NOT_ALLOWED);
     }
 
     if (!response) {
@@ -59,7 +54,10 @@ export class UserService {
     });
 
     if (!response.status) {
-      throw new BadRequestException(response.message);
+      throw new AppException(
+        ErrorCodeEnum.SERVICE_BAD_REQUEST,
+        response.message,
+      );
     }
 
     await this.identityService.connectClient({
@@ -67,5 +65,11 @@ export class UserService {
       userId: userId,
       platformUserId: vkUserId,
     });
+  }
+
+  public async getUserByID(userId: string) {
+    if (!userId) {
+      throw new AppException(ErrorCodeEnum.USER_NOT_FOUND);
+    }
   }
 }

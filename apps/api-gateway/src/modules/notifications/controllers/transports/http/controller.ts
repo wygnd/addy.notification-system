@@ -1,8 +1,8 @@
+import { AppException, ErrorCodeEnum } from '@addy/common';
 import { NotificationRequestDTO } from '@modules/notifications/dtos';
 import { NotificationResponseDTO } from '@modules/notifications/dtos/response/dto';
 import { NotificationService } from '@modules/notifications/services/service';
 import {
-  BadRequestException,
   Body,
   Controller,
   Headers,
@@ -59,7 +59,10 @@ export class NotificationControllerV1 {
     @Body() body: NotificationRequestDTO,
   ): Promise<NotificationResponseDTO> {
     if (!requestId) {
-      throw new BadRequestException('X-Request-ID is required');
+      throw new AppException(
+        ErrorCodeEnum.VALIDATION_ERROR,
+        'X-Request-ID is required',
+      );
     }
 
     return this.notificationService.receiveNotification({

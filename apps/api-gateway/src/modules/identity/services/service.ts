@@ -25,4 +25,6 @@ export class IdentityService {
       fields,
     );
   }
+
+  public async getClientConnection(userId: string) {}
 }

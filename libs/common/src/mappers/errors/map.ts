@@ -42,12 +42,22 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
     status: HttpStatus.UNPROCESSABLE_ENTITY,
     message: 'Не удалось отправить уведомление. Пустые данные',
   },
+  [ErrorCodeEnum.NOTIFICATION_WAS_RECEIVED]: {
+    status: HttpStatus.CONFLICT,
+    message: 'Уведомление был обработано',
+  },
 
-  /* ======================= GENERAL ======================= */
+  /* ======================= SERVICE EXCEPTIONS ======================= */
   [ErrorCodeEnum.SERVICE_TIMEOUT]: {
     status: HttpStatus.GATEWAY_TIMEOUT,
     message: 'Сервис не отвечает',
   },
+  [ErrorCodeEnum.SERVICE_BAD_REQUEST]: {
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    message: 'Внутренняя ошибка сервера',
+  },
+
+  /* ======================= GENERAL ======================= */
   [ErrorCodeEnum.INTERNAL_ERROR]: {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     message: 'Непредвиденная ошибка',
