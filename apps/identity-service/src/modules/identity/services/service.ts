@@ -8,6 +8,9 @@ import {
   IIdentityMessageDisconnectResponse,
   IIdentityMessageExistsClientPlatformPayload,
   IIdentityMessageExistsClientPlatformResponse,
+  IIdentityMessageGetUserConnectionItem,
+  IIdentityMessageGetUserConnectionPayload,
+  IIdentityMessageGetUserConnectionResponse,
   IIdentityMessageSendConnectPayloadFields,
   IIdentityMessageSendConnectResponse,
   IIdentityMessageVerifyConnectPayload,
@@ -17,6 +20,7 @@ import {
 import { IdentityAddCommand } from '@modules/identity/commands';
 import { IdentityUpdateCommand } from '@modules/identity/commands/update/command';
 import { TIdentityCreationEntity } from '@modules/identity/interfaces';
+import { IdentityGetClientByExternalIDQuery } from '@modules/identity/queries/client/[external-id]';
 import { IdentityExistsPlatformQuery } from '@modules/identity/queries/exists/platform/query';
 import { IdentityExistsQuery } from '@modules/identity/queries/exists/query';
 import { OtpService } from '@modules/opt/services/service';
@@ -169,7 +173,7 @@ export class IdentityService {
         throw new AppRpcException(ErrorCodeEnum.INTERNAL_ERROR);
       }
 
-      const code = await this.otpService.create(platform);
+      const code = await this.otpService.create(platform, userId);
       const connectionToken = await this.initialTokenConnect(userId, platform);
 
       return {
@@ -267,11 +271,13 @@ export class IdentityService {
       ]);
 
       if (!identity) {
-        throw new Error('User was not found');
+        throw new AppRpcException(ErrorCodeEnum.USER_NOT_FOUND);
       }
 
       if (existing && existing.status === IdentityStatusEnum.VERIFIED) {
-        throw new Error('This account was connected to another user');
+        throw new AppRpcException(
+          ErrorCodeEnum.USER_WAS_CONNECTING_TO_PLATFORM,
+        );
       }
 
       await this.commandBus.execute(
@@ -326,11 +332,12 @@ export class IdentityService {
 
       return {
         status: true,
-        message:
-          'Аккаунт успешно подключен. Теперь, вы будете получать уведомления!',
+        message: 'Аккаунт успешно подключен.',
       };
     } catch (error) {
       const { message } = normalizeError(error);
+
+      console.log(error);
 
       return {
         status: false,
@@ -350,7 +357,7 @@ export class IdentityService {
       );
 
       if (!existing) {
-        throw new Error('Account is not connected');
+        throw new AppRpcException(ErrorCodeEnum.IDENTITY_ACCOUNT_NOT_CONNECTED);
       }
 
       await this.commandBus.execute(
@@ -373,6 +380,43 @@ export class IdentityService {
         message: message,
       };
     }
+  }
+
+  private async getClientConnections(
+    data: IIdentityMessageGetUserConnectionPayload,
+  ): Promise<IIdentityMessageGetUserConnectionResponse> {
+    const { userId } = data;
+
+    const clientPlatformList = await this.queryBus.execute(
+      new IdentityGetClientByExternalIDQuery(userId),
+    );
+
+    if (clientPlatformList.length === 0) {
+      throw new AppRpcException(ErrorCodeEnum.USER_NOT_FOUND);
+    }
+
+    const visitedPlatformSet = new Set<string>();
+    const items: IIdentityMessageGetUserConnectionItem[] = [];
+
+    for (const platform of Object.values(PlatformEnum)) {
+      if (
+        visitedPlatformSet.has(platform) ||
+        platform === PlatformEnum.UNKNOWN
+      ) {
+        continue;
+      }
+
+      const client = clientPlatformList.find((c) => c.platform === platform);
+
+      items.push({
+        platform: platform,
+        connected: !!client,
+      });
+
+      visitedPlatformSet.add(platform);
+    }
+
+    return { items };
   }
 
   /* ========================== PUBLIC HANDLERS ========================== */
@@ -425,6 +469,15 @@ export class IdentityService {
   ) {
     return this.handleSendWithAck(context, () =>
       this.disconnectClientFromPlatform(data),
+    );
+  }
+
+  public async handleGetClientConnections(
+    context: RmqContext,
+    data: IIdentityMessageGetUserConnectionPayload,
+  ) {
+    return this.handleSendWithAck(context, () =>
+      this.getClientConnections(data),
     );
   }
 }

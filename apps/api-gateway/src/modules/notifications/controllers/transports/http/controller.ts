@@ -1,5 +1,5 @@
-import { AppException, ErrorCodeEnum } from '@addy/common';
 import { NotificationRequestDTO } from '@modules/notifications/dtos';
+import { NotificationBatchRequestDTO } from '@modules/notifications/dtos/request/batch/dto';
 import { NotificationResponseDTO } from '@modules/notifications/dtos/response/dto';
 import { NotificationService } from '@modules/notifications/services/service';
 import {
@@ -31,6 +31,10 @@ export class NotificationControllerV1 {
     summary: 'Отправка уведомления',
     description: 'Добавляет отправку сообщения в очередь',
   })
+  @ApiBody({
+    type: NotificationRequestDTO,
+    required: true,
+  })
   @ApiHeader({
     name: 'host',
     description:
@@ -43,10 +47,6 @@ export class NotificationControllerV1 {
     required: true,
     example: randomUUID(),
   })
-  @ApiBody({
-    type: NotificationRequestDTO,
-    required: true,
-  })
   @ApiOkResponse({
     description: 'Успешный ответ',
     type: NotificationResponseDTO,
@@ -58,17 +58,37 @@ export class NotificationControllerV1 {
     @Headers('X-Request-ID') requestId: string,
     @Body() body: NotificationRequestDTO,
   ): Promise<NotificationResponseDTO> {
-    if (!requestId) {
-      throw new AppException(
-        ErrorCodeEnum.VALIDATION_ERROR,
-        'X-Request-ID is required',
-      );
-    }
-
     return this.notificationService.receiveNotification({
       ...body,
       requestId: requestId,
       host: host,
+    });
+  }
+
+  @ApiOperation({ summary: 'Отправка нескольких уведомлений за раз' })
+  @ApiHeader({
+    name: 'host',
+    description:
+      'Адрес хоста, с которого отправляется запрос. Заполняется автоматически',
+    required: false,
+  })
+  @ApiHeader({
+    name: 'X-Request-ID',
+    description: 'Уникальный идентификатор запроса',
+    required: true,
+    example: randomUUID(),
+  })
+  @HttpCode(HttpStatus.OK)
+  @Post('batch')
+  public async receiveBatchNotification(
+    @Headers('host') host: string,
+    @Headers('X-Request-ID') requestId: string,
+    @Body() body: NotificationBatchRequestDTO,
+  ) {
+    return this.notificationService.receiveBatchNotification({
+      ...body,
+      host,
+      requestId,
     });
   }
 }

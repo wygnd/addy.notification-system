@@ -71,5 +71,7 @@ export class UserService {
     if (!userId) {
       throw new AppException(ErrorCodeEnum.USER_NOT_FOUND);
     }
+
+    return this.identityService.getClientConnections({ userId });
   }
 }

@@ -1,4 +1,5 @@
 import { IdentityModule } from '@modules/identity/module';
+import { RedisModule } from '@modules/redis/module';
 import { NOTIFICATION_RABBITMQ_SERVICE_RESULT } from '@modules/telegram/constants';
 import {
   TelegramHttpControllerV1,
@@ -13,6 +14,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
   imports: [
     ConfigModule,
     IdentityModule,
+    RedisModule,
+
     ClientsModule.registerAsync({
       clients: [
         {

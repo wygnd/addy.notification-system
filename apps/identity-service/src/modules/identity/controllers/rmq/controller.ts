@@ -65,4 +65,13 @@ export class IdentityRMQController {
   ) {
     return this.identityService.handleDisconnectAccount(context, data);
   }
+
+  @MessagePattern(IdentitySendPatternEnum.GET_USER_CONNECTIONS)
+  public async getUserConnections(
+    @Payload()
+    data: IIdentitySendMessageMap[IdentitySendPatternEnum.GET_USER_CONNECTIONS],
+    @Ctx() context: RmqContext,
+  ) {
+    return this.identityService.handleGetClientConnections(context, data);
+  }
 }

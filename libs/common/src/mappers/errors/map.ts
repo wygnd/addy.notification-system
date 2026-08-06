@@ -44,7 +44,7 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
   },
   [ErrorCodeEnum.NOTIFICATION_WAS_RECEIVED]: {
     status: HttpStatus.CONFLICT,
-    message: 'Уведомление был обработано',
+    message: 'Уведомление было получено',
   },
 
   /* ======================= SERVICE EXCEPTIONS ======================= */
@@ -55,6 +55,12 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
   [ErrorCodeEnum.SERVICE_BAD_REQUEST]: {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     message: 'Внутренняя ошибка сервера',
+  },
+
+  /* ======================= IDENTITY EXCEPTIONS ======================= */
+  [ErrorCodeEnum.IDENTITY_ACCOUNT_NOT_CONNECTED]: {
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    message: 'Аккаунт не подключен',
   },
 
   /* ======================= GENERAL ======================= */

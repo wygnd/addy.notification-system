@@ -1,6 +1,7 @@
 import {
   IdentitySendPatternEnum,
   IIdentityMessageCheckConnectPayload,
+  IIdentityMessageGetUserConnectionPayload,
   IIdentityMessageSendConnectPayloadFields,
 } from '@addy/common';
 import { IdentityProvider } from '@modules/identity/providers/provider';
@@ -26,5 +27,12 @@ export class IdentityService {
     );
   }
 
-  public async getClientConnection(userId: string) {}
+  public async getClientConnections(
+    fields: IIdentityMessageGetUserConnectionPayload,
+  ) {
+    return this.identityProvider.send(
+      IdentitySendPatternEnum.GET_USER_CONNECTIONS,
+      fields,
+    );
+  }
 }

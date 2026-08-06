@@ -4,6 +4,8 @@ import {
   IIdentityMessageCheckConnectResponse,
   IIdentityMessageDisconnectPayload,
   IIdentityMessageDisconnectResponse,
+  IIdentityMessageGetUserConnectionPayload,
+  IIdentityMessageGetUserConnectionResponse,
   IIdentityMessageSendConnectPayloadFields,
   IIdentityMessageSendConnectResponse,
   IIdentityMessageVerifyConnectPayload,
@@ -21,6 +23,7 @@ export interface IIdentitySendMessageMap {
   [IdentitySendPatternEnum.CHECK_CONNECT]: IIdentityMessageCheckConnectPayload;
   [IdentitySendPatternEnum.EXISTS_CLIENT_PLATFORM]: IIdentityMessageExistsClientPlatformPayload;
   [IdentitySendPatternEnum.DISCONNECT]: IIdentityMessageDisconnectPayload;
+  [IdentitySendPatternEnum.GET_USER_CONNECTIONS]: IIdentityMessageGetUserConnectionPayload;
 }
 
 export interface IIdentitySendMessageResponseMap {
@@ -30,4 +33,5 @@ export interface IIdentitySendMessageResponseMap {
   [IdentitySendPatternEnum.CHECK_CONNECT]: IIdentityMessageCheckConnectResponse;
   [IdentitySendPatternEnum.EXISTS_CLIENT_PLATFORM]: IIdentityMessageExistsClientPlatformResponse;
   [IdentitySendPatternEnum.DISCONNECT]: IIdentityMessageDisconnectResponse;
+  [IdentitySendPatternEnum.GET_USER_CONNECTIONS]: IIdentityMessageGetUserConnectionResponse;
 }

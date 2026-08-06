@@ -1,15 +1,14 @@
 import { TelegramBotRegistrator } from '@modules/telegram/bot';
 import { TELEGRAM_BOT } from '@modules/telegram/constants';
-import { Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  OnApplicationBootstrap,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Bot } from 'grammy';
-
-
-
-
-
-
-
 
 @Injectable()
 export class TelegramBotApiService
@@ -28,9 +27,10 @@ export class TelegramBotApiService
     const useWebhook =
       this.configService.getOrThrow<string>('TELEGRAM_USE_WEBHOOK') === 'true';
 
-    this.bot.catch((err) => {
-      console.log(err);
-      this.logger.error(`Bot error: ${err.message}`);
+    this.bot.catch(async (err) => {
+      this.logger.fatal(`Bot error: ${err.message}`);
+
+      await err.ctx.reply('Произошла непредвиденная ошибка :(');
     });
 
     this.telegramBotRegistrator.register();

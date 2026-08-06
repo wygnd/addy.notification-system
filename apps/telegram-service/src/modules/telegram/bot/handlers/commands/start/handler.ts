@@ -1,7 +1,8 @@
 import { IdentityService } from '@modules/identity/services/service';
+import { TELEGRAM_BOT_MESSAGE_HEAR_CONSTANTS } from '@modules/telegram/constants';
 import { ITelegramCommandHandler } from '@modules/telegram/interfaces';
 import { Injectable } from '@nestjs/common';
-import { Context } from 'grammy';
+import { Context, Keyboard } from 'grammy';
 
 @Injectable()
 export class TelegramBotStartCommandHandler implements ITelegramCommandHandler {
@@ -28,10 +29,19 @@ export class TelegramBotStartCommandHandler implements ITelegramCommandHandler {
       const token = ctx.match as string;
 
       if (!token) {
+        const keyboard = new Keyboard()
+          .text(TELEGRAM_BOT_MESSAGE_HEAR_CONSTANTS.CLIENT_CONNECT)
+          .row()
+          .resized()
+          .oneTime();
+
         await ctx.reply(
-          this.helloText +
-            '\n' +
-            'Чтобы подключить аккаунт, перейдите по ссылке из личного кабинета или введите команду /connect <КОД>',
+          this.helloText,
+          // '\n' +
+          // 'Чтобы подключить аккаунт, перейдите по ссылке из личного кабинета или введите команду /connect <КОД>',
+          {
+            reply_markup: keyboard,
+          },
         );
         return;
       }

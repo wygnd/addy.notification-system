@@ -37,4 +37,14 @@ export class IdentityService {
       },
     );
   }
+
+  public async disconnectClient(platformUserId: string) {
+    return this.identityProvider.send<IdentitySendPatternEnum.DISCONNECT>(
+      IdentitySendPatternEnum.DISCONNECT,
+      {
+        platform: PlatformEnum.TELEGRAM,
+        platformUserId: platformUserId,
+      },
+    );
+  }
 }

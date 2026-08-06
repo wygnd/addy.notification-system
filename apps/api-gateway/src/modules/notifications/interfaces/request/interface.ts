@@ -1,4 +1,9 @@
-import { PlatformEnum } from '@addy/common';
+import { Optional, PlatformEnum } from '@addy/common';
+
+export interface INotificationMeta {
+  requestId: string;
+  host: string;
+}
 
 export interface INotificationRequestPayload {
   text: string;
@@ -10,7 +15,13 @@ export interface INotificationRequest {
   payload: INotificationRequestPayload;
 }
 
-export interface INotification extends INotificationRequest {
-  requestId: string;
-  host: string;
+export type INotification = INotificationRequest & INotificationMeta;
+
+export type INotificationBatchUser = Optional<INotificationRequest, 'payload'>;
+
+export interface INotificationBatchRequest {
+  payload?: INotificationRequestPayload;
+  users: INotificationBatchUser[];
 }
+
+export type INotificationBatch = INotificationBatchRequest & INotificationMeta;

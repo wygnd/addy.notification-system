@@ -8,6 +8,8 @@ import {
 import { IdentityService } from '@modules/identity/services/service';
 import { NotificationDTO } from '@modules/notifications/dtos';
 import {
+  INotificationBatch,
+  INotificationBatchError,
   INotificationReceiveResponse,
   INotificationRetryResponse,
 } from '@modules/notifications/interfaces';
@@ -27,6 +29,21 @@ export class NotificationService {
     private readonly telegramService: TelegramService,
   ) {}
 
+  private async checkNotificationRequestID(requestID: string): Promise<void> {
+    if (!requestID) {
+      throw new AppException(
+        ErrorCodeEnum.VALIDATION_ERROR,
+        'X-Request-ID is required',
+      );
+    }
+
+    const isExists = await this.notificationLogService.exists(requestID);
+
+    if (isExists) {
+      throw new AppException(ErrorCodeEnum.NOTIFICATION_WAS_RECEIVED);
+    }
+  }
+
   /**
    * Обработка входящих запросов на отправку уведомлений
    */
@@ -35,11 +52,7 @@ export class NotificationService {
   ): Promise<INotificationReceiveResponse> {
     const { userId, platform, requestId, host } = fields;
 
-    const isExists = await this.notificationLogService.exists(requestId);
-
-    if (isExists) {
-      throw new AppException(ErrorCodeEnum.NOTIFICATION_WAS_RECEIVED);
-    }
+    await this.checkNotificationRequestID(requestId);
 
     const { clientId } = await this.identityService.checkClientConnection({
       userId: userId.toString(),
@@ -171,5 +184,45 @@ export class NotificationService {
         status: false,
       };
     }
+  }
+
+  public async receiveBatchNotification(fields: INotificationBatch) {
+    const { requestId, host, payload, users } = fields;
+
+    if (users.length === 0) {
+      throw new AppException(
+        ErrorCodeEnum.VALIDATION_ERROR,
+        'Users must be not empty',
+      );
+    }
+
+    await this.checkNotificationRequestID(requestId);
+
+    const notification = await this.notificationLogService.receiveLog({
+      userId: '',
+      correlationId: requestId,
+      channel: PlatformEnum.UNKNOWN,
+      pattern: `batch.message.send`,
+      payload: fields,
+      status: NotificationLogStatusEnum.RECEIVED,
+      source: host || null,
+    });
+
+    const errors: INotificationBatchError[] = [];
+
+    for (const { userId, platform, payload } of users) {
+      try {
+        const { clientId } = await this.identityService.checkClientConnection({
+          userId: userId.toString(),
+          platform: platform,
+        });
+      } catch (error) {
+        const { message } = normalizeError(error);
+
+        errors.push({ userId, platform, message });
+      }
+    }
+
+    // todo
   }
 }
