@@ -1,7 +1,8 @@
-import { PlatformEnum } from '@addy/common';
-
-export interface INotificationBatchError {
+export interface INotificationBatchRecipientError {
+  user_id: string;
   message: string;
-  userId: number;
-  platform: PlatformEnum;
+}
+
+export interface INotificationBatchResponse {
+  errors: INotificationBatchRecipientError[];
 }

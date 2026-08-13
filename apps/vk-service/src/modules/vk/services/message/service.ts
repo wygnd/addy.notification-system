@@ -15,4 +15,14 @@ export class VkMessageService {
   ): Promise<void> {
     return this.vkApi.sendMessage(userId, message);
   }
+
+  public async sendMessageBatch(
+    userIds: (string | number)[],
+    message: string,
+  ): Promise<void> {
+    return this.vkApi.execute('messages.send', {
+      user_ids: userIds.join(','),
+      message: message,
+    });
+  }
 }

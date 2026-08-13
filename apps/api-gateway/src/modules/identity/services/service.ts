@@ -1,6 +1,7 @@
 import {
   IdentitySendPatternEnum,
   IIdentityMessageCheckConnectPayload,
+  IIdentityMessageGetConnectedPlatformsPayload,
   IIdentityMessageGetUserConnectionPayload,
   IIdentityMessageSendConnectPayloadFields,
 } from '@addy/common';
@@ -32,6 +33,15 @@ export class IdentityService {
   ) {
     return this.identityProvider.send(
       IdentitySendPatternEnum.GET_USER_CONNECTIONS,
+      fields,
+    );
+  }
+
+  public async getConnectedPlatforms(
+    fields: IIdentityMessageGetConnectedPlatformsPayload,
+  ) {
+    return this.identityProvider.send(
+      IdentitySendPatternEnum.GET_CONNECTED_PLATFORMS,
       fields,
     );
   }

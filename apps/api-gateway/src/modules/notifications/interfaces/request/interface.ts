@@ -17,11 +17,15 @@ export interface INotificationRequest {
 
 export type INotification = INotificationRequest & INotificationMeta;
 
-export type INotificationBatchUser = Optional<INotificationRequest, 'payload'>;
+export interface INotificationBatchRecipient {
+  userId: string;
+  platform?: PlatformEnum;
+  payload?: INotificationRequestPayload;
+}
 
 export interface INotificationBatchRequest {
-  payload?: INotificationRequestPayload;
-  users: INotificationBatchUser[];
+  defaultPayload: INotificationRequestPayload;
+  recipients: INotificationBatchRecipient[];
 }
 
 export type INotificationBatch = INotificationBatchRequest & INotificationMeta;

@@ -3,7 +3,10 @@ import {
   TelegramEmitPatternEnum,
 } from '@addy/common';
 import { PlatformEnum } from '@addy/common';
-import { INotificationLogEntity } from '@modules/notifications/interfaces';
+import {
+  INotificationLogEntity,
+  type TNotificationLogPayload,
+} from '@modules/notifications/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { randomUUID } from 'node:crypto';
@@ -65,7 +68,7 @@ export class NotificationLogDTO implements INotificationLogEntity {
     },
   })
   @Expose()
-  payload: unknown | null;
+  payload: TNotificationLogPayload;
 
   @ApiProperty({
     type: String,

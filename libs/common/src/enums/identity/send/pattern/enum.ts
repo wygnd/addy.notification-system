@@ -6,4 +6,5 @@ export enum IdentitySendPatternEnum {
   EXISTS_CLIENT_PLATFORM = 'identity.client.platform.exists',
   DISCONNECT = 'identity.disconnect',
   GET_USER_CONNECTIONS = 'identity.user.connections',
+  GET_CONNECTED_PLATFORMS = 'identity.users.platform.connected',
 }

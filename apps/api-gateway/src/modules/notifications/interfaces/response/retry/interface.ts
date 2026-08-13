@@ -1,3 +1,3 @@
 export interface INotificationRetryResponse {
-  status: boolean;
+  message: string;
 }

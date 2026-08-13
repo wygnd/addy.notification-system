@@ -24,6 +24,10 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
     status: HttpStatus.BAD_REQUEST,
     message: 'Пользователь уже подключен к площадке',
   },
+  [ErrorCodeEnum.USER_BLOCK_SEND_MESSAGE]: {
+    status: HttpStatus.BAD_REQUEST,
+    message: 'Пользователь заблокировал отправку сообщений',
+  },
 
   /* ======================= NOTIFICATIONS ======================= */
   [ErrorCodeEnum.NOTIFICATION_NOT_FOUND]: {
@@ -45,6 +49,10 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
   [ErrorCodeEnum.NOTIFICATION_WAS_RECEIVED]: {
     status: HttpStatus.CONFLICT,
     message: 'Уведомление было получено',
+  },
+  [ErrorCodeEnum.NOTIFICATION_INVALID_PAYLOAD]: {
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    message: 'Invalid payload',
   },
 
   /* ======================= SERVICE EXCEPTIONS ======================= */

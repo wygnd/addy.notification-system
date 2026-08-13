@@ -1,7 +1,8 @@
 import { PlatformEnum } from '@addy/common';
 import {
   INotificationBatch,
-  INotificationBatchUser,
+  INotificationBatchRequest,
+  INotificationBatchRecipient,
 } from '@modules/notifications/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
@@ -17,7 +18,7 @@ import {
 } from 'class-validator';
 import { NotificationRequestPayloadDTO } from '../dto';
 
-class NotificationBatchRequestUserDTO implements INotificationBatchUser {
+class NotificationBatchRequestUserDTO implements INotificationBatchRecipient {
   @ApiProperty({
     type: String,
     description: 'Площадка, на которую надо отправить уведомление',
@@ -28,7 +29,7 @@ class NotificationBatchRequestUserDTO implements INotificationBatchUser {
   @IsNotEmpty({ message: 'Platform is required' })
   @IsString({ message: 'Platform must be a string' })
   @IsIn(Object.values(PlatformEnum).filter((p) => p !== 'unknown'))
-  platform: PlatformEnum;
+  platform?: PlatformEnum;
 
   @ApiProperty({
     type: NotificationRequestPayloadDTO,
@@ -50,10 +51,10 @@ class NotificationBatchRequestUserDTO implements INotificationBatchUser {
   @IsNotEmpty({ message: 'UserId is required' })
   @Type(() => Number)
   @IsInt({ message: 'UserId must be a number' })
-  userId: number;
+  userId: string;
 }
 
-export class NotificationBatchRequestDTO implements INotificationBatch {
+export class NotificationBatchRequestDTO implements INotificationBatchRequest {
   @ApiProperty({
     type: NotificationRequestPayloadDTO,
     description: 'Если передано, то будет отправлено всем пользователям',
@@ -63,7 +64,7 @@ export class NotificationBatchRequestDTO implements INotificationBatch {
   @IsObject({ message: 'Payload must be an object' })
   @ValidateNested()
   @Type(() => NotificationRequestPayloadDTO)
-  payload?: NotificationRequestPayloadDTO;
+  defaultPayload: NotificationRequestPayloadDTO;
 
   @ApiProperty({
     type: NotificationBatchRequestUserDTO,
@@ -75,5 +76,5 @@ export class NotificationBatchRequestDTO implements INotificationBatch {
   @IsArray({ message: 'Users must be an array' })
   @ValidateNested()
   @Type(() => NotificationBatchRequestUserDTO)
-  users: NotificationBatchRequestUserDTO[];
+  recipients: NotificationBatchRequestUserDTO[];
 }

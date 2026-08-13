@@ -33,4 +33,12 @@ export class VkController {
   ) {
     return this.vkBotService.handleCheckUserInGroup(context, data);
   }
+
+  @MessagePattern(VkEmitPatternEnum.SEND_MESSAGE_BATCH)
+  public async sendMessageBatch(
+    @Payload() data: IVkEventEmitMap[VkEmitPatternEnum.SEND_MESSAGE_BATCH],
+    @Ctx() context: RmqContext,
+  ) {
+    return this.vkBotService.handleSendMessageBatch(context, data);
+  }
 }

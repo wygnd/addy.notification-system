@@ -5,6 +5,7 @@ import {
   IdentityExistsQueryHandler,
   IdentityExitsPlatformQueryHandler,
   IdentityGetClientByExternalIDQueryHandler,
+  IdentityGetClientByExternalIDsQueryHandler,
 } from '@modules/identity/queries';
 import '@modules/identity/queries/exists/handler';
 import '@modules/identity/queries/exists/platform/handler';
@@ -29,4 +30,5 @@ export const identityProviders = [
   IdentityExistsQueryHandler,
   IdentityExitsPlatformQueryHandler,
   IdentityGetClientByExternalIDQueryHandler,
+  IdentityGetClientByExternalIDsQueryHandler,
 ];

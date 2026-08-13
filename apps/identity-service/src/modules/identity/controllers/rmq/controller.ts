@@ -74,4 +74,13 @@ export class IdentityRMQController {
   ) {
     return this.identityService.handleGetClientConnections(context, data);
   }
+
+  @MessagePattern(IdentitySendPatternEnum.GET_CONNECTED_PLATFORMS)
+  public async getConnectedPlatforms(
+    @Payload()
+    data: IIdentitySendMessageMap[IdentitySendPatternEnum.GET_CONNECTED_PLATFORMS],
+    @Ctx() context: RmqContext,
+  ) {
+    return this.identityService.handleGetConnectedPlatforms(context, data);
+  }
 }

@@ -8,6 +8,8 @@ import {
   IIdentityMessageDisconnectResponse,
   IIdentityMessageExistsClientPlatformPayload,
   IIdentityMessageExistsClientPlatformResponse,
+  IIdentityMessageGetConnectedPlatformsPayload,
+  IIdentityMessageGetConnectedPlatformsResponse,
   IIdentityMessageGetUserConnectionItem,
   IIdentityMessageGetUserConnectionPayload,
   IIdentityMessageGetUserConnectionResponse,
@@ -20,7 +22,10 @@ import {
 import { IdentityAddCommand } from '@modules/identity/commands';
 import { IdentityUpdateCommand } from '@modules/identity/commands/update/command';
 import { TIdentityCreationEntity } from '@modules/identity/interfaces';
-import { IdentityGetClientByExternalIDQuery } from '@modules/identity/queries/client/[external-id]';
+import {
+  IdentityGetClientByExternalIDQuery,
+  IdentityGetClientByExternalIDsQuery,
+} from '@modules/identity/queries/client/[external-id]';
 import { IdentityExistsPlatformQuery } from '@modules/identity/queries/exists/platform/query';
 import { IdentityExistsQuery } from '@modules/identity/queries/exists/query';
 import { OtpService } from '@modules/opt/services/service';
@@ -411,12 +416,47 @@ export class IdentityService {
       items.push({
         platform: platform,
         connected: !!client,
+        platformUserId: client?.platformUserId ?? null,
       });
 
       visitedPlatformSet.add(platform);
     }
 
     return { items };
+  }
+
+  private async getConnectedPlatforms(
+    data: IIdentityMessageGetConnectedPlatformsPayload,
+  ): Promise<IIdentityMessageGetConnectedPlatformsResponse> {
+    const { clientIds } = data;
+
+    const result: Record<string, IIdentityMessageGetUserConnectionItem[]> = {};
+
+    const clientList = await this.queryBus.execute(
+      new IdentityGetClientByExternalIDsQuery(clientIds),
+    );
+
+    for (const {
+      externalUserId,
+      status,
+      platform,
+      platformUserId,
+    } of clientList) {
+      const clientData = externalUserId in result ? result[externalUserId] : [];
+
+      result[externalUserId] = [
+        ...clientData,
+        {
+          platform: platform,
+          connected: status === IdentityStatusEnum.VERIFIED,
+          platformUserId: platformUserId,
+        },
+      ];
+    }
+
+    return {
+      items: result,
+    };
   }
 
   /* ========================== PUBLIC HANDLERS ========================== */
@@ -478,6 +518,15 @@ export class IdentityService {
   ) {
     return this.handleSendWithAck(context, () =>
       this.getClientConnections(data),
+    );
+  }
+
+  public async handleGetConnectedPlatforms(
+    context: RmqContext,
+    data: IIdentityMessageGetConnectedPlatformsPayload,
+  ) {
+    return this.handleSendWithAck(context, () =>
+      this.getConnectedPlatforms(data),
     );
   }
 }

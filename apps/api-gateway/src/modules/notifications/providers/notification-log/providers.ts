@@ -1,5 +1,6 @@
 import {
   NotificationLogAddCommandHandler,
+  NotificationLogBulkAddCommandHandler,
   NotificationLogUpdateByCorrelationIdCommandHandler,
 } from '@modules/notifications/commands/notification-log';
 import { NOTIFICATION_LOG_REPOSITORY } from '@modules/notifications/constants';
@@ -20,6 +21,7 @@ export const notificationLogProviders = [
   // COMMANDS
   NotificationLogAddCommandHandler,
   NotificationLogUpdateByCorrelationIdCommandHandler,
+  NotificationLogBulkAddCommandHandler,
 
   // QUERIES
   NotificationLogGetByCorrelationIdQueryHandler,

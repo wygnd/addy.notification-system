@@ -6,6 +6,7 @@ import {
 import { IdentityModel } from '@modules/identity/models';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class IdentityRepository implements IIdentityRepositoryPort {
@@ -55,5 +56,15 @@ export class IdentityRepository implements IIdentityRepositoryPort {
 
   public async getByExternalUserId(id: string): Promise<IdentityModel[]> {
     return this.repo.findAll({ where: { externalUserId: id } });
+  }
+
+  public async getByExternalUserIds(ids: string[]): Promise<IdentityModel[]> {
+    return this.repo.findAll({
+      where: {
+        externalUserId: {
+          [Op.in]: ids,
+        },
+      },
+    });
   }
 }

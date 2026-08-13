@@ -19,6 +19,12 @@ export class NotificationLogRepository implements INotificationLogRepositoryPort
     return this.repo.create(fields);
   }
 
+  public async bulkCreate(
+    items: INotificationLogCreateEntity[],
+  ): Promise<NotificationLogModel[]> {
+    return this.repo.bulkCreate(items);
+  }
+
   public async getByCorrelationId(
     correlationId: string,
   ): Promise<NotificationLogModel | null> {

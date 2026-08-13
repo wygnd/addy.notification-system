@@ -35,7 +35,7 @@ export class VkGroupService {
     return memberIds.includes(userId);
   }
 
-  public async isAllowSendMessage(userId: number) {
+  public async isAllowSendMessage(userId: string | number) {
     const { is_allowed } =
       await this.vkApiService.execute<IVkMessageAllowedResponse>(
         'messages.isMessagesFromGroupAllowed',
@@ -45,6 +45,6 @@ export class VkGroupService {
         },
       );
 
-    return is_allowed !== 0;
+    return { allowed: is_allowed !== 0, userId };
   }
 }

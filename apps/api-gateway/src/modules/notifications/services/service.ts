@@ -6,10 +6,17 @@ import {
   PlatformEnum,
 } from '@addy/common';
 import { IdentityService } from '@modules/identity/services/service';
-import { NotificationDTO } from '@modules/notifications/dtos';
+import { NotificationLogBulkAddCommand } from '@modules/notifications/commands/notification-log';
+import {
+  NotificationDTO,
+  NotificationLogDTO,
+} from '@modules/notifications/dtos';
+import { NotificationLogPayloadEnum } from '@modules/notifications/enums';
 import {
   INotificationBatch,
-  INotificationBatchError,
+  INotificationBatchRecipientError,
+  INotificationBatchResponse,
+  INotificationLogCreateEntity,
   INotificationReceiveResponse,
   INotificationRetryResponse,
 } from '@modules/notifications/interfaces';
@@ -19,6 +26,8 @@ import { NotificationLogService } from '@modules/notifications/services/notifica
 import { TelegramService } from '@modules/telegram/services/service';
 import { VkService } from '@modules/vk/services/service';
 import { Injectable } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class NotificationService {
@@ -27,20 +36,69 @@ export class NotificationService {
     private readonly notificationLogService: NotificationLogService,
     private readonly identityService: IdentityService,
     private readonly telegramService: TelegramService,
+    private readonly commandBus: CommandBus,
   ) {}
 
-  private async checkNotificationRequestID(requestID: string): Promise<void> {
-    if (!requestID) {
+  private async checkNotificationRequestId(requestId: string): Promise<void> {
+    if (!requestId) {
       throw new AppException(
         ErrorCodeEnum.VALIDATION_ERROR,
         'X-Request-ID is required',
       );
     }
 
-    const isExists = await this.notificationLogService.exists(requestID);
+    const isExists = await this.notificationLogService.exists(requestId);
 
     if (isExists) {
       throw new AppException(ErrorCodeEnum.NOTIFICATION_WAS_RECEIVED);
+    }
+  }
+
+  private async sendNotification(
+    platformUserId: string,
+    notification: NotificationLogDTO,
+  ) {
+    const { payload } = notification;
+
+    if (!payload) {
+      throw new AppException(ErrorCodeEnum.NOTIFICATION_EMPTY_PAYLOAD);
+    }
+
+    if (payload.type !== NotificationLogPayloadEnum.NOTIFICATION) {
+      throw new AppException(ErrorCodeEnum.NOTIFICATION_INVALID_PAYLOAD);
+    }
+
+    const { platform, payload: notificationPayload, requestId } = payload.data;
+
+    try {
+      switch (platform) {
+        case PlatformEnum.VK:
+          await this.vkService.sendMessage({
+            text: notificationPayload.text,
+            userId: platformUserId,
+            correlationId: requestId,
+          });
+          break;
+
+        case PlatformEnum.TELEGRAM:
+          await this.telegramService.sendMessage({
+            text: notificationPayload.text,
+            userId: platformUserId,
+            correlationId: requestId,
+          });
+          break;
+
+        default:
+          throw new AppException(ErrorCodeEnum.NOT_ALLOWED, 'Invalid platform');
+      }
+
+      await this.notificationLogService.markQueued(requestId);
+    } catch (error) {
+      const { message } = normalizeError(error);
+
+      await this.notificationLogService.markFailed(requestId, message);
+
+      throw error;
     }
   }
 
@@ -52,7 +110,7 @@ export class NotificationService {
   ): Promise<INotificationReceiveResponse> {
     const { userId, platform, requestId, host } = fields;
 
-    await this.checkNotificationRequestID(requestId);
+    await this.checkNotificationRequestId(requestId);
 
     const { clientId } = await this.identityService.checkClientConnection({
       userId: userId.toString(),
@@ -64,46 +122,20 @@ export class NotificationService {
       correlationId: requestId,
       channel: platform,
       pattern: `${platform}.message.send`,
-      payload: fields,
+      payload: {
+        type: NotificationLogPayloadEnum.NOTIFICATION,
+        data: fields,
+      },
       status: NotificationLogStatusEnum.RECEIVED,
       source: host || null,
     });
 
-    try {
-      switch (fields.platform) {
-        case PlatformEnum.VK:
-          await this.vkService.sendMessage({
-            text: fields.payload.text,
-            userId: clientId,
-            correlationId: requestId,
-          });
-          break;
+    await this.sendNotification(clientId, notification);
 
-        case PlatformEnum.TELEGRAM:
-          await this.telegramService.sendMessage({
-            text: fields.payload.text,
-            userId: clientId,
-            correlationId: requestId,
-          });
-          break;
-
-        default:
-          throw new AppException(ErrorCodeEnum.NOT_ALLOWED, 'Invalid platform');
-      }
-
-      await this.notificationLogService.markQueued(requestId);
-
-      return {
-        message: 'Message was successfully sent',
-        notification_id: notification.id,
-      };
-    } catch (error) {
-      const { message } = normalizeError(error);
-
-      await this.notificationLogService.markFailed(requestId, message);
-
-      throw error;
-    }
+    return {
+      message: 'Message was successfully sent',
+      notification_id: notification.id,
+    };
   }
 
   public async getNotificationById(
@@ -122,107 +154,134 @@ export class NotificationService {
   public async retryNotification(
     notificationId: string,
   ): Promise<INotificationRetryResponse> {
+    if (!notificationId) {
+      throw new AppException(
+        ErrorCodeEnum.VALIDATION_ERROR,
+        'NotificationID is required',
+      );
+    }
+
+    // Пытаемся получить данные
     const notification =
       await this.notificationLogService.getNotificationById(notificationId);
 
+    // Если у сообщения статус не ошибочный: возможно оно еще дослылается
     if (notification.status !== NotificationLogStatusEnum.FAILED) {
       throw new AppException(ErrorCodeEnum.NOTIFICATION_NOT_RETRYABLE);
     }
 
-    if (!notification.payload) {
-      throw new AppException(ErrorCodeEnum.NOTIFICATION_EMPTY_PAYLOAD);
-    }
+    const { clientId } = await this.identityService.checkClientConnection({
+      userId: notification.userId,
+      platform: notification.channel,
+    });
 
-    try {
-      await Promise.all([
-        this.notificationLogService.markQueued(notification.correlationId),
-        this.notificationLogService.increaseRetryCount(notificationId),
-      ]);
+    await this.sendNotification(clientId, notification);
 
-      const { clientId } = await this.identityService.checkClientConnection({
-        userId: notification.userId,
-        platform: notification.channel,
+    return {
+      message: 'Notification successfully retrieved',
+    };
+  }
+
+  /**
+   * Отправляет массовую рассылку
+   * @param fields
+   */
+  public async receiveBatchNotification(
+    fields: INotificationBatch,
+  ): Promise<INotificationBatchResponse> {
+    const { requestId, host, defaultPayload, recipients } = fields;
+    const { items: clientsConnectedPlatforms } =
+      await this.identityService.getConnectedPlatforms({
+        clientIds: recipients.map((r) => r.userId),
       });
 
-      const {
-        payload: { text },
-      } = notification.payload as INotification;
+    const clientHandledIds = new Set<string>();
+    const clientErrorList: INotificationBatchRecipientError[] = [];
+    const addNotificationList: INotificationLogCreateEntity[] = [];
+
+    for (const recipient of recipients) {
+      if (clientHandledIds.has(recipient.userId)) {
+        continue;
+      }
+
+      const payload = recipient.payload ?? defaultPayload;
+      let platformList: PlatformEnum[] = [];
+
+      // Если не удалось получить информацию о подключенном пользователе: пропускаем
+      if (!(recipient.userId in clientsConnectedPlatforms)) {
+        clientErrorList.push({
+          user_id: recipient.userId,
+          message: 'Not found connected platforms',
+        });
+
+        clientHandledIds.add(recipient.userId);
+        continue;
+      }
+
+      // Если была указана платформа: то только на нее отправляем
+      if (recipient.platform) {
+        platformList.push(recipient.platform);
+      }
+      // Если не указали, пытаемся получить платформы, к которым подключен клиент
+      else {
+        for (const clientPlatform of clientsConnectedPlatforms[
+          recipient.userId
+        ]) {
+          // Если платформа не подключена или не подключена до конца: пропускаем
+          if (!clientPlatform.connected) {
+            continue;
+          }
+
+          platformList.push(clientPlatform.platform);
+        }
+      }
+
+      for (const platform of platformList) {
+        addNotificationList.push({
+          userId: recipient.userId,
+          correlationId: `${requestId}-${randomBytes(4).toString('hex')}`,
+          channel: platform,
+          pattern: `${platform}.message.send`,
+          payload: {
+            type: NotificationLogPayloadEnum.NOTIFICATION,
+            data: {
+              payload: payload,
+              requestId: requestId,
+              platform: platform,
+              host: host,
+              userId: Number(recipient.userId),
+            },
+          },
+          status: NotificationLogStatusEnum.RECEIVED,
+          source: host || null,
+        });
+      }
+
+      clientHandledIds.add(recipient.userId);
+    }
+
+    const notificationList = await this.commandBus.execute(
+      new NotificationLogBulkAddCommand(addNotificationList),
+    );
+
+    for (const notification of notificationList) {
+      if (
+        !notification.payload ||
+        notification.payload.type !== NotificationLogPayloadEnum.NOTIFICATION
+      ) {
+        continue;
+      }
 
       switch (notification.channel) {
         case PlatformEnum.VK:
-          await this.vkService.sendMessage({
-            text: text,
-            userId: clientId,
-            correlationId: notification.correlationId,
-          });
           break;
-
-        case PlatformEnum.TELEGRAM:
-          await this.telegramService.sendMessage({
-            text: text,
-            userId: clientId,
-            correlationId: notification.correlationId,
-          });
-          break;
-
-        default:
-          throw new AppException(ErrorCodeEnum.NOT_ALLOWED, 'Invalid platform');
       }
 
-      return {
-        status: true,
-      };
-    } catch (error) {
-      const { message } = normalizeError(error);
-
-      await this.notificationLogService.markFailed(
-        notification.correlationId,
-        message,
-      );
-
-      return {
-        status: false,
-      };
     }
-  }
+    // todo создать нотификации и отправить по сервисам
 
-  public async receiveBatchNotification(fields: INotificationBatch) {
-    const { requestId, host, payload, users } = fields;
-
-    if (users.length === 0) {
-      throw new AppException(
-        ErrorCodeEnum.VALIDATION_ERROR,
-        'Users must be not empty',
-      );
-    }
-
-    await this.checkNotificationRequestID(requestId);
-
-    const notification = await this.notificationLogService.receiveLog({
-      userId: '',
-      correlationId: requestId,
-      channel: PlatformEnum.UNKNOWN,
-      pattern: `batch.message.send`,
-      payload: fields,
-      status: NotificationLogStatusEnum.RECEIVED,
-      source: host || null,
-    });
-
-    const errors: INotificationBatchError[] = [];
-
-    for (const { userId, platform, payload } of users) {
-      try {
-        const { clientId } = await this.identityService.checkClientConnection({
-          userId: userId.toString(),
-          platform: platform,
-        });
-      } catch (error) {
-        const { message } = normalizeError(error);
-
-        errors.push({ userId, platform, message });
-      }
-    }
-
-    // todo
+    return {
+      errors: Array.from(clientErrorList.values()),
+    };
   }
 }

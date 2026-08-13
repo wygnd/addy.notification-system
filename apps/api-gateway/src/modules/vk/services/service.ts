@@ -40,4 +40,10 @@ export class VkService {
   ) {
     return this.send(VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP, data);
   }
+
+  public async sendMessageBatch(
+    data: IVkEventEmitMap[VkEmitPatternEnum.SEND_MESSAGE_BATCH],
+  ): Promise<void> {
+    return this.emit(VkEmitPatternEnum.SEND_MESSAGE_BATCH, data);
+  }
 }

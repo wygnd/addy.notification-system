@@ -3,6 +3,9 @@ import { NotificationLogModel } from '@modules/notifications/models';
 
 export interface INotificationLogRepositoryPort {
   create(fields: INotificationLogCreateEntity): Promise<NotificationLogModel>;
+  bulkCreate(
+    items: INotificationLogCreateEntity[],
+  ): Promise<NotificationLogModel[]>;
   updateByCorrelationId(
     correlationId: string,
     updateFields: Partial<INotificationLogCreateEntity>,

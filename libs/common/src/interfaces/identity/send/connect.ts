@@ -1,10 +1,6 @@
 // ============= SEND CONNECT =============
 import { PlatformEnum } from '@src/enums';
 
-
-
-
-
 interface IIdentityMessageSendConnectPayloadBase {
   userId: string;
 }
@@ -103,8 +99,18 @@ export interface IIdentityMessageGetUserConnectionPayload {
 export interface IIdentityMessageGetUserConnectionItem {
   platform: PlatformEnum;
   connected: boolean;
+  platformUserId: string | null;
 }
 
 export interface IIdentityMessageGetUserConnectionResponse {
   items: IIdentityMessageGetUserConnectionItem[];
+}
+
+// ============= GET_CONNECTED_PLATFORMS =============
+export interface IIdentityMessageGetConnectedPlatformsPayload {
+  clientIds: string[];
+}
+
+export interface IIdentityMessageGetConnectedPlatformsResponse {
+  items: Record<string, IIdentityMessageGetUserConnectionItem[]>;
 }
