@@ -1,4 +1,6 @@
 import {
+  AppRpcException,
+  ErrorCodeEnum,
   normalizeError,
   NotificationLogStatusEnum,
   NotificationResultEnum,
@@ -92,7 +94,10 @@ export class VkService {
       );
 
       if (!isAllowedSendMessage) {
-        throw new Error('User not receive messages from groups');
+        throw new AppRpcException(
+          ErrorCodeEnum.NOT_ALLOWED,
+          'User not receive messages from groups',
+        );
       }
 
       await this.sendMessageResult(

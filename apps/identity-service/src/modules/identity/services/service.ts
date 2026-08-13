@@ -1,4 +1,6 @@
 import {
+  AppRpcException,
+  ErrorCodeEnum,
   IdentityStatusEnum,
   IIdentityMessageCheckConnectPayload,
   IIdentityMessageCheckConnectResponse,
@@ -6,6 +8,9 @@ import {
   IIdentityMessageDisconnectResponse,
   IIdentityMessageExistsClientPlatformPayload,
   IIdentityMessageExistsClientPlatformResponse,
+  IIdentityMessageGetUserConnectionItem,
+  IIdentityMessageGetUserConnectionPayload,
+  IIdentityMessageGetUserConnectionResponse,
   IIdentityMessageSendConnectPayloadFields,
   IIdentityMessageSendConnectResponse,
   IIdentityMessageVerifyConnectPayload,
@@ -15,17 +20,13 @@ import {
 import { IdentityAddCommand } from '@modules/identity/commands';
 import { IdentityUpdateCommand } from '@modules/identity/commands/update/command';
 import { TIdentityCreationEntity } from '@modules/identity/interfaces';
+import { IdentityGetClientByExternalIDQuery } from '@modules/identity/queries/client/[external-id]';
 import { IdentityExistsPlatformQuery } from '@modules/identity/queries/exists/platform/query';
 import { IdentityExistsQuery } from '@modules/identity/queries/exists/query';
 import { OtpService } from '@modules/opt/services/service';
 import { REDIS_KEYS } from '@modules/redis/constants/constants';
 import { RedisService } from '@modules/redis/services/service';
-import {
-  ConflictException,
-  Injectable,
-  MethodNotAllowedException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { RmqContext } from '@nestjs/microservices';
@@ -75,91 +76,116 @@ export class IdentityService {
     }
   }
 
+  private async initialTokenConnect(
+    userId: string,
+    platform: PlatformEnum,
+  ): Promise<string> {
+    const token = randomBytes(24).toString('base64url');
+    const redisKey = REDIS_KEYS.CLIENT_CONNECT_START + `${platform}:${token}`;
+
+    await this.redisService.set(redisKey, token, 600);
+
+    return token;
+  }
+
+  private async confirmTokenConnect(
+    token: string,
+    platform: PlatformEnum,
+  ): Promise<string> {
+    const redisKey = REDIS_KEYS.CLIENT_CONNECT_START + `${platform}:${token}`;
+
+    const userId = await this.redisService.get<string>(redisKey);
+
+    if (!userId) {
+      throw new Error('Код подключения недействителен или истек');
+    }
+
+    await this.redisService.del(redisKey);
+
+    return userId;
+  }
+
   private async connectClient(
     data: IIdentityMessageSendConnectPayloadFields,
   ): Promise<IIdentityMessageSendConnectResponse> {
-    try {
-      const { userId, platform } = data;
+    const { userId, platform } = data;
 
-      const existsRow = await this.queryBus.execute(
-        new IdentityExistsQuery(userId, platform),
-      );
+    const rateLimitRedisKey =
+      REDIS_KEYS.CLIENT_CONNECT_LIMIT + `${platform}:${userId}`;
+    const connectionAttempts = await this.redisService.incr(rateLimitRedisKey);
 
-      if (existsRow) {
-        throw new ConflictException('User already exists');
-      }
+    await this.redisService.expire(rateLimitRedisKey, 300);
 
-      let identityCreationFields: TIdentityCreationEntity = {
-        platform: platform,
-        externalUserId: userId,
-        status: IdentityStatusEnum.PENDING,
-        platformUserId: null,
-        verifiedAt: null,
-      };
+    if (connectionAttempts > 5) {
+      throw new AppRpcException(ErrorCodeEnum.TOO_MANY_ATTEMPTS);
+    }
 
-      switch (platform) {
-        case PlatformEnum.VK:
-          identityCreationFields.platformUserId = data.platformUserId;
-          identityCreationFields.status = IdentityStatusEnum.VERIFIED;
-          identityCreationFields.verifiedAt = new Date().toISOString();
-          break;
+    const existsRow = await this.queryBus.execute(
+      new IdentityExistsQuery(userId, platform),
+    );
 
-        case PlatformEnum.TELEGRAM:
-          break;
+    if (existsRow && existsRow.status !== IdentityStatusEnum.REVOKED) {
+      throw new AppRpcException(ErrorCodeEnum.USER_WAS_CONNECTING_TO_PLATFORM);
+    }
 
-        default:
-          throw new MethodNotAllowedException('Not allowed');
-      }
+    let identityCreationFields: TIdentityCreationEntity = {
+      platform: platform,
+      externalUserId: userId,
+      status: IdentityStatusEnum.PENDING,
+      platformUserId: null,
+      verifiedAt: null,
+    };
 
-      await this.commandBus.execute(
-        new IdentityAddCommand(identityCreationFields),
-      );
+    switch (platform) {
+      case PlatformEnum.VK:
+        identityCreationFields.platformUserId = data.platformUserId;
+        identityCreationFields.status = IdentityStatusEnum.VERIFIED;
+        identityCreationFields.verifiedAt = new Date().toISOString();
+        break;
 
-      if (platform === PlatformEnum.VK) {
-        return {
-          status: true,
-          platform: PlatformEnum.VK,
-          message: `Client was connected to ${platform}`,
-        };
-      }
+      case PlatformEnum.TELEGRAM:
+        break;
 
-      if (platform === PlatformEnum.TELEGRAM) {
-        const botUsername = this.configService.get<string>(
-          'TELEGRAM_BOT_USERNAME',
-        );
+      default:
+        throw new AppRpcException(ErrorCodeEnum.NOT_ALLOWED);
+    }
 
-        if (!botUsername) {
-          return {
-            status: false,
-            platform: PlatformEnum.TELEGRAM,
-            message: 'Internal Server Error',
-          };
-        }
+    await this.commandBus.execute(
+      new IdentityAddCommand(identityCreationFields),
+    );
 
-        const code = await this.otpService.create(platform);
+    await this.redisService.del(rateLimitRedisKey);
 
-        return {
-          status: true,
-          platform: PlatformEnum.TELEGRAM,
-          message: 'Code was generated successfully',
-          code: code,
-        };
-      }
-
+    if (platform === PlatformEnum.VK) {
       return {
-        status: false,
-        platform: platform,
-        message: 'Not allowed',
-      };
-    } catch (error) {
-      const { message } = normalizeError(error);
-
-      return {
-        status: false,
-        platform: data.platform,
-        message: message,
+        status: true,
+        platform: PlatformEnum.VK,
+        message: `Client was connected to ${platform}`,
       };
     }
+
+    if (platform === PlatformEnum.TELEGRAM) {
+      const botUsername = this.configService.get<string>(
+        'TELEGRAM_BOT_USERNAME',
+      );
+
+      if (!botUsername) {
+        throw new AppRpcException(ErrorCodeEnum.INTERNAL_ERROR);
+      }
+
+      const code = await this.otpService.create(platform, userId);
+      const connectionToken = await this.initialTokenConnect(userId, platform);
+
+      return {
+        status: true,
+        message: 'Code was generated successfully',
+        platform: PlatformEnum.TELEGRAM,
+        code: code,
+        connectionLink: `https://t.me/${botUsername}?start=${connectionToken}`,
+      };
+    }
+
+    throw new AppRpcException(ErrorCodeEnum.NOT_ALLOWED);
   }
 
   private async checkClientConnection(
@@ -172,21 +198,19 @@ export class IdentityService {
     );
 
     if (!client) {
-      throw new NotFoundException('User not found');
+      throw new AppRpcException(ErrorCodeEnum.USER_NOT_FOUND);
     }
 
     if (client.status === IdentityStatusEnum.PENDING) {
-      throw new MethodNotAllowedException('User not verified');
+      throw new AppRpcException(ErrorCodeEnum.USER_NOT_VERIFIED);
     }
 
     if (client.status === IdentityStatusEnum.REVOKED) {
-      throw new MethodNotAllowedException('User was revoked');
+      throw new AppRpcException(ErrorCodeEnum.USER_WAS_REVOKED);
     }
 
     if (!client.platformUserId) {
-      throw new MethodNotAllowedException(
-        'User not matched with platform user account',
-      );
+      throw new AppRpcException(ErrorCodeEnum.USER_NOT_MATCHED);
     }
 
     return {
@@ -206,15 +230,15 @@ export class IdentityService {
       );
 
       if (!client) {
-        throw new Error('User not found');
+        throw new AppRpcException(ErrorCodeEnum.USER_NOT_FOUND);
       }
 
       if (client.status === IdentityStatusEnum.PENDING) {
-        throw new Error('User not verified');
+        throw new AppRpcException(ErrorCodeEnum.USER_NOT_VERIFIED);
       }
 
       if (client.status === IdentityStatusEnum.REVOKED) {
-        throw new Error('User was revoked');
+        throw new AppRpcException(ErrorCodeEnum.USER_WAS_REVOKED);
       }
 
       return {
@@ -247,11 +271,13 @@ export class IdentityService {
       ]);
 
       if (!identity) {
-        throw new Error('User was not found');
+        throw new AppRpcException(ErrorCodeEnum.USER_NOT_FOUND);
       }
 
       if (existing && existing.status === IdentityStatusEnum.VERIFIED) {
-        throw new Error('This account was connected to another user');
+        throw new AppRpcException(
+          ErrorCodeEnum.USER_WAS_CONNECTING_TO_PLATFORM,
+        );
       }
 
       await this.commandBus.execute(
@@ -267,9 +293,51 @@ export class IdentityService {
         message: `Аккаунт подключен к ${platform}`,
       };
     } catch (error) {
-      const { code, message } = normalizeError(error);
+      const { message } = normalizeError(error);
 
-      console.log(code, message);
+      return {
+        status: false,
+        message: message,
+      };
+    }
+  }
+
+  private async confirmClientConnection(
+    data: IIdentityMessageVerifyConnectPayload,
+  ) {
+    try {
+      const { platform, platformUserId, code } = data;
+
+      const userId = await this.confirmTokenConnect(code, platform);
+
+      const existing = await this.queryBus.execute(
+        new IdentityExistsQuery(userId, platform),
+      );
+
+      if (!existing) {
+        throw new Error('Не удалось подключить аккаунт');
+      }
+
+      if (existing && existing.status === IdentityStatusEnum.VERIFIED) {
+        throw new Error('Этот аккаунт уже привязан к другому пользователю');
+      }
+
+      await this.commandBus.execute(
+        new IdentityUpdateCommand(existing.id, {
+          platformUserId: platformUserId,
+          status: IdentityStatusEnum.VERIFIED,
+          verifiedAt: new Date().toISOString(),
+        }),
+      );
+
+      return {
+        status: true,
+        message: 'Аккаунт успешно подключен.',
+      };
+    } catch (error) {
+      const { message } = normalizeError(error);
+
+      console.log(error);
 
       return {
         status: false,
@@ -289,7 +357,7 @@ export class IdentityService {
       );
 
       if (!existing) {
-        throw new Error('Account is not connected');
+        throw new AppRpcException(ErrorCodeEnum.IDENTITY_ACCOUNT_NOT_CONNECTED);
       }
 
       await this.commandBus.execute(
@@ -312,6 +380,43 @@ export class IdentityService {
         message: message,
       };
     }
+  }
+
+  private async getClientConnections(
+    data: IIdentityMessageGetUserConnectionPayload,
+  ): Promise<IIdentityMessageGetUserConnectionResponse> {
+    const { userId } = data;
+
+    const clientPlatformList = await this.queryBus.execute(
+      new IdentityGetClientByExternalIDQuery(userId),
+    );
+
+    if (clientPlatformList.length === 0) {
+      throw new AppRpcException(ErrorCodeEnum.USER_NOT_FOUND);
+    }
+
+    const visitedPlatformSet = new Set<string>();
+    const items: IIdentityMessageGetUserConnectionItem[] = [];
+
+    for (const platform of Object.values(PlatformEnum)) {
+      if (
+        visitedPlatformSet.has(platform) ||
+        platform === PlatformEnum.UNKNOWN
+      ) {
+        continue;
+      }
+
+      const client = clientPlatformList.find((c) => c.platform === platform);
+
+      items.push({
+        platform: platform,
+        connected: !!client,
+      });
+
+      visitedPlatformSet.add(platform);
+    }
+
+    return { items };
   }
 
   /* ========================== PUBLIC HANDLERS ========================== */
@@ -349,12 +454,30 @@ export class IdentityService {
     );
   }
 
+  public async handleConfirmClientConnection(
+    context: RmqContext,
+    data: IIdentityMessageVerifyConnectPayload,
+  ) {
+    return this.handleSendWithAck(context, () =>
+      this.confirmClientConnection(data),
+    );
+  }
+
   public async handleDisconnectAccount(
     context: RmqContext,
     data: IIdentityMessageDisconnectPayload,
   ) {
     return this.handleSendWithAck(context, () =>
       this.disconnectClientFromPlatform(data),
+    );
+  }
+
+  public async handleGetClientConnections(
+    context: RmqContext,
+    data: IIdentityMessageGetUserConnectionPayload,
+  ) {
+    return this.handleSendWithAck(context, () =>
+      this.getClientConnections(data),
     );
   }
 }

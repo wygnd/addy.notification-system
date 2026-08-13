@@ -26,4 +26,25 @@ export class IdentityService {
       },
     );
   }
+
+  public async confirmTokenConnect(userId: string, token: string) {
+    return this.identityProvider.send<IdentitySendPatternEnum.CONFIRM_CONNECT>(
+      IdentitySendPatternEnum.CONFIRM_CONNECT,
+      {
+        platform: PlatformEnum.TELEGRAM,
+        platformUserId: userId,
+        code: token,
+      },
+    );
+  }
+
+  public async disconnectClient(platformUserId: string) {
+    return this.identityProvider.send<IdentitySendPatternEnum.DISCONNECT>(
+      IdentitySendPatternEnum.DISCONNECT,
+      {
+        platform: PlatformEnum.TELEGRAM,
+        platformUserId: platformUserId,
+      },
+    );
+  }
 }

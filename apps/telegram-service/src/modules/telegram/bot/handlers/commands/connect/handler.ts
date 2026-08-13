@@ -22,6 +22,8 @@ export class TelegramBotConnectCommandHandler implements ITelegramCommandHandler
       return;
     }
 
+    console.log('CHECK CODE', code);
+
     try {
       const verified = await this.identityService.verifyCode(
         ctx.from.id.toString(),
@@ -36,7 +38,9 @@ export class TelegramBotConnectCommandHandler implements ITelegramCommandHandler
     } catch (error) {
       const { message } = normalizeError(error);
 
-      await ctx.reply(`Не удалось подключить аккаунт. ${message}`);
+      console.log('BOT CONNECT:', message);
+
+      await ctx.reply(`Не удалось подключить аккаунт`);
     }
   }
 }

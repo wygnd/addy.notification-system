@@ -27,6 +27,13 @@ export class NotificationRequestPayloadDTO implements INotificationRequestPayloa
 }
 
 export class NotificationRequestDTO implements INotificationRequest {
+  @ApiProperty({
+    type: String,
+    description: 'Площадка, на которую надо отправить уведомление',
+    enum: PlatformEnum,
+    required: true,
+    example: PlatformEnum.TELEGRAM,
+  })
   @IsNotEmpty({ message: 'Platform is required' })
   @IsString({ message: 'Platform must be a string' })
   @IsIn(Object.values(PlatformEnum).filter((p) => p !== 'unknown'))

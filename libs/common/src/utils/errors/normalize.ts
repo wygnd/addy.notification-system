@@ -1,6 +1,9 @@
 import { HttpException } from '@nestjs/common';
 import { ERRNO_CODE_MAP } from '@src/constants';
-import { INormalizeError } from '@src/interfaces';
+import { ErrorCodeEnum } from '@src/enums';
+import { AppException } from '@src/exceptions';
+import { IAppErrorException, INormalizeError } from '@src/interfaces';
+import { isVkApiError } from '@src/utils';
 import { isAxiosError } from 'axios';
 import { isRpcError } from './rpc';
 
@@ -8,7 +11,9 @@ const isErrnoException = (error: unknown): error is NodeJS.ErrnoException => {
   return error instanceof Error && 'code' in error;
 };
 
-const isObjectWithMessage = (val: unknown): val is { message: string } => {
+export const isObjectWithMessage = (
+  val: unknown,
+): val is { message: string } => {
   return typeof val === 'object' && val !== null && 'message' in val;
 };
 
@@ -16,8 +21,19 @@ export const normalizeError = (error: unknown): INormalizeError => {
   // RPC ошибка
   if (isRpcError(error)) {
     return {
-      code: error.statusCode ?? 500,
+      statusCode: error.statusCode ?? 500,
+      code: error.code ?? ErrorCodeEnum.INTERNAL_ERROR,
       message: error.message ?? 'RPC ошибка',
+    };
+  }
+
+  if (error instanceof AppException) {
+    const response = error.getResponse() as IAppErrorException;
+
+    return {
+      statusCode: error.getStatus(),
+      code: error.code,
+      message: response.message,
     };
   }
 
@@ -31,7 +47,8 @@ export const normalizeError = (error: unknown): INormalizeError => {
         : error.message;
 
     return {
-      code: error.getStatus(),
+      code: ErrorCodeEnum.VALIDATION_ERROR,
+      statusCode: error.getStatus(),
       message: Array.isArray(message) ? message[0] : message,
     };
   }
@@ -41,7 +58,8 @@ export const normalizeError = (error: unknown): INormalizeError => {
     const data = error.response.data;
 
     return {
-      code: error.response.status,
+      code: ErrorCodeEnum.INTERNAL_ERROR,
+      statusCode: error.response.status,
       message: isObjectWithMessage(data)
         ? data.message
         : typeof data === 'string'
@@ -53,36 +71,59 @@ export const normalizeError = (error: unknown): INormalizeError => {
   // Axios нет соединения или таймаут
   if (isAxiosError(error)) {
     return {
-      code: ['ECONNABORTED', 'ETIMEDOUT'].includes(error.code ?? '')
+      code: ErrorCodeEnum.REQUEST_TIMEOUT,
+      statusCode: ['ECONNABORTED', 'ETIMEDOUT'].includes(error.code ?? '')
         ? 504
         : 503,
       message: error.message ?? 'Ошибка соединения',
     };
   }
 
+  if (isVkApiError(error)) {
+    return {
+      code: ErrorCodeEnum.INTERNAL_ERROR,
+      statusCode: error.response.error_code,
+      message: error.response.error_msg,
+    };
+  }
+
   // NodeJS системные ошибки
   if (isErrnoException(error)) {
     return {
-      code: ERRNO_CODE_MAP[error.code ?? ''] ?? 500,
+      code: ErrorCodeEnum.INTERNAL_ERROR,
+      statusCode: ERRNO_CODE_MAP[error.code ?? ''] ?? 500,
       message: error.message,
     };
   }
 
   // JS ошибки
   if (error instanceof Error) {
-    return { code: 500, message: error.message };
+    return {
+      code: ErrorCodeEnum.INTERNAL_ERROR,
+      statusCode: 500,
+      message: error.message,
+    };
   }
 
   if (typeof error === 'string') {
-    return { code: 500, message: error };
+    return {
+      code: ErrorCodeEnum.INTERNAL_ERROR,
+      statusCode: 500,
+      message: error,
+    };
   }
 
   if (typeof error === 'number') {
-    return { code: 500, message: `Код ошибки: ${error}` };
+    return {
+      code: ErrorCodeEnum.INTERNAL_ERROR,
+      statusCode: 500,
+      message: `Код ошибки: ${error}`,
+    };
   }
 
   return {
-    code: 500,
+    code: ErrorCodeEnum.INTERNAL_ERROR,
+    statusCode: 500,
     message: 'Непредвиденная ошибка',
   };
 };

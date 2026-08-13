@@ -48,6 +48,15 @@ export class IdentityRMQController {
     return this.identityService.handleVerifyClientConnection(context, data);
   }
 
+  @MessagePattern(IdentitySendPatternEnum.CONFIRM_CONNECT)
+  public async confirmClientConnection(
+    @Payload()
+    data: IIdentitySendMessageMap[IdentitySendPatternEnum.CONFIRM_CONNECT],
+    @Ctx() context: RmqContext,
+  ) {
+    return this.identityService.handleConfirmClientConnection(context, data);
+  }
+
   @MessagePattern(IdentitySendPatternEnum.DISCONNECT)
   public async disconnectClientAccount(
     @Payload()
@@ -55,5 +64,14 @@ export class IdentityRMQController {
     @Ctx() context: RmqContext,
   ) {
     return this.identityService.handleDisconnectAccount(context, data);
+  }
+
+  @MessagePattern(IdentitySendPatternEnum.GET_USER_CONNECTIONS)
+  public async getUserConnections(
+    @Payload()
+    data: IIdentitySendMessageMap[IdentitySendPatternEnum.GET_USER_CONNECTIONS],
+    @Ctx() context: RmqContext,
+  ) {
+    return this.identityService.handleGetClientConnections(context, data);
   }
 }

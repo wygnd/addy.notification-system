@@ -1,11 +1,8 @@
-import { isRpcError } from '@addy/common';
+import { AppException, ErrorCodeEnum } from '@addy/common';
 import {
   CallHandler,
   ExecutionContext,
-  HttpException,
-  HttpStatus,
   Injectable,
-  InternalServerErrorException,
   NestInterceptor,
 } from '@nestjs/common';
 import { catchError, Observable, TimeoutError } from 'rxjs';
@@ -18,24 +15,12 @@ export class RpcExceptionInterceptor implements NestInterceptor {
   ): Observable<any> {
     return next.handle().pipe(
       catchError((err) => {
-        throw this.normalizeError(err);
+        if (err instanceof TimeoutError) {
+          throw new AppException(ErrorCodeEnum.SERVICE_TIMEOUT);
+        }
+
+        throw err;
       }),
     );
-  }
-
-  private normalizeError(error: unknown): HttpException {
-    if (error instanceof HttpException) {
-      return error;
-    }
-
-    if (error instanceof TimeoutError) {
-      return new HttpException('Service Timeout', HttpStatus.GATEWAY_TIMEOUT);
-    }
-
-    if (isRpcError(error)) {
-      return new HttpException(error.message, error.statusCode);
-    }
-
-    return new InternalServerErrorException('Unexpected error');
   }
 }

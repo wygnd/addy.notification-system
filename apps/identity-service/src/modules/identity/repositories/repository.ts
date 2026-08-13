@@ -52,4 +52,8 @@ export class IdentityRepository implements IIdentityRepositoryPort {
 
     return updated[0] > 0;
   }
+
+  public async getByExternalUserId(id: string): Promise<IdentityModel[]> {
+    return this.repo.findAll({ where: { externalUserId: id } });
+  }
 }

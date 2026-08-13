@@ -4,7 +4,7 @@ import { UserService } from '@modules/users/services/service';
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('Users')
+@ApiTags('Пользователи')
 @Controller({
   version: '1',
   path: 'users',

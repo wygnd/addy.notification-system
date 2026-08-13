@@ -16,7 +16,7 @@ export class OtpService {
    */
   public async create(
     identity: string,
-    payload: unknown = {},
+    payload: unknown = null,
   ): Promise<string> {
     const { code, hash } = await this.generate();
 
@@ -39,14 +39,14 @@ export class OtpService {
   public async verify(identity: string, inputCode: string): Promise<string> {
     const normalizeCode = inputCode.toUpperCase().replace(/\s./g, '');
     const rateLimitRedisKey =
-      REDIS_KEYS.CLIENT_CONNECT_LIMIT + `${identity}:${inputCode}`;
+      REDIS_KEYS.CLIENT_CONNECT_VERIFY_LIMIT + `${identity}:${inputCode}`;
 
     const attempts = await this.redisService.incr(rateLimitRedisKey);
 
     await this.redisService.expire(rateLimitRedisKey, 300);
 
     if (attempts > 3) {
-      throw new Error('Too many requests. Please take new code.');
+      throw new Error('Слишком много попыток. Пожалуйста, попробуйте позже.');
     }
 
     const redisKey = REDIS_KEYS.CLIENT_CONNECT + `${identity}:${normalizeCode}`;
@@ -54,7 +54,7 @@ export class OtpService {
     const userId = await this.redisService.get<string>(redisKey);
 
     if (!userId) {
-      throw new Error('Bad code or code was expired');
+      throw new Error('Неверный код или срок активации истек');
     }
 
     // Инвалидируем код

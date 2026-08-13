@@ -1,6 +1,10 @@
 // ============= SEND CONNECT =============
 import { PlatformEnum } from '@src/enums';
 
+
+
+
+
 interface IIdentityMessageSendConnectPayloadBase {
   userId: string;
 }
@@ -36,6 +40,7 @@ export interface IIdentityMessageSendConnectResponseBase {
 export interface IIdentityMessageSendConnectResponseTelegram extends IIdentityMessageSendConnectResponseBase {
   platform: PlatformEnum.TELEGRAM;
   code?: string;
+  connectionLink?: string;
 }
 
 export interface IIdentityMessageSendConnectResponseVK extends IIdentityMessageSendConnectResponseBase {
@@ -88,4 +93,18 @@ export interface IIdentityMessageDisconnectPayload {
 export interface IIdentityMessageDisconnectResponse {
   status: boolean;
   message: string;
+}
+
+// ============= GET USER CONNECTIONS =============
+export interface IIdentityMessageGetUserConnectionPayload {
+  userId: string;
+}
+
+export interface IIdentityMessageGetUserConnectionItem {
+  platform: PlatformEnum;
+  connected: boolean;
+}
+
+export interface IIdentityMessageGetUserConnectionResponse {
+  items: IIdentityMessageGetUserConnectionItem[];
 }
