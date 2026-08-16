@@ -13,8 +13,9 @@ export class TelegramWebhookGuard implements CanActivate {
     const request = context.switchToHttp().getRequest() as FastifyReply;
 
     const secretToken = this.configService.get<string>(
-      'TELEGRAM_WEBHOOK_SERCRET',
+      'TELEGRAM_WEBHOOK_SECRET',
     );
+
     const headerToken = request.headers['x-telegram-bot-api-secret-token'];
 
     if (!headerToken || headerToken !== secretToken) {

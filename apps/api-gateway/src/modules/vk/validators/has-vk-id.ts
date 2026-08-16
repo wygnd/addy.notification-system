@@ -14,7 +14,10 @@ class HasVkIdConstraint implements ValidatorConstraintInterface {
     const object = validationArguments?.object as UserConnectRequestDTO;
 
     if (object.platform === PlatformEnum.VK) {
-      return typeof value === 'string' && value.length > 0;
+      return (
+        (typeof value === 'string' && value.length > 0) ||
+        (typeof value === 'number' && value > 0)
+      );
     }
 
     return value === undefined;
@@ -24,7 +27,7 @@ class HasVkIdConstraint implements ValidatorConstraintInterface {
     const object = validationArguments?.object as UserConnectRequestDTO;
 
     if (object.platform === PlatformEnum.VK) {
-      return `${validationArguments?.property} is required when platform is ${PlatformEnum.VK}`;
+      return `${validationArguments?.property} is required for ${PlatformEnum.VK} platform`;
     }
 
     return `${validationArguments?.property} must not be present unless platform is ${PlatformEnum.VK}}`;

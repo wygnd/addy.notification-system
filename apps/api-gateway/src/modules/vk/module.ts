@@ -1,3 +1,4 @@
+import { IdentityModule } from '@modules/identity/module';
 import { VK_RABBITMQ_SERVICE } from '@modules/vk/constants/constants';
 import { VkProvider } from '@modules/vk/providers/provider';
 import { VkService } from '@modules/vk/services/service';
@@ -34,6 +35,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         },
       ],
     }),
+
+    IdentityModule,
   ],
   providers: [VkProvider, VkService],
   exports: [VkService],

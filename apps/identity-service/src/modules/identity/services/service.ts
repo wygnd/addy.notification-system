@@ -110,6 +110,48 @@ export class IdentityService {
     return userId;
   }
 
+  private async formConnectionData(
+    data: IIdentityMessageSendConnectPayloadFields,
+  ) {
+    const { userId, platform } = data;
+    let code: string;
+    let connectionLink: string | undefined = undefined;
+
+    switch (platform) {
+      case PlatformEnum.TELEGRAM:
+        const botUsername = this.configService.get<string>(
+          'TELEGRAM_BOT_USERNAME',
+        );
+
+        if (!botUsername) {
+          throw new AppRpcException(ErrorCodeEnum.INTERNAL_ERROR);
+        }
+
+        const connectionToken = await this.initialTokenConnect(
+          userId,
+          platform,
+        );
+
+        connectionLink = `https://t.me/${botUsername}?start=${connectionToken}`;
+
+        break;
+
+      case PlatformEnum.VK:
+        break;
+
+      default:
+        throw new AppRpcException(
+          ErrorCodeEnum.NOT_ALLOWED,
+          'Invalid platform',
+        );
+    }
+
+    return {
+      code: await this.otpService.create(platform, userId),
+      connectionLink,
+    };
+  }
+
   private async connectClient(
     data: IIdentityMessageSendConnectPayloadFields,
   ): Promise<IIdentityMessageSendConnectResponse> {
@@ -144,8 +186,6 @@ export class IdentityService {
     switch (platform) {
       case PlatformEnum.VK:
         identityCreationFields.platformUserId = data.platformUserId;
-        identityCreationFields.status = IdentityStatusEnum.VERIFIED;
-        identityCreationFields.verifiedAt = new Date().toISOString();
         break;
 
       case PlatformEnum.TELEGRAM:
@@ -161,36 +201,15 @@ export class IdentityService {
 
     await this.redisService.del(rateLimitRedisKey);
 
-    if (platform === PlatformEnum.VK) {
-      return {
-        status: true,
-        platform: PlatformEnum.VK,
-        message: `Client was connected to ${platform}`,
-      };
-    }
+    const { code, connectionLink } = await this.formConnectionData(data);
 
-    if (platform === PlatformEnum.TELEGRAM) {
-      const botUsername = this.configService.get<string>(
-        'TELEGRAM_BOT_USERNAME',
-      );
-
-      if (!botUsername) {
-        throw new AppRpcException(ErrorCodeEnum.INTERNAL_ERROR);
-      }
-
-      const code = await this.otpService.create(platform, userId);
-      const connectionToken = await this.initialTokenConnect(userId, platform);
-
-      return {
-        status: true,
-        message: 'Code was generated successfully',
-        platform: PlatformEnum.TELEGRAM,
-        code: code,
-        connectionLink: `https://t.me/${botUsername}?start=${connectionToken}`,
-      };
-    }
-
-    throw new AppRpcException(ErrorCodeEnum.NOT_ALLOWED);
+    return {
+      status: true,
+      message: 'Code was generated successfully',
+      platform: platform,
+      code: code,
+      connectionLink: connectionLink,
+    };
   }
 
   private async checkClientConnection(

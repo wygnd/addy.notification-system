@@ -6,7 +6,6 @@ import {
   NotificationResultEnum,
   PlatformEnum,
   VkCheckClientInGroupPayload,
-  VkSendMessageBatchPayload,
   VkSendMessagePayload,
 } from '@addy/common';
 import '@modules/vk/interfaces';
@@ -90,8 +89,9 @@ export class VkService {
   private async handleSendMessage(data: VkSendMessagePayload) {
     const { correlationId, userId, text } = data;
     try {
-      const { allowed: isAllowedSendMessage } =
-        await this.vkGroupService.isAllowSendMessage(Number(userId));
+      const isAllowedSendMessage = await this.vkGroupService.isAllowSendMessage(
+        Number(userId),
+      );
 
       if (!isAllowedSendMessage) {
         throw new AppRpcException(
@@ -124,7 +124,7 @@ export class VkService {
 
   private async checkUserInGroup(data: VkCheckClientInGroupPayload) {
     try {
-      const exists = await this.vkGroupService.checkUserIdGroup(
+      const exists = await this.vkGroupService.isMemberUser(
         Number(data.userId),
       );
 
@@ -140,52 +140,6 @@ export class VkService {
     }
   }
 
-  private async sendMessageBatch(data: VkSendMessageBatchPayload) {
-    const { text, correlationId, userIds } = data;
-
-    await this.sendMessageResult(
-      correlationId,
-      NotificationLogStatusEnum.PROCESSING,
-    );
-
-    try {
-      // Проверяем всех пользователей на возможность отправки сообщений
-      let userAccessSendMessageList = await Promise.all(
-        userIds.map((userId) => this.vkGroupService.isAllowSendMessage(userId)),
-      );
-
-      // Оставляем только тех пользователей, кому мы можем отправить
-      userAccessSendMessageList.filter((user) => user.allowed);
-
-      if (userAccessSendMessageList.length === 0) {
-        throw new AppRpcException(
-          ErrorCodeEnum.USER_BLOCK_SEND_MESSAGE,
-          'Все пользователи заблокировали отправку сообщений',
-        );
-      }
-
-      await this.vkMessageService.sendMessageBatch(
-        userAccessSendMessageList.map((user) => user.userId),
-        text,
-      );
-
-      await this.sendMessageResult(
-        correlationId,
-        NotificationLogStatusEnum.COMPLETED,
-      );
-    } catch (error) {
-      const { message } = normalizeError(error);
-
-      this.logger.error(message);
-
-      await this.sendMessageResult(
-        correlationId,
-        NotificationLogStatusEnum.FAILED,
-        message,
-      );
-    }
-  }
-
   public async handleSendNotification(
     context: RmqContext,
     data: VkSendMessagePayload,
@@ -198,12 +152,5 @@ export class VkService {
     data: VkCheckClientInGroupPayload,
   ) {
     return this.handleSendWithAck(context, () => this.checkUserInGroup(data));
-  }
-
-  public async handleSendMessageBatch(
-    context: RmqContext,
-    data: VkSendMessageBatchPayload,
-  ) {
-    return this.handleEmitWithAck(context, () => this.sendMessageBatch(data));
   }
 }

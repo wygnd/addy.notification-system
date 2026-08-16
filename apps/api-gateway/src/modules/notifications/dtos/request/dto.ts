@@ -1,8 +1,5 @@
 import { PlatformEnum } from '@addy/common';
-import {
-  INotificationRequest,
-  type INotificationRequestPayload,
-} from '@modules/notifications/interfaces/request/interface';
+import { type INotificationRequestPayload } from '@modules/notifications/interfaces/request/interface';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
@@ -13,6 +10,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { randomUUID } from 'node:crypto';
 
 export class NotificationRequestPayloadDTO implements INotificationRequestPayload {
   @ApiProperty({
@@ -26,7 +24,7 @@ export class NotificationRequestPayloadDTO implements INotificationRequestPayloa
   text: string;
 }
 
-export class NotificationRequestDTO implements INotificationRequest {
+export class NotificationRequestDTO {
   @ApiProperty({
     type: String,
     description: 'Площадка, на которую надо отправить уведомление',
@@ -34,8 +32,8 @@ export class NotificationRequestDTO implements INotificationRequest {
     required: true,
     example: PlatformEnum.TELEGRAM,
   })
-  @IsNotEmpty({ message: 'Platform is required' })
-  @IsString({ message: 'Platform must be a string' })
+  @IsNotEmpty({ message: 'platform is required' })
+  @IsString({ message: 'platform must be a string' })
   @IsIn(Object.values(PlatformEnum).filter((p) => p !== 'unknown'))
   platform: PlatformEnum;
 
@@ -44,8 +42,8 @@ export class NotificationRequestDTO implements INotificationRequest {
     description: 'Данные сообщения',
     required: true,
   })
-  @IsNotEmpty({ message: 'Payload is required' })
-  @IsObject({ message: 'Payload must be an object' })
+  @IsNotEmpty({ message: 'payload is required' })
+  @IsObject({ message: 'payload must be an object' })
   @ValidateNested()
   @Type(() => NotificationRequestPayloadDTO)
   payload: INotificationRequestPayload;
@@ -56,8 +54,18 @@ export class NotificationRequestDTO implements INotificationRequest {
     required: true,
     example: 1,
   })
-  @IsNotEmpty({ message: 'UserId is required' })
+  @IsNotEmpty({ message: 'user_id is required' })
   @Type(() => Number)
-  @IsInt({ message: 'UserId must be a number' })
-  userId: number;
+  @IsInt({ message: 'user_id must be a number' })
+  user_id: number;
+
+  @ApiProperty({
+    type: String,
+    description: 'ID уведомления',
+    required: true,
+    example: randomUUID(),
+  })
+  @IsNotEmpty({ message: 'notification_id is required' })
+  @IsString({ message: 'notification_id must be a string' })
+  notification_id: string;
 }

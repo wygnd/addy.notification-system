@@ -13,7 +13,7 @@ import {
 } from 'sequelize-typescript';
 
 @Table({
-  tableName: 'notification_logs',
+  tableName: 'logs',
   timestamps: true,
   underscored: true,
   indexes: [
@@ -82,7 +82,7 @@ export class NotificationLogModel extends Model<
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
-    defaultValue: 1,
+    defaultValue: 0,
   })
   declare retryCount: number;
 

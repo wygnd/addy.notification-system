@@ -13,7 +13,7 @@ import {
 } from 'sequelize-typescript';
 
 @Table({
-  tableName: 'platform_identities',
+  tableName: 'identities',
   timestamps: true,
   underscored: true,
   indexes: [

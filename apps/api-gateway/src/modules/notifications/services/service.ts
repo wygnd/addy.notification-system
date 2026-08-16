@@ -4,6 +4,7 @@ import {
   normalizeError,
   NotificationLogStatusEnum,
   PlatformEnum,
+  VkCheckClientInGroupResponse,
 } from '@addy/common';
 import { IdentityService } from '@modules/identity/services/service';
 import { NotificationLogBulkAddCommand } from '@modules/notifications/commands/notification-log';
@@ -27,18 +28,33 @@ import { TelegramService } from '@modules/telegram/services/service';
 import { VkService } from '@modules/vk/services/service';
 import { Injectable } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
+import { IPlatformMessenger } from '@shared/interfaces';
 import { randomBytes } from 'crypto';
 
 @Injectable()
 export class NotificationService {
+  private readonly messengers: Record<PlatformEnum, IPlatformMessenger | null>;
+
   constructor(
     private readonly vkService: VkService,
     private readonly notificationLogService: NotificationLogService,
     private readonly identityService: IdentityService,
     private readonly telegramService: TelegramService,
     private readonly commandBus: CommandBus,
-  ) {}
+  ) {
+    this.messengers = {
+      [PlatformEnum.VK]: this.vkService,
+      [PlatformEnum.TELEGRAM]: this.telegramService,
+      [PlatformEnum.UNKNOWN]: null,
+      [PlatformEnum.MAX]: null,
+    };
+  }
 
+  /**
+   * Проверяет уведомление по X-Request-ID
+   * @param requestId
+   * @private
+   */
   private async checkNotificationRequestId(requestId: string): Promise<void> {
     if (!requestId) {
       throw new AppException(
@@ -71,26 +87,17 @@ export class NotificationService {
     const { platform, payload: notificationPayload, requestId } = payload.data;
 
     try {
-      switch (platform) {
-        case PlatformEnum.VK:
-          await this.vkService.sendMessage({
-            text: notificationPayload.text,
-            userId: platformUserId,
-            correlationId: requestId,
-          });
-          break;
+      const messenger = this.messengers[platform];
 
-        case PlatformEnum.TELEGRAM:
-          await this.telegramService.sendMessage({
-            text: notificationPayload.text,
-            userId: platformUserId,
-            correlationId: requestId,
-          });
-          break;
-
-        default:
-          throw new AppException(ErrorCodeEnum.NOT_ALLOWED, 'Invalid platform');
+      if (!messenger) {
+        throw new AppException(ErrorCodeEnum.NOT_ALLOWED, 'Invalid platform');
       }
+
+      await messenger.sendMessage({
+        userId: platformUserId,
+        correlationId: notification.correlationId,
+        text: notificationPayload.text,
+      });
 
       await this.notificationLogService.markQueued(requestId);
     } catch (error) {
@@ -196,6 +203,7 @@ export class NotificationService {
       });
 
     const clientHandledIds = new Set<string>();
+    const clientIdPlatformUserIdMap = new Map<string, string>();
     const clientErrorList: INotificationBatchRecipientError[] = [];
     const addNotificationList: INotificationLogCreateEntity[] = [];
 
@@ -220,6 +228,33 @@ export class NotificationService {
 
       // Если была указана платформа: то только на нее отправляем
       if (recipient.platform) {
+        // Ищем платформу и проверяем, подключена ли она
+        const findPlatform = clientsConnectedPlatforms[recipient.userId].find(
+          (p) => p.platform === recipient.platform,
+        );
+
+        // Если не нашли - пропускаем и добавляем к ошибкам
+        if (!findPlatform) {
+          clientErrorList.push({
+            user_id: recipient.userId,
+            message: `Platform does not exists: ${recipient.platform}`,
+          });
+
+          clientHandledIds.add(recipient.userId);
+          continue;
+        }
+
+        // Если платформа не подключена - пропускаем и добавляем к ошибкам
+        if (!findPlatform.connected) {
+          clientErrorList.push({
+            user_id: recipient.userId,
+            message: `Client does not connected to ${recipient.platform}`,
+          });
+
+          clientHandledIds.add(recipient.userId);
+          continue;
+        }
+
         platformList.push(recipient.platform);
       }
       // Если не указали, пытаемся получить платформы, к которым подключен клиент
@@ -233,9 +268,14 @@ export class NotificationService {
           }
 
           platformList.push(clientPlatform.platform);
+          clientIdPlatformUserIdMap.set(
+            `${recipient.userId}-${clientPlatform.platform}`,
+            clientPlatform.platformUserId ?? '',
+          );
         }
       }
 
+      // Проходим по всем платформам и формируем список для хранения уведомления в БД
       for (const platform of platformList) {
         addNotificationList.push({
           userId: recipient.userId,
@@ -260,10 +300,14 @@ export class NotificationService {
       clientHandledIds.add(recipient.userId);
     }
 
+    // Инсертим уведомления в БД
     const notificationList = await this.commandBus.execute(
       new NotificationLogBulkAddCommand(addNotificationList),
     );
 
+    let sendNotificationCount = 0;
+
+    // Проходим по уведомлениям и отправляем в очередь сообщения
     for (const notification of notificationList) {
       if (
         !notification.payload ||
@@ -272,16 +316,33 @@ export class NotificationService {
         continue;
       }
 
-      switch (notification.channel) {
-        case PlatformEnum.VK:
-          break;
+      const platformUserId = clientIdPlatformUserIdMap.get(
+        `${notification.userId}-${notification.channel}`,
+      );
+
+      if (!platformUserId) {
+        continue;
       }
 
+      try {
+        await this.sendNotification(platformUserId, notification);
+        sendNotificationCount++;
+      } catch {}
     }
-    // todo создать нотификации и отправить по сервисам
 
-    return {
-      errors: Array.from(clientErrorList.values()),
+    let result: INotificationBatchResponse = {
+      message: 'Данные приняты',
     };
+
+    if (sendNotificationCount > 0) {
+      result['message'] =
+        `Уведомлений отправлено в обработку: ${sendNotificationCount}`;
+    }
+
+    if (clientErrorList.length > 0) {
+      result['errors'] = clientErrorList;
+    }
+
+    return result;
   }
 }

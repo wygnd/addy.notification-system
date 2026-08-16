@@ -1,1 +1,0 @@
-export const QUEUE_MESSAGES_NAME = 'QUEUE_MESSAGES';

@@ -5,51 +5,60 @@ import {
 } from '@addy/common';
 import { PlatformEnum } from '@addy/common';
 import { IdentityService } from '@modules/identity/services/service';
+import { TelegramService } from '@modules/telegram/services/service';
 import { IUserConnectFields } from '@modules/users/interfaces';
 import { IUserConnectResponse } from '@modules/users/interfaces/connect/response';
 import { VkService } from '@modules/vk/services/service';
 import { Injectable, Logger } from '@nestjs/common';
+import { IPlatformMessenger } from '@shared/interfaces';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
+  private readonly messengers: Record<PlatformEnum, IPlatformMessenger | null>;
 
   constructor(
     private readonly vkService: VkService,
+    private readonly telegramService: TelegramService,
     private readonly identityService: IdentityService,
-  ) {}
+  ) {
+    this.messengers = {
+      [PlatformEnum.VK]: this.vkService,
+      [PlatformEnum.TELEGRAM]: this.telegramService,
+      [PlatformEnum.MAX]: null,
+      [PlatformEnum.UNKNOWN]: null,
+    };
+  }
 
-  public async connectUser(
-    request: IUserConnectFields,
-  ): Promise<IUserConnectResponse> {
+  public async connectUser(request: IUserConnectFields) {
     const { userId, platform } = request;
-    let response: IIdentityMessageSendConnectResponse | null = null;
+    // let response: IIdentityMessageSendConnectResponse | null = null;
 
-    switch (request.platform) {
-      case PlatformEnum.VK:
-        await this.connectUserToVK(userId, request.platformUserId);
-        break;
+    const messenger = this.messengers[platform];
 
-      case PlatformEnum.TELEGRAM:
-        response = await this.identityService.connectClient(request);
-        break;
-
-      default:
-        throw new AppException(ErrorCodeEnum.NOT_ALLOWED);
+    if (!messenger) {
+      throw new AppException(ErrorCodeEnum.NOT_ALLOWED, 'Invalid platform');
     }
 
-    if (!response) {
-      throw new AppException(
-        ErrorCodeEnum.INTERNAL_ERROR,
-        `Не удалось подключить пользователя к ${platform}`,
-      );
-    }
+    // fixme
+    await messenger.connect(request);
 
-    return response;
+    // switch (request.platform) {
+    //   case PlatformEnum.VK:
+    //     await this.connectUserToVK(userId, request.platformUserId);
+    //     break;
+    //
+    //   case PlatformEnum.TELEGRAM:
+    //     response = await this.identityService.connectClient(request);
+    //     break;
+    //
+    //   default:
+    //     throw new AppException(ErrorCodeEnum.NOT_ALLOWED);
+    // }
   }
 
   private async connectUserToVK(userId: string, vkUserId: string) {
-    const response = await this.vkService.clientInGroup({
+    const response = await this.vkService.isMemberClient({
       userId: vkUserId,
     });
 

@@ -12,7 +12,7 @@ import {
 } from '@nestjs/swagger';
 import { randomUUID } from 'node:crypto';
 
-@ApiTags('Notifications')
+@ApiTags('Уведомления')
 @ApiParam({
   name: 'notification_id',
   description:

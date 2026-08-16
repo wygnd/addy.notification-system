@@ -1,8 +1,8 @@
 import { PlatformEnum } from '@addy/common';
 import {
   INotificationBatch,
-  INotificationBatchRequest,
   INotificationBatchRecipient,
+  INotificationBatchRequest,
 } from '@modules/notifications/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
@@ -21,12 +21,14 @@ import { NotificationRequestPayloadDTO } from '../dto';
 class NotificationBatchRequestUserDTO implements INotificationBatchRecipient {
   @ApiProperty({
     type: String,
-    description: 'Площадка, на которую надо отправить уведомление',
+    description:
+      'Площадка, на которую надо отправить уведомление.' + '<br>' +
+	    'Если не передано, будет отправлено на все платформы, к которым подключен пользователь',
     enum: PlatformEnum,
-    required: true,
+    required: false,
     example: PlatformEnum.TELEGRAM,
   })
-  @IsNotEmpty({ message: 'Platform is required' })
+  @IsOptional()
   @IsString({ message: 'Platform must be a string' })
   @IsIn(Object.values(PlatformEnum).filter((p) => p !== 'unknown'))
   platform?: PlatformEnum;

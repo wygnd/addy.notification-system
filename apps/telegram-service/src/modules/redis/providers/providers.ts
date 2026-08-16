@@ -12,7 +12,7 @@ export const redisProviders = [
       try {
         await client?.connect?.();
       } catch (error) {
-        console.error(`REDIS: Failed to connect: ${error}`);
+        throw new Error(`REDIS: Failed to connect: ${error}`);
       }
       return client;
     },

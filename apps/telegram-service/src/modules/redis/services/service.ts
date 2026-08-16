@@ -3,6 +3,18 @@ import { isJSON, isString } from 'class-validator';
 import Redis from 'ioredis';
 import { REDIS_CLIENT } from '../constants/constants';
 
+
+
+
+
+
+
+
+
+
+
+
+
 @Injectable()
 export class RedisService {
   constructor(
@@ -32,9 +44,15 @@ export class RedisService {
   public async get<T>(key: string): Promise<T | null> {
     const data = await this.redisClient.get(key);
 
-    if (!data) return null;
+    if (!data) {
+      return null;
+    }
 
-    return isJSON(data) ? (JSON.parse(data) as T) : (data as T);
+    try {
+      return JSON.parse(data) as T;
+    } catch {
+      return data as T;
+    }
   }
 
   public async del(key: string) {

@@ -1,3 +1,4 @@
+import { IdentityModule } from '@modules/identity/module';
 import { TELEGRAM_RABBITMQ_SERVICE } from '@modules/telegram/constants/constants';
 import { TelegramProvider } from '@modules/telegram/providers/provider';
 import { TelegramService } from '@modules/telegram/services/service';
@@ -36,6 +37,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         },
       ],
     }),
+
+    IdentityModule,
   ],
   providers: [TelegramProvider, TelegramService],
   exports: [TelegramService],

@@ -7,11 +7,11 @@ export class UserMapper {
     if (dto.platform === PlatformEnum.VK) {
       return {
         platform: dto.platform,
-        userId: dto.user_id,
+        userId: dto.user_id.toString(),
         platformUserId: dto.platform_user_id!,
       };
     }
 
-    return { platform: dto.platform, userId: dto.user_id };
+    return { platform: dto.platform, userId: dto.user_id.toString() };
   }
 }

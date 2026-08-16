@@ -1,49 +1,83 @@
 import {
-  IVkEventEmitMap,
+  AppException,
+  ErrorCodeEnum,
   IVkSendMessageMap,
-  IVkSendMessageResponseMap,
+  PlatformEnum,
+  VkCheckClientInGroupResponse,
   VkEmitPatternEnum,
   VkSendPatternEnum,
 } from '@addy/common';
+import { IdentityService } from '@modules/identity/services/service';
+import {
+  IUserConnectFields,
+  IUserConnectResponse,
+} from '@modules/users/interfaces';
 import { VkProvider } from '@modules/vk/providers/provider';
 import { Injectable } from '@nestjs/common';
+import {
+  IPlatformMessenger,
+  IPlatformSendMessagePayload,
+} from '@shared/interfaces';
 
 @Injectable()
-export class VkService {
-  constructor(private readonly vkProvider: VkProvider) {}
+export class VkService implements IPlatformMessenger {
+  constructor(
+    private readonly vkProvider: VkProvider,
+    private readonly identityService: IdentityService,
+  ) {}
 
   /**
-   * Отправляет событие в VK Service
+   * Отправляет сообщение в сервис
    */
-  private async emit<T extends VkEmitPatternEnum = VkEmitPatternEnum>(
-    pattern: T,
-    data: IVkEventEmitMap[T],
-  ): Promise<void> {
-    return this.vkProvider.emit(pattern, data);
+  public async sendMessage(data: IPlatformSendMessagePayload): Promise<void> {
+    await this.vkProvider.emit(VkEmitPatternEnum.SEND_MESSAGE, {
+      userId: data.userId,
+      correlationId: data.correlationId,
+      text: data.text,
+    });
   }
 
-  private async send<T, U extends VkSendPatternEnum = VkSendPatternEnum>(
-    pattern: U,
-    data: IVkSendMessageMap[U],
-  ): Promise<IVkSendMessageResponseMap[U]> {
-    return this.vkProvider.send(pattern, data);
+  /**
+   * Подключает пользователя
+   */
+  public async connect(
+    data: IUserConnectFields,
+  ): Promise<IUserConnectResponse> {
+    if (data.platform !== PlatformEnum.VK) {
+      throw new AppException(
+        ErrorCodeEnum.NOT_ALLOWED,
+        'Invalid platform for VK messenger',
+      );
+    }
+
+    const response = await this.isMemberClient({
+      userId: data.platformUserId,
+    });
+
+    if (!response.status) {
+      throw new AppException(
+        ErrorCodeEnum.SERVICE_BAD_REQUEST,
+        response.message,
+      );
+    }
+
+    return this.identityService.connectClient({
+      platform: PlatformEnum.VK,
+      userId: data.userId.toString(), // todo
+      platformUserId: data.platformUserId,
+    });
   }
 
-  public async sendMessage(
-    data: IVkEventEmitMap[VkEmitPatternEnum.SEND_MESSAGE],
-  ): Promise<void> {
-    await this.vkProvider.emit(VkEmitPatternEnum.SEND_MESSAGE, data);
-  }
-
-  public async clientInGroup(
+  /**
+   * Проверяет, состоит ли клиент в группе
+   * @param data
+   */
+  public async isMemberClient(
     data: IVkSendMessageMap[VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP],
-  ) {
-    return this.send(VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP, data);
-  }
-
-  public async sendMessageBatch(
-    data: IVkEventEmitMap[VkEmitPatternEnum.SEND_MESSAGE_BATCH],
-  ): Promise<void> {
-    return this.emit(VkEmitPatternEnum.SEND_MESSAGE_BATCH, data);
+  ): Promise<VkCheckClientInGroupResponse> {
+    return this.vkProvider.send(
+      VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP,
+      data,
+    );
   }
 }

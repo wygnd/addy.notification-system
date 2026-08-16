@@ -44,7 +44,7 @@ export class TelegramBotApiService
       );
 
       const webhookIpAddress = this.configService.getOrThrow<string>(
-        'TELEGRAM_WEBHHOK_IP_ADDRESS',
+        'TELEGRAM_WEBHOOK_IP_ADDRESS',
       );
 
       await this.bot.api.setWebhook(webhookURL, {

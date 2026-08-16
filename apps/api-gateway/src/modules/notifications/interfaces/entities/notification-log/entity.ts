@@ -1,10 +1,7 @@
 import { NotificationLogStatusEnum, Optional } from '@addy/common';
 import { PlatformEnum } from '@addy/common';
 import { NotificationLogPayloadEnum } from '@modules/notifications/enums';
-import {
-  INotification,
-  INotificationLogRepositoryPort,
-} from '@modules/notifications/interfaces';
+import { INotification } from '@modules/notifications/interfaces';
 
 export interface INotificationLogEntity {
   id: string;

@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@addy/common": "workspace:*",
-    "@nestjs/bullmq": "^11.0.5",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
@@ -29,7 +28,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "amqp-connection-manager": "^5.0.0",
     "amqplib": "^2.0.1",
-    "bullmq": "^6.1.0",
+    "bottleneck": "^2.19.5",
     "node-vk-bot-api": "^3.5.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"

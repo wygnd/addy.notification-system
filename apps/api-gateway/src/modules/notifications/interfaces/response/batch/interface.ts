@@ -4,5 +4,6 @@ export interface INotificationBatchRecipientError {
 }
 
 export interface INotificationBatchResponse {
-  errors: INotificationBatchRecipientError[];
+  message: string;
+  errors?: INotificationBatchRecipientError[];
 }

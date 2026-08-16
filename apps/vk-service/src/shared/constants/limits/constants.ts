@@ -1,0 +1,1 @@
+export const VK_SERVICE_SEND_MESSAGE_LIMIT_ITEMS = 18;

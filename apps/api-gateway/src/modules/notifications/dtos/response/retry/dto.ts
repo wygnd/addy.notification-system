@@ -3,10 +3,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class NotificationRetryResponseDTO implements INotificationRetryResponse {
   @ApiProperty({
-    type: Boolean,
+    type: String,
     description: 'Статус постановки в очередь',
     required: true,
-    example: true,
   })
-  status: boolean;
+  message: string;
 }

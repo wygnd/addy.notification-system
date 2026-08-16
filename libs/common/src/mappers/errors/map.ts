@@ -61,7 +61,7 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
     message: 'Сервис не отвечает',
   },
   [ErrorCodeEnum.SERVICE_BAD_REQUEST]: {
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    status: HttpStatus.BAD_REQUEST,
     message: 'Внутренняя ошибка сервера',
   },
 

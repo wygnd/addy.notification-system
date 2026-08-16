@@ -19,7 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { randomUUID } from 'node:crypto';
 
-@ApiTags('Notifications')
+@ApiTags('Уведомления')
 @Controller({
   version: '1',
   path: 'notifications',
@@ -55,13 +55,14 @@ export class NotificationControllerV1 {
   @Post()
   public async receiveNotification(
     @Headers('host') host: string,
-    @Headers('X-Request-ID') requestId: string,
     @Body() body: NotificationRequestDTO,
   ): Promise<NotificationResponseDTO> {
     return this.notificationService.receiveNotification({
-      ...body,
-      requestId: requestId,
+      requestId: body.notification_id,
       host: host,
+      userId: body.user_id,
+      payload: body.payload,
+      platform: body.platform,
     });
   }
 

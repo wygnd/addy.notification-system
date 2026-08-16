@@ -1,5 +1,6 @@
 import { IdentityModule } from '@modules/identity/module';
 import { RedisModule } from '@modules/redis/module';
+import { TelegramModule } from '@modules/telegram/module';
 import {
   UserControllerV1,
   UserIDControllerV1,
@@ -10,7 +11,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ConfigModule, VkModule, IdentityModule, RedisModule],
+  imports: [
+    ConfigModule,
+    VkModule,
+    TelegramModule,
+    IdentityModule,
+    RedisModule,
+  ],
   controllers: [UserControllerV1, UserIDControllerV1],
   providers: [UserService],
 })

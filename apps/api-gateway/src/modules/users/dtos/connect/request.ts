@@ -1,12 +1,7 @@
 import { PlatformEnum } from '@addy/common';
 import { HasVkId } from '@modules/vk/validators';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsIn,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsIn, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UserConnectRequestDTO {
   @ApiProperty({
@@ -22,14 +17,14 @@ export class UserConnectRequestDTO {
   platform: PlatformEnum;
 
   @ApiProperty({
-    type: String,
+    type: Number,
     description: 'ID пользователя в системе',
     required: true,
-    example: '1',
+    example: 1,
   })
   @IsNotEmpty()
-  @IsString()
-  user_id: string;
+  @IsInt()
+  user_id: number;
 
   @ApiProperty({
     type: String,
@@ -37,8 +32,6 @@ export class UserConnectRequestDTO {
     required: false,
     example: '12334',
   })
-  @IsOptional()
-  @IsString()
   @HasVkId()
   platform_user_id?: string;
 }
