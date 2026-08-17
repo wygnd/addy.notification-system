@@ -1,25 +1,28 @@
-import { PlatformEnum, VkSendPatternEnum } from '@src/enums';
+import { VkSendPatternEnum } from '@src/enums';
 
 export interface IVkSendMessageMap {
-  [VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP]: VkCheckClientInGroupPayload;
-  [VkSendPatternEnum.SEND_CONNECT_CLIENT]: VkSendConnectClientPayload;
+  [VkSendPatternEnum.IS_CLIENT_MEMBER]: VkSendIsClientMemberPayload;
+  [VkSendPatternEnum.IS_ALLOW_SEND_MESSAGE]: VkSendIsAllowSendMessagePayload;
 }
 
 export interface IVkSendMessageResponseMap {
-  [VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP]: VkCheckClientInGroupResponse;
-  [VkSendPatternEnum.SEND_CONNECT_CLIENT]: {};
+  [VkSendPatternEnum.IS_CLIENT_MEMBER]: VkSendIsClientMemberResponse;
+  [VkSendPatternEnum.IS_ALLOW_SEND_MESSAGE]: VkSendIsAllowSendMessageResponse;
 }
 
-export interface VkCheckClientInGroupPayload {
+export interface VkSendIsClientMemberPayload {
   userId: string;
 }
 
-export interface VkCheckClientInGroupResponse {
+export interface VkSendIsClientMemberResponse {
   status: boolean;
   message: string;
 }
 
-export interface VkSendConnectClientPayload {
-  platform: PlatformEnum;
-  userId: string;
+export interface VkSendIsAllowSendMessagePayload {
+  platformUserId: string;
+}
+
+export interface VkSendIsAllowSendMessageResponse {
+  status: boolean;
 }

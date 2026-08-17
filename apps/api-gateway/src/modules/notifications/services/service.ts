@@ -4,7 +4,6 @@ import {
   normalizeError,
   NotificationLogStatusEnum,
   PlatformEnum,
-  VkCheckClientInGroupResponse,
 } from '@addy/common';
 import { IdentityService } from '@modules/identity/services/service';
 import { NotificationLogBulkAddCommand } from '@modules/notifications/commands/notification-log';

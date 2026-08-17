@@ -3,8 +3,8 @@ import {
   ErrorCodeEnum,
   IVkSendMessageMap,
   PlatformEnum,
-  VkCheckClientInGroupResponse,
   VkEmitPatternEnum,
+  VkSendIsClientMemberResponse,
   VkSendPatternEnum,
 } from '@addy/common';
 import { IdentityService } from '@modules/identity/services/service';
@@ -61,6 +61,15 @@ export class VkService implements IPlatformMessenger {
       );
     }
 
+    // Проверяем можно ли отправлять собщения пользователю
+    const isAllowSendMessage = await this.isAllowSendMessage(
+      data.platformUserId,
+    );
+
+    if (!isAllowSendMessage) {
+      throw new AppException(ErrorCodeEnum.USER_BLOCK_SEND_MESSAGE);
+    }
+
     return this.identityService.connectClient({
       platform: PlatformEnum.VK,
       userId: data.userId.toString(), // todo
@@ -72,12 +81,25 @@ export class VkService implements IPlatformMessenger {
    * Проверяет, состоит ли клиент в группе
    * @param data
    */
-  public async isMemberClient(
-    data: IVkSendMessageMap[VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP],
-  ): Promise<VkCheckClientInGroupResponse> {
-    return this.vkProvider.send(
-      VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP,
-      data,
+  private async isMemberClient(
+    data: IVkSendMessageMap[VkSendPatternEnum.IS_CLIENT_MEMBER],
+  ): Promise<VkSendIsClientMemberResponse> {
+    return this.vkProvider.send(VkSendPatternEnum.IS_CLIENT_MEMBER, data);
+  }
+
+  /**
+   * Проверяет, есть ли доступ отправлять сообщения пользователю
+   * @param userId
+   * @private
+   */
+  private async isAllowSendMessage(userId: string): Promise<boolean> {
+    const { status } = await this.vkProvider.send(
+      VkSendPatternEnum.IS_ALLOW_SEND_MESSAGE,
+      {
+        platformUserId: userId,
+      },
     );
+
+    return status;
   }
 }

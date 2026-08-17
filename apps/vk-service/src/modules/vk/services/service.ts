@@ -5,7 +5,7 @@ import {
   NotificationLogStatusEnum,
   NotificationResultEnum,
   PlatformEnum,
-  VkCheckClientInGroupPayload,
+  VkSendIsClientMemberPayload,
   VkSendMessagePayload,
 } from '@addy/common';
 import '@modules/vk/interfaces';
@@ -122,7 +122,7 @@ export class VkService {
     }
   }
 
-  private async checkUserInGroup(data: VkCheckClientInGroupPayload) {
+  private async checkUserInGroup(data: VkSendIsClientMemberPayload) {
     try {
       const exists = await this.vkGroupService.isMemberUser(
         Number(data.userId),
@@ -149,7 +149,7 @@ export class VkService {
 
   public async handleCheckUserInGroup(
     context: RmqContext,
-    data: VkCheckClientInGroupPayload,
+    data: VkSendIsClientMemberPayload,
   ) {
     return this.handleSendWithAck(context, () => this.checkUserInGroup(data));
   }

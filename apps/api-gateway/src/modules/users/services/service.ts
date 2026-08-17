@@ -57,25 +57,6 @@ export class UserService {
     // }
   }
 
-  private async connectUserToVK(userId: string, vkUserId: string) {
-    const response = await this.vkService.isMemberClient({
-      userId: vkUserId,
-    });
-
-    if (!response.status) {
-      throw new AppException(
-        ErrorCodeEnum.SERVICE_BAD_REQUEST,
-        response.message,
-      );
-    }
-
-    await this.identityService.connectClient({
-      platform: PlatformEnum.VK,
-      userId: userId,
-      platformUserId: vkUserId,
-    });
-  }
-
   public async getUserByID(userId: string) {
     if (!userId) {
       throw new AppException(ErrorCodeEnum.USER_NOT_FOUND);

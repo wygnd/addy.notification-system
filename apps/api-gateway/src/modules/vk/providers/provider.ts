@@ -1,6 +1,7 @@
 import {
   IVkEventEmitMap,
   IVkSendMessageMap,
+  IVkSendMessageResponseMap,
   VkEmitPatternEnum,
   VkSendPatternEnum,
 } from '@addy/common';
@@ -39,9 +40,9 @@ export class VkProvider implements OnModuleInit, OnModuleDestroy {
   public async send<T, U extends VkSendPatternEnum>(
     pattern: U,
     data: IVkSendMessageMap[U],
-  ): Promise<T> {
+  ): Promise<IVkSendMessageResponseMap[U]> {
     return firstValueFrom(
-      this.client.send<T>(pattern, data).pipe(
+      this.client.send<IVkSendMessageResponseMap[U]>(pattern, data).pipe(
         timeout(10_000),
         catchError((err) => {
           throw err;

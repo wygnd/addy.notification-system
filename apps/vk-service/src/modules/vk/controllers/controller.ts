@@ -25,10 +25,10 @@ export class VkController {
     return this.vkBotService.handleSendNotification(context, data);
   }
 
-  @MessagePattern(VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP)
+  @MessagePattern(VkSendPatternEnum.IS_CLIENT_MEMBER)
   public async checkUserInGroup(
     @Payload()
-    data: IVkSendMessageMap[VkSendPatternEnum.SEND_CHECK_CLIENT_IN_GROUP],
+    data: IVkSendMessageMap[VkSendPatternEnum.IS_CLIENT_MEMBER],
     @Ctx() context: RmqContext,
   ) {
     return this.vkBotService.handleCheckUserInGroup(context, data);
