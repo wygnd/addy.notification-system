@@ -41,12 +41,6 @@ export class NotificationControllerV1 {
       'Адрес хоста, с которого отправляется запрос. Заполняется автоматически',
     required: false,
   })
-  @ApiHeader({
-    name: 'X-Request-ID',
-    description: 'Уникальный идентификатор запроса',
-    required: true,
-    example: randomUUID(),
-  })
   @ApiOkResponse({
     description: 'Успешный ответ',
     type: NotificationResponseDTO,
@@ -73,23 +67,20 @@ export class NotificationControllerV1 {
       'Адрес хоста, с которого отправляется запрос. Заполняется автоматически',
     required: false,
   })
-  @ApiHeader({
-    name: 'X-Request-ID',
-    description: 'Уникальный идентификатор запроса',
-    required: true,
-    example: randomUUID(),
-  })
   @HttpCode(HttpStatus.OK)
   @Post('batch')
   public async receiveBatchNotification(
     @Headers('host') host: string,
-    @Headers('X-Request-ID') requestId: string,
     @Body() body: NotificationBatchRequestDTO,
   ) {
     return this.notificationService.receiveBatchNotification({
-      ...body,
-      host,
-      requestId,
+      requestId: body.notification_id,
+      host: host,
+      defaultPayload: body.default_payload,
+      recipients: body.recipients.map((r) => ({
+        ...r,
+        userId: r.user_id.toString(),
+      })),
     });
   }
 }

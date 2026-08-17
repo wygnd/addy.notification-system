@@ -6,6 +6,8 @@ import { throwError } from 'rxjs';
 @Catch()
 export class ExceptionsToRpcFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
+    console.log(exception);
+
     if (exception instanceof RpcException) {
       return throwError(() => exception.getError());
     }

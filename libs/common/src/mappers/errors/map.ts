@@ -9,15 +9,15 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
     message: 'Пользователь не найден',
   },
   [ErrorCodeEnum.USER_NOT_VERIFIED]: {
-    status: HttpStatus.METHOD_NOT_ALLOWED,
+    status: HttpStatus.CONFLICT,
     message: 'Пользователь в состоянии подключения',
   },
   [ErrorCodeEnum.USER_WAS_REVOKED]: {
-    status: HttpStatus.METHOD_NOT_ALLOWED,
+    status: HttpStatus.CONFLICT,
     message: 'Пользователь отключен',
   },
   [ErrorCodeEnum.USER_NOT_MATCHED]: {
-    status: HttpStatus.METHOD_NOT_ALLOWED,
+    status: HttpStatus.CONFLICT,
     message: 'Пользователь не подключен',
   },
   [ErrorCodeEnum.USER_WAS_CONNECTING_TO_PLATFORM]: {
@@ -51,7 +51,7 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
     message: 'Уведомление было получено',
   },
   [ErrorCodeEnum.NOTIFICATION_INVALID_PAYLOAD]: {
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    status: HttpStatus.BAD_REQUEST,
     message: 'Invalid payload',
   },
 
@@ -61,8 +61,12 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
     message: 'Сервис не отвечает',
   },
   [ErrorCodeEnum.SERVICE_BAD_REQUEST]: {
-    status: HttpStatus.BAD_REQUEST,
+    status: HttpStatus.BAD_GATEWAY,
     message: 'Внутренняя ошибка сервера',
+  },
+  [ErrorCodeEnum.SERVICE_INTERNAL_ERROR]: {
+    status: HttpStatus.SERVICE_UNAVAILABLE,
+    message: 'Внутрення ошибка сервера',
   },
 
   /* ======================= IDENTITY EXCEPTIONS ======================= */

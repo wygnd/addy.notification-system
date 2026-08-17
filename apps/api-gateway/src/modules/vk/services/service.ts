@@ -61,7 +61,7 @@ export class VkService implements IPlatformMessenger {
       );
     }
 
-    // Проверяем можно ли отправлять собщения пользователю
+    // Проверяем можно ли отправлять сообщения пользователю
     const isAllowSendMessage = await this.isAllowSendMessage(
       data.platformUserId,
     );

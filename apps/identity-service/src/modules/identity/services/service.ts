@@ -21,6 +21,7 @@ import {
 } from '@addy/common';
 import { IdentityAddCommand } from '@modules/identity/commands';
 import { IdentityUpdateCommand } from '@modules/identity/commands/update/command';
+import { IdentityDTO } from '@modules/identity/dtos';
 import { TIdentityCreationEntity } from '@modules/identity/interfaces';
 import {
   IdentityGetClientByExternalIDQuery,
@@ -114,8 +115,8 @@ export class IdentityService {
     data: IIdentityMessageSendConnectPayloadFields,
   ) {
     const { userId, platform } = data;
-    let code: string;
     let connectionLink: string | undefined = undefined;
+    const connectionToken = await this.initialTokenConnect(userId, platform);
 
     switch (platform) {
       case PlatformEnum.TELEGRAM:
@@ -124,19 +125,29 @@ export class IdentityService {
         );
 
         if (!botUsername) {
-          throw new AppRpcException(ErrorCodeEnum.INTERNAL_ERROR);
+          throw new AppRpcException(
+            ErrorCodeEnum.INTERNAL_ERROR,
+            `На данный момент невозможно подключиться к ${platform}`,
+          );
         }
-
-        const connectionToken = await this.initialTokenConnect(
-          userId,
-          platform,
-        );
 
         connectionLink = `https://t.me/${botUsername}?start=${connectionToken}`;
 
         break;
 
       case PlatformEnum.VK:
+        const groupScreenName = this.configService.get<string>(
+          'VK_SCREEN_GROUP_NAME',
+        );
+
+        if (!groupScreenName) {
+          throw new AppRpcException(
+            ErrorCodeEnum.INTERNAL_ERROR,
+            `На данный момент невозможно подключиться к ${platform}`,
+          );
+        }
+
+        connectionLink = `https://vk.me/${groupScreenName}/?ref=${connectionToken}&text=Подключить%20аккаунт`;
         break;
 
       default:
@@ -148,7 +159,7 @@ export class IdentityService {
 
     return {
       code: await this.otpService.create(platform, userId),
-      connectionLink,
+      connectionLink: connectionLink,
     };
   }
 
@@ -171,8 +182,19 @@ export class IdentityService {
       new IdentityExistsQuery(userId, platform),
     );
 
-    if (existsRow && existsRow.status !== IdentityStatusEnum.REVOKED) {
-      throw new AppRpcException(ErrorCodeEnum.USER_WAS_CONNECTING_TO_PLATFORM);
+    if (existsRow) {
+      if (existsRow.status === IdentityStatusEnum.PENDING) {
+        throw new AppRpcException(
+          ErrorCodeEnum.USER_WAS_CONNECTING_TO_PLATFORM,
+          'Пользователь уже отправлял запрос на подключение',
+        );
+      }
+
+      if (existsRow.status === IdentityStatusEnum.VERIFIED) {
+        throw new AppRpcException(
+          ErrorCodeEnum.USER_WAS_CONNECTING_TO_PLATFORM,
+        );
+      }
     }
 
     let identityCreationFields: TIdentityCreationEntity = {
@@ -185,7 +207,9 @@ export class IdentityService {
 
     switch (platform) {
       case PlatformEnum.VK:
-        identityCreationFields.platformUserId = data.platformUserId;
+        identityCreationFields['platformUserId'] = data.platformUserId;
+        identityCreationFields['status'] = IdentityStatusEnum.VERIFIED;
+        identityCreationFields['verifiedAt'] = new Date().toISOString();
         break;
 
       case PlatformEnum.TELEGRAM:
@@ -195,21 +219,44 @@ export class IdentityService {
         throw new AppRpcException(ErrorCodeEnum.NOT_ALLOWED);
     }
 
-    await this.commandBus.execute(
-      new IdentityAddCommand(identityCreationFields),
+    let identity = await this.queryBus.execute(
+      new IdentityExistsQuery(userId, platform),
     );
+
+    // Если не нашли запись: создаем
+    if (!identity) {
+      identity = await this.commandBus.execute(
+        new IdentityAddCommand(identityCreationFields),
+      );
+    }
+    // Обновляем поля
+    else {
+      await this.commandBus.execute(
+        new IdentityUpdateCommand(identity.id, identityCreationFields),
+      );
+    }
 
     await this.redisService.del(rateLimitRedisKey);
 
-    const { code, connectionLink } = await this.formConnectionData(data);
+    try {
+      const { code, connectionLink } = await this.formConnectionData(data);
 
-    return {
-      status: true,
-      message: 'Code was generated successfully',
-      platform: platform,
-      code: code,
-      connectionLink: connectionLink,
-    };
+      return {
+        status: true,
+        message: 'Code was generated successfully',
+        platform: platform,
+        code: code,
+        connectionLink: connectionLink,
+      };
+    } catch {
+      await this.commandBus.execute(
+        new IdentityUpdateCommand(identity.id, {
+          status: IdentityStatusEnum.FAILED,
+        }),
+      );
+
+      throw new AppRpcException(ErrorCodeEnum.SERVICE_INTERNAL_ERROR);
+    }
   }
 
   private async checkClientConnection(
@@ -431,11 +478,18 @@ export class IdentityService {
       }
 
       const client = clientPlatformList.find((c) => c.platform === platform);
+      let isClientConnected: boolean = false;
+      let platformUserId: string | null = null;
+
+      if (client && client.status === IdentityStatusEnum.VERIFIED) {
+        isClientConnected = true;
+        platformUserId = client.platformUserId;
+      }
 
       items.push({
         platform: platform,
-        connected: !!client,
-        platformUserId: client?.platformUserId ?? null,
+        connected: isClientConnected,
+        platformUserId: platformUserId,
       });
 
       visitedPlatformSet.add(platform);

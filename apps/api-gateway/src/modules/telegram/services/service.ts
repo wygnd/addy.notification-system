@@ -52,9 +52,13 @@ export class TelegramService implements IPlatformMessenger {
       );
     }
 
-    return this.identityService.connectClient({
+    const resp = await this.identityService.connectClient({
       platform: data.platform,
       userId: data.userId,
     });
+
+    console.log('CHECK RES', resp)
+
+    return resp;
   }
 }

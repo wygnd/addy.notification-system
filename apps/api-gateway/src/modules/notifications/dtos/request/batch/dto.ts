@@ -16,20 +16,22 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { randomUUID } from 'node:crypto';
 import { NotificationRequestPayloadDTO } from '../dto';
 
-class NotificationBatchRequestUserDTO implements INotificationBatchRecipient {
+class NotificationBatchRequestUserDTO {
   @ApiProperty({
     type: String,
     description:
-      'Площадка, на которую надо отправить уведомление.' + '<br>' +
-	    'Если не передано, будет отправлено на все платформы, к которым подключен пользователь',
+      'Площадка, на которую надо отправить уведомление.' +
+      '<br>' +
+      'Если не передано, будет отправлено на все платформы, к которым подключен пользователь',
     enum: PlatformEnum,
     required: false,
     example: PlatformEnum.TELEGRAM,
   })
   @IsOptional()
-  @IsString({ message: 'Platform must be a string' })
+  @IsString({ message: 'platform must be a string' })
   @IsIn(Object.values(PlatformEnum).filter((p) => p !== 'unknown'))
   platform?: PlatformEnum;
 
@@ -39,7 +41,7 @@ class NotificationBatchRequestUserDTO implements INotificationBatchRecipient {
     required: true,
   })
   @IsOptional()
-  @IsObject({ message: 'Payload must be an object' })
+  @IsObject({ message: 'payload must be an object' })
   @ValidateNested()
   @Type(() => NotificationRequestPayloadDTO)
   payload?: NotificationRequestPayloadDTO;
@@ -50,13 +52,13 @@ class NotificationBatchRequestUserDTO implements INotificationBatchRecipient {
     required: true,
     example: 1,
   })
-  @IsNotEmpty({ message: 'UserId is required' })
+  @IsNotEmpty({ message: 'user_id is required' })
   @Type(() => Number)
-  @IsInt({ message: 'UserId must be a number' })
-  userId: string;
+  @IsInt({ message: 'user_id must be a number' })
+  user_id: number;
 }
 
-export class NotificationBatchRequestDTO implements INotificationBatchRequest {
+export class NotificationBatchRequestDTO {
   @ApiProperty({
     type: NotificationRequestPayloadDTO,
     description: 'Если передано, то будет отправлено всем пользователям',
@@ -66,7 +68,7 @@ export class NotificationBatchRequestDTO implements INotificationBatchRequest {
   @IsObject({ message: 'Payload must be an object' })
   @ValidateNested()
   @Type(() => NotificationRequestPayloadDTO)
-  defaultPayload: NotificationRequestPayloadDTO;
+  default_payload?: NotificationRequestPayloadDTO;
 
   @ApiProperty({
     type: NotificationBatchRequestUserDTO,
@@ -74,9 +76,19 @@ export class NotificationBatchRequestDTO implements INotificationBatchRequest {
     description: '',
     required: true,
   })
-  @IsNotEmpty({ message: 'Users is required' })
-  @IsArray({ message: 'Users must be an array' })
+  @IsNotEmpty({ message: 'users is required' })
+  @IsArray({ message: 'users must be an array' })
   @ValidateNested()
   @Type(() => NotificationBatchRequestUserDTO)
   recipients: NotificationBatchRequestUserDTO[];
+
+  @ApiProperty({
+    type: String,
+    description: 'ID уведомления',
+    required: true,
+    example: randomUUID(),
+  })
+  @IsNotEmpty({ message: 'notification_id is required' })
+  @IsString({ message: 'notification_id must be a string' })
+  notification_id: string;
 }

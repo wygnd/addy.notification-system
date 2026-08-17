@@ -5,8 +5,10 @@ import {
   NotificationLogStatusEnum,
   NotificationResultEnum,
   PlatformEnum,
+  VkSendIsAllowSendMessagePayload,
+  VkSendIsAllowSendMessageResponse,
   VkSendIsClientMemberPayload,
-  VkSendMessagePayload,
+  IVkSendMessagePayload,
 } from '@addy/common';
 import '@modules/vk/interfaces';
 import { VkNotificationProvider } from '@modules/vk/providers/provider';
@@ -26,7 +28,7 @@ export class VkService {
     private readonly vkMessageService: VkMessageService,
   ) {}
 
-  private async handleEmitWithAck<T>(
+  private async emitWithAck<T>(
     context: RmqContext,
     handler: () => Promise<T>,
   ): Promise<void> {
@@ -42,7 +44,7 @@ export class VkService {
     }
   }
 
-  private async handleSendWithAck<T>(
+  private async sendWithAck<T>(
     context: RmqContext,
     handler: () => Promise<T>,
   ): Promise<T> {
@@ -86,7 +88,7 @@ export class VkService {
     }
   }
 
-  private async handleSendMessage(data: VkSendMessagePayload) {
+  private async handleSendMessage(data: IVkSendMessagePayload) {
     const { correlationId, userId, text } = data;
     try {
       const isAllowedSendMessage = await this.vkGroupService.isAllowSendMessage(
@@ -140,17 +142,34 @@ export class VkService {
     }
   }
 
+  private async isAllowSendMessage(
+    data: VkSendIsAllowSendMessagePayload,
+  ): Promise<VkSendIsAllowSendMessageResponse> {
+    const result = await this.vkGroupService.isAllowSendMessage(
+      data.platformUserId,
+    );
+
+    return { status: result.allowed };
+  }
+
   public async handleSendNotification(
     context: RmqContext,
-    data: VkSendMessagePayload,
+    data: IVkSendMessagePayload,
   ): Promise<void> {
-    await this.handleEmitWithAck(context, () => this.handleSendMessage(data));
+    await this.emitWithAck(context, () => this.handleSendMessage(data));
   }
 
   public async handleCheckUserInGroup(
     context: RmqContext,
     data: VkSendIsClientMemberPayload,
   ) {
-    return this.handleSendWithAck(context, () => this.checkUserInGroup(data));
+    return this.sendWithAck(context, () => this.checkUserInGroup(data));
+  }
+
+  public async handleIsAllowSendMessage(
+    context: RmqContext,
+    data: VkSendIsAllowSendMessagePayload,
+  ): Promise<VkSendIsAllowSendMessageResponse> {
+    return this.sendWithAck(context, () => this.isAllowSendMessage(data));
   }
 }

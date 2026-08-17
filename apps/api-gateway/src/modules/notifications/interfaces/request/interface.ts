@@ -24,7 +24,7 @@ export interface INotificationBatchRecipient {
 }
 
 export interface INotificationBatchRequest {
-  defaultPayload: INotificationRequestPayload;
+  defaultPayload?: INotificationRequestPayload;
   recipients: INotificationBatchRecipient[];
 }
 

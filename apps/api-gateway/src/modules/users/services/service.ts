@@ -31,8 +31,7 @@ export class UserService {
   }
 
   public async connectUser(request: IUserConnectFields) {
-    const { userId, platform } = request;
-    // let response: IIdentityMessageSendConnectResponse | null = null;
+    const { platform } = request;
 
     const messenger = this.messengers[platform];
 
@@ -40,21 +39,9 @@ export class UserService {
       throw new AppException(ErrorCodeEnum.NOT_ALLOWED, 'Invalid platform');
     }
 
-    // fixme
-    await messenger.connect(request);
+    const { code, connectionLink } = await messenger.connect(request);
 
-    // switch (request.platform) {
-    //   case PlatformEnum.VK:
-    //     await this.connectUserToVK(userId, request.platformUserId);
-    //     break;
-    //
-    //   case PlatformEnum.TELEGRAM:
-    //     response = await this.identityService.connectClient(request);
-    //     break;
-    //
-    //   default:
-    //     throw new AppException(ErrorCodeEnum.NOT_ALLOWED);
-    // }
+    return { code, connectionLink };
   }
 
   public async getUserByID(userId: string) {

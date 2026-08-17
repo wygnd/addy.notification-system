@@ -1,4 +1,6 @@
 export interface IUserConnectResponse {
-  code?: string;
+  status: boolean;
+  connectionLink?: string;
+  code: string;
   message: string;
 }

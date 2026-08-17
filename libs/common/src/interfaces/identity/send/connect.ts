@@ -33,27 +33,9 @@ export interface IIdentityMessageSendConnectResponseBase {
   message: string;
 }
 
-``// export interface IIdentityMessageSendConnectResponseTelegram extends IIdentityMessageSendConnectResponseBase {
-//   platform: PlatformEnum.TELEGRAM;
-//   code?: string;
-//   connectionLink?: string;
-// }
-//
-// export interface IIdentityMessageSendConnectResponseVK extends IIdentityMessageSendConnectResponseBase {
-//   platform: PlatformEnum.VK;
-// }
-//
-// export interface IIdentityMessageSendConnectResponseMax extends IIdentityMessageSendConnectResponseBase {
-//   platform: PlatformEnum.MAX;
-// }
-//
-// export interface IIdentityMessageSendConnectResponseUnknown extends IIdentityMessageSendConnectResponseBase {
-//   platform: PlatformEnum.UNKNOWN;
-// }
-
 export interface IIdentityMessageSendConnectResponse extends IIdentityMessageSendConnectResponseBase {
   platform: PlatformEnum;
-  code?: string;
+  code: string;
   connectionLink?: string;
 }
 

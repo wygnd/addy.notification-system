@@ -29,6 +29,7 @@ import { Injectable } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { IPlatformMessenger } from '@shared/interfaces';
 import { randomBytes } from 'crypto';
+import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class NotificationService {
@@ -58,7 +59,7 @@ export class NotificationService {
     if (!requestId) {
       throw new AppException(
         ErrorCodeEnum.VALIDATION_ERROR,
-        'X-Request-ID is required',
+        'notification_id is required',
       );
     }
 
@@ -195,6 +196,8 @@ export class NotificationService {
   public async receiveBatchNotification(
     fields: INotificationBatch,
   ): Promise<INotificationBatchResponse> {
+    await this.checkNotificationRequestId(fields.requestId);
+
     const { requestId, host, defaultPayload, recipients } = fields;
     const { items: clientsConnectedPlatforms } =
       await this.identityService.getConnectedPlatforms({
@@ -212,6 +215,14 @@ export class NotificationService {
       }
 
       const payload = recipient.payload ?? defaultPayload;
+
+      if (!payload) {
+        throw new AppException(
+          ErrorCodeEnum.VALIDATION_ERROR,
+          'payload обязателен',
+        );
+      }
+
       let platformList: PlatformEnum[] = [];
 
       // Если не удалось получить информацию о подключенном пользователе: пропускаем
@@ -231,6 +242,8 @@ export class NotificationService {
         const findPlatform = clientsConnectedPlatforms[recipient.userId].find(
           (p) => p.platform === recipient.platform,
         );
+
+        console.log('check platform', findPlatform);
 
         // Если не нашли - пропускаем и добавляем к ошибкам
         if (!findPlatform) {
@@ -261,6 +274,8 @@ export class NotificationService {
         for (const clientPlatform of clientsConnectedPlatforms[
           recipient.userId
         ]) {
+          console.log('start', clientPlatform.platform);
+
           // Если платформа не подключена или не подключена до конца: пропускаем
           if (!clientPlatform.connected) {
             continue;
@@ -278,7 +293,7 @@ export class NotificationService {
       for (const platform of platformList) {
         addNotificationList.push({
           userId: recipient.userId,
-          correlationId: `${requestId}-${randomBytes(4).toString('hex')}`,
+          correlationId: randomUUID(),
           channel: platform,
           pattern: `${platform}.message.send`,
           payload: {
@@ -318,6 +333,8 @@ export class NotificationService {
       const platformUserId = clientIdPlatformUserIdMap.get(
         `${notification.userId}-${notification.channel}`,
       );
+
+      console.log(platformUserId);
 
       if (!platformUserId) {
         continue;

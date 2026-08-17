@@ -33,4 +33,13 @@ export class VkController {
   ) {
     return this.vkBotService.handleCheckUserInGroup(context, data);
   }
+
+  @MessagePattern(VkSendPatternEnum.IS_ALLOW_SEND_MESSAGE)
+  public async isAllowSendingMessage(
+    @Payload()
+    data: IVkSendMessageMap[VkSendPatternEnum.IS_ALLOW_SEND_MESSAGE],
+    @Ctx() context: RmqContext,
+  ) {
+    return this.vkBotService.handleIsAllowSendMessage(context, data);
+  }
 }
