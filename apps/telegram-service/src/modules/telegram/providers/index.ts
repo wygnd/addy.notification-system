@@ -2,11 +2,14 @@ import {
   TelegramBotConnectCommandHandler,
   TelegramBotConnectMessageHandler,
   TelegramBotDisconnectCommandHandler,
+  TelegramBotDisconnectMessageHandler,
   TelegramBotRegistrator,
   TelegramBotStartCommandHandler,
   TelegramBotTextMessageHandler,
 } from '@modules/telegram/bot';
+import { TelegramBotMenuConnectService } from '@modules/telegram/bot/menu/connect';
 import { TELEGRAM_BOT } from '@modules/telegram/constants';
+import { TelegramConnectionMiddleware } from '@modules/telegram/middlewares';
 import { TelegramNotificationProvider } from '@modules/telegram/providers/provider';
 import {
   TelegramBotApiService,
@@ -50,6 +53,13 @@ export const TelegramProviders = [
   // MESSAGE HEARS
   TelegramBotTextMessageHandler,
   TelegramBotConnectMessageHandler,
+  TelegramBotDisconnectMessageHandler,
+
+  // Middlewares
+  TelegramConnectionMiddleware,
+
+  // Menu Handlers
+  TelegramBotMenuConnectService,
 
   // PROVIDERS
   TelegramNotificationProvider,

@@ -1,5 +1,6 @@
 import { TelegramBotRegistrator } from '@modules/telegram/bot';
 import { TELEGRAM_BOT } from '@modules/telegram/constants';
+import { TelegramConnectionMiddleware } from '@modules/telegram/middlewares';
 import {
   Inject,
   Injectable,
@@ -21,6 +22,7 @@ export class TelegramBotApiService
     private readonly bot: Bot,
     private readonly configService: ConfigService,
     private readonly telegramBotRegistrator: TelegramBotRegistrator,
+    private readonly telegramConnectionMiddleware: TelegramConnectionMiddleware,
   ) {}
 
   public async onApplicationBootstrap(): Promise<void> {
@@ -33,8 +35,15 @@ export class TelegramBotApiService
       await err.ctx.reply('Произошла непредвиденная ошибка :(');
     });
 
+    this.bot.use(this.telegramConnectionMiddleware.middleware());
+
+    // Регистрируем динамическое меню
+    this.telegramBotRegistrator.registerMenu();
+
+    // Регистрируем обработчики команд и сообщений
     this.telegramBotRegistrator.register();
 
+    // Если используется webhook
     if (useWebhook) {
       const webhookURL = this.configService.getOrThrow<string>(
         'TELEGRAM_WEBHOOK_URL',
@@ -51,7 +60,9 @@ export class TelegramBotApiService
         secret_token: webhookSecret,
         ip_address: webhookIpAddress,
       });
-    } else {
+    }
+    // Обычный метод
+    else {
       // await this.bot.api.deleteWebhook();
       await this.bot.start({
         onStart: (info) => {
