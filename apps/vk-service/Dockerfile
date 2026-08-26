@@ -37,4 +37,4 @@ RUN pnpm --filter @addy/vk-service install --frozen-lockfile --prod
 
 EXPOSE 3000
 
-CMD ["node", "apps/vk-service/dist/main.js"]
+CMD ["node", "app/apps/vk-service/dist/main.js"]

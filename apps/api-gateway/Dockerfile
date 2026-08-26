@@ -37,4 +37,4 @@ RUN pnpm --filter @addy/api-gateway install --frozen-lockfile --prod
 
 EXPOSE 3000
 
-CMD ["node", "apps/api-gateway/dist/main.js"]
+CMD ["node", "app/apps/api-gateway/dist/main.js"]
