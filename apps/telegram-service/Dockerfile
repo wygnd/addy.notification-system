@@ -37,4 +37,4 @@ RUN pnpm --filter @addy/telegram-service install --frozen-lockfile --prod
 
 EXPOSE 3000
 
-CMD ["node", "app/apps/telegram-service/dist/main.js"]
+CMD ["node", "./apps/telegram-service/dist/main.js"]

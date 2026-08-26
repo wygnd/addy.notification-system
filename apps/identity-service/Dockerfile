@@ -37,4 +37,4 @@ RUN pnpm --filter @addy/identity-service install --frozen-lockfile --prod
 
 EXPOSE 3000
 
-CMD ["node", "app/apps/identity-service/dist/main.js"]
+CMD ["node", "./apps/identity-service/dist/main.js"]
