@@ -28,12 +28,14 @@ WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
 COPY --from=builder /app/apps/telegram-service/package.json ./apps/telegram-service/
-COPY --from=builder /app/apps/telegram-service/dist ./apps/telegram-service/dist
 COPY --from=builder /app/libs/common/package.json ./libs/common/
-COPY --from=builder /app/libs/common/dist ./libs/common/dist
 
 RUN corepack enable
 RUN pnpm --filter @addy/telegram-service install --frozen-lockfile --prod
+RUN pnpm --filter @addy/common install --frozen-lockfile --prod
+
+COPY --from=builder /app/apps/telegram-service/dist ./apps/telegram-service/dist
+COPY --from=builder /app/libs/common/dist ./libs/common/dist
 
 EXPOSE 3000
 

@@ -28,12 +28,14 @@ WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
 COPY --from=builder /app/apps/vk-service/package.json ./apps/vk-service/
-COPY --from=builder /app/apps/vk-service/dist ./apps/vk-service/dist
 COPY --from=builder /app/libs/common/package.json ./libs/common/
-COPY --from=builder /app/libs/common/dist ./libs/common/dist
 
 RUN corepack enable
 RUN pnpm --filter @addy/vk-service install --frozen-lockfile --prod
+RUN pnpm --filter @addy/common install --frozen-lockfile --prod
+
+COPY --from=builder /app/apps/vk-service/dist ./apps/vk-service/dist
+COPY --from=builder /app/libs/common/dist ./libs/common/dist
 
 EXPOSE 3000
 
