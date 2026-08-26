@@ -28,12 +28,14 @@ WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
 COPY --from=builder /app/apps/api-gateway/package.json ./apps/api-gateway/
-COPY --from=builder /app/apps/api-gateway/dist ./apps/api-gateway/dist
 COPY --from=builder /app/libs/common/package.json ./libs/common/
-COPY --from=builder /app/libs/common/dist ./libs/common/dist
 
 RUN corepack enable
 RUN pnpm --filter @addy/api-gateway install --frozen-lockfile --prod
+RUN pnpm --filter @addy/common install --frozen-lockfile --prod
+
+COPY --from=builder /app/apps/api-gateway/dist ./apps/api-gateway/dist
+COPY --from=builder /app/libs/common/dist ./libs/common/dist
 
 EXPOSE 3000
 
