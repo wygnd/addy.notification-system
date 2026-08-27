@@ -26,7 +26,7 @@ WORKDIR /app
 
 # Копируем корневые файлы
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/api-gateway/public ./apps/api-gateway
+COPY apps/api-gateway/public ./apps/api-gateway/public
 
 COPY --from=builder /app/apps/api-gateway/package.json ./apps/api-gateway/
 COPY --from=builder /app/libs/common/package.json ./libs/common/
