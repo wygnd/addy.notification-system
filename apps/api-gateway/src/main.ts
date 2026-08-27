@@ -1,6 +1,7 @@
 import { setupAppCors } from '@common/cors';
 import { setupAppDocs } from '@common/documentation';
 import { setupAppFilters } from '@common/filters';
+import { setupAppLogging } from '@common/logger';
 import { connectAppMicroservices } from '@common/microservices';
 import { setupAppPipes } from '@common/pipes';
 import { setupAppVersioning } from '@common/versioning';
@@ -14,11 +15,12 @@ import {
 } from '@nestjs/platform-fastify';
 
 async function bootstrap() {
-  const adapter = new FastifyAdapter();
+  const adapter = new FastifyAdapter({ logger: false });
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     adapter,
+    { bufferLogs: true },
   );
   const config = app.get(ConfigService);
   const logger = new Logger('Application');
@@ -38,6 +40,9 @@ async function bootstrap() {
 
   // Формируем документацию
   setupAppDocs(app);
+
+  // Изменяем логирование системы
+  setupAppLogging(app);
 
   // Подключаем микросервисы
   await connectAppMicroservices(app);

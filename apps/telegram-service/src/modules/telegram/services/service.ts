@@ -16,7 +16,6 @@ import type { Update } from 'grammy/types';
 @Injectable()
 export class TelegramService {
   private readonly logger = new Logger(TelegramService.name);
-
   constructor(
     @Inject(TELEGRAM_BOT)
     private readonly bot: Bot,

@@ -8,18 +8,19 @@ import { IDENTITY_SERVICE } from '@modules/identity/constants/constants';
 import {
   Inject,
   Injectable,
-  Logger,
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { catchError, firstValueFrom, timeout } from 'rxjs';
 
 @Injectable()
 export class IdentityProvider implements OnModuleInit, OnModuleDestroy {
-  private readonly logger = new Logger(IdentityProvider.name);
-
   constructor(
+    @InjectPinoLogger(IdentityProvider.name)
+    private readonly logger: PinoLogger,
+
     @Inject(IDENTITY_SERVICE)
     private readonly client: ClientProxy,
   ) {}

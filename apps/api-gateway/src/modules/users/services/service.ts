@@ -1,20 +1,14 @@
-import {
-  AppException,
-  ErrorCodeEnum,
-  IIdentityMessageSendConnectResponse,
-} from '@addy/common';
+import { AppException, ErrorCodeEnum } from '@addy/common';
 import { PlatformEnum } from '@addy/common';
 import { IdentityService } from '@modules/identity/services/service';
 import { TelegramService } from '@modules/telegram/services/service';
 import { IUserConnectFields } from '@modules/users/interfaces';
-import { IUserConnectResponse } from '@modules/users/interfaces/connect/response';
 import { VkService } from '@modules/vk/services/service';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { IPlatformMessenger } from '@shared/interfaces';
 
 @Injectable()
 export class UserService {
-  private readonly logger = new Logger(UserService.name);
   private readonly messengers: Record<PlatformEnum, IPlatformMessenger | null>;
 
   constructor(

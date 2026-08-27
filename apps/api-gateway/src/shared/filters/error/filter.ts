@@ -1,9 +1,13 @@
 import { normalizeError } from '@addy/common';
-import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Catch()
 export class TransformErrorFilter implements ExceptionFilter {
-  private readonly logger = new Logger(TransformErrorFilter.name);
+  constructor(
+    @InjectPinoLogger(TransformErrorFilter.name)
+    private readonly logger: PinoLogger,
+  ) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
     const context = host.switchToHttp();

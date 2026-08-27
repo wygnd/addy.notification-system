@@ -1,7 +1,7 @@
 import { normalizeError } from '@addy/common';
 import { INotificationResultMap, NotificationResultEnum } from '@addy/common';
 import { NotificationResultService } from '@modules/notifications/services';
-import { Controller, Logger } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
@@ -9,12 +9,14 @@ import {
   RmqContext,
 } from '@nestjs/microservices';
 import { Channel, Message } from 'amqplib';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller()
 export class NotificationRMQController {
-  private readonly logger = new Logger(NotificationRMQController.name);
-
   constructor(
+    @InjectPinoLogger(NotificationRMQController.name)
+    private readonly logger: PinoLogger,
+
     private readonly notificationResultService: NotificationResultService,
   ) {}
 
