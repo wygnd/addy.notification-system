@@ -10,9 +10,14 @@ export class AuthGuard implements CanActivate {
   public canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<FastifyReply>();
 
-    const [, requestToken] = (request.headers['authorization'] as string).split(
-      ' ',
-    );
+    const authorization = request.headers['authorization'] as string;
+
+    if (!authorization || typeof authorization !== 'string') {
+      throw new AppException(ErrorCodeEnum.FORBIDDEN);
+    }
+
+    const [, requestToken] = authorization.split(' ');
+
     const username = this.configService.get<string>('API_AUTH_USERNAME');
     const password = this.configService.get<string>('API_AUTH_PASSWORD');
 
