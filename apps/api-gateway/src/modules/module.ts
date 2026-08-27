@@ -7,8 +7,9 @@ import { UsersModule } from '@modules/users/module';
 import { VkModule } from '@modules/vk/module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
+import { AuthGuard } from '@shared/guards';
 import { TransformSuccessResponseInterceptor } from '@shared/interceptors';
 import { RpcExceptionInterceptor } from '@shared/interceptors/exception';
 
@@ -33,6 +34,10 @@ import { RpcExceptionInterceptor } from '@shared/interceptors/exception';
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformSuccessResponseInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
     },
   ],
 })

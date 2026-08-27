@@ -2,6 +2,11 @@ import { HttpStatus } from '@nestjs/common';
 import { ErrorCodeEnum } from '@src/enums';
 import { IErrorCodeEntry } from '@src/interfaces';
 
+
+
+
+
+
 export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
   /* ======================= USERS ======================= */
   [ErrorCodeEnum.USER_NOT_FOUND]: {
@@ -95,5 +100,9 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
   [ErrorCodeEnum.NOT_ALLOWED]: {
     status: HttpStatus.METHOD_NOT_ALLOWED,
     message: 'Метод недоступен',
+  },
+  [ErrorCodeEnum.FORBIDDEN]: {
+    status: HttpStatus.FORBIDDEN,
+    message: 'Доступ запрещен',
   },
 };

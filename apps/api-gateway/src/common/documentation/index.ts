@@ -20,7 +20,8 @@ export const setupAppDocs = (app: NestFastifyApplication): void => {
     .setTitle(title)
     .setVersion('1.0')
     .setDescription(description)
-    .addBearerAuth()
+    .addBasicAuth({ type: 'http' }, 'Basic')
+    .addSecurityRequirements('Basic')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
