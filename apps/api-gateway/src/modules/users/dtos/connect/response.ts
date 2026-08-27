@@ -15,5 +15,5 @@ export class UserConnectResponseDTO {
     description: `Ссылка для подключения. Актуальна для platform=${PlatformEnum.TELEGRAM}`,
     required: false,
   })
-  connectionLink: string | undefined;
+  connection_link: string | undefined;
 }
