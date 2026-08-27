@@ -41,7 +41,7 @@ export class UserService {
 
     const { code, connectionLink } = await messenger.connect(request);
 
-    return { code, connectionLink };
+    return { code, connection_link: connectionLink };
   }
 
   public async getUserByID(userId: string) {
