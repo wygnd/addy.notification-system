@@ -71,6 +71,7 @@ services:
     restart: always
     networks:
       - private
+      - public
     depends_on:
       rabbitmq:
         condition: service_healthy

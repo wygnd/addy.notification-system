@@ -9,14 +9,24 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthGuard } from '@shared/guards';
 import { TransformSuccessResponseInterceptor } from '@shared/interceptors';
 import { RpcExceptionInterceptor } from '@shared/interceptors/exception';
+import { join } from 'node:path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({}),
     CqrsModule.forRoot(),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'public'),
+      exclude: ['/api/*'],
+      serveStaticOptions: {
+        cacheControl: true,
+      },
+      serveRoot: '/',
+    }),
 
     HealthModule,
     DatabaseModule,

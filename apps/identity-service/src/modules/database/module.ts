@@ -17,7 +17,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
         synchronize: true,
         logging: false,
         sync: {
-          alter: true,
+          alter: false,
         },
       }),
       imports: [ConfigModule],

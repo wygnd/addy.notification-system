@@ -17,10 +17,14 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiSuccessResponse } from '@shared/decorators';
+import {
+  ApiErrorResponseExample,
+  ApiSuccessResponse,
+} from '@shared/decorators';
 import { randomUUID } from 'node:crypto';
 
 @ApiTags('Уведомления')
+@ApiErrorResponseExample()
 @ApiParam({
   name: 'notification_id',
   description:

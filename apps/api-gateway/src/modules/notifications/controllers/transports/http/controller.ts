@@ -1,23 +1,27 @@
-import {
-  NotificationBatchResponseDTO,
-  NotificationRequestDTO,
-} from '@modules/notifications/dtos';
+import { NotificationBatchResponseDTO, NotificationRequestDTO } from '@modules/notifications/dtos';
 import { NotificationBatchRequestDTO } from '@modules/notifications/dtos/request/batch/dto';
 import { NotificationResponseDTO } from '@modules/notifications/dtos/response/dto';
 import { NotificationService } from '@modules/notifications/services/service';
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiSuccessResponse } from '@shared/decorators';
+import {
+  ApiErrorResponseExample,
+  ApiSuccessResponse,
+} from '@shared/decorators';
 import { type FastifyReply } from 'fastify';
 
+
+
+
+
+
+
+
+
+
+
 @ApiTags('Уведомления')
+@ApiErrorResponseExample()
 @Controller({
   version: '1',
   path: 'notifications',

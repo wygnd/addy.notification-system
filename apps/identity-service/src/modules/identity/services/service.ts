@@ -1,45 +1,42 @@
-import {
-  AppRpcException,
-  ErrorCodeEnum,
-  IdentityStatusEnum,
-  IIdentityMessageCheckConnectPayload,
-  IIdentityMessageCheckConnectResponse,
-  IIdentityMessageDisconnectPayload,
-  IIdentityMessageDisconnectResponse,
-  IIdentityMessageExistsClientPlatformPayload,
-  IIdentityMessageExistsClientPlatformResponse,
-  IIdentityMessageGetConnectedPlatformsPayload,
-  IIdentityMessageGetConnectedPlatformsResponse,
-  IIdentityMessageGetUserConnectionItem,
-  IIdentityMessageGetUserConnectionPayload,
-  IIdentityMessageGetUserConnectionResponse,
-  IIdentityMessageSendConnectPayloadFields,
-  IIdentityMessageSendConnectResponse,
-  IIdentityMessageVerifyConnectPayload,
-  normalizeError,
-  PlatformEnum,
-} from '@addy/common';
+import { AppRpcException, ErrorCodeEnum, IdentityStatusEnum, IIdentityMessageCheckConnectPayload, IIdentityMessageCheckConnectResponse, IIdentityMessageDisconnectPayload, IIdentityMessageDisconnectResponse, IIdentityMessageExistsClientPlatformPayload, IIdentityMessageExistsClientPlatformResponse, IIdentityMessageGetConnectedPlatformsPayload, IIdentityMessageGetConnectedPlatformsResponse, IIdentityMessageGetUserConnectionItem, IIdentityMessageGetUserConnectionPayload, IIdentityMessageGetUserConnectionResponse, IIdentityMessageSendConnectPayloadFields, IIdentityMessageSendConnectResponse, IIdentityMessageVerifyConnectPayload, normalizeError, PlatformEnum } from '@addy/common';
 import { IdentityAddCommand } from '@modules/identity/commands';
 import { IdentityUpdateCommand } from '@modules/identity/commands/update/command';
 import { IdentityDTO } from '@modules/identity/dtos';
 import { TIdentityCreationEntity } from '@modules/identity/interfaces';
-import {
-  IdentityGetClientByExternalIDQuery,
-  IdentityGetClientByExternalIDsQuery,
-} from '@modules/identity/queries/client/[external-id]';
+import { IdentityGetClientByExternalIDQuery, IdentityGetClientByExternalIDsQuery } from '@modules/identity/queries/client/[external-id]';
 import { IdentityExistsPlatformQuery } from '@modules/identity/queries/exists/platform/query';
 import { IdentityExistsQuery } from '@modules/identity/queries/exists/query';
 import { OtpService } from '@modules/opt/services/service';
 import { REDIS_KEYS } from '@modules/redis/constants/constants';
 import { RedisService } from '@modules/redis/services/service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { RmqContext } from '@nestjs/microservices';
 import { randomBytes } from 'node:crypto';
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @Injectable()
 export class IdentityService {
+  private readonly logger = new Logger(IdentityService.name);
+
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
@@ -248,7 +245,9 @@ export class IdentityService {
         code: code,
         connectionLink: connectionLink,
       };
-    } catch {
+    } catch (error) {
+      this.logger.error(normalizeError(error));
+
       await this.commandBus.execute(
         new IdentityUpdateCommand(identity.id, {
           status: IdentityStatusEnum.FAILED,

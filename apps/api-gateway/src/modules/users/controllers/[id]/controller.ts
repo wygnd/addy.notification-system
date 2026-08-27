@@ -2,9 +2,20 @@ import { UserGetByIdResponseDTO } from '@modules/users/dtos';
 import { UserService } from '@modules/users/services/service';
 import { Controller, Get, HttpStatus, Param } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { ApiSuccessResponse } from '@shared/decorators';
+import {
+  ApiBadResponse,
+  ApiErrorResponseExample,
+  ApiSuccessResponse,
+} from '@shared/decorators';
+import { ApiUserNotFoundDTO } from '@shared/dto';
 
 @ApiTags('Пользователи')
+@ApiBadResponse(
+  ApiUserNotFoundDTO,
+  HttpStatus.NOT_FOUND,
+  'Пользователь не найден',
+)
+@ApiErrorResponseExample()
 @ApiParam({
   name: 'user_id',
   type: String,
