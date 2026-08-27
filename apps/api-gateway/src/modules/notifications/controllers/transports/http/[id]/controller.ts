@@ -3,13 +3,21 @@ import {
   NotificationRetryResponseDTO,
 } from '@modules/notifications/dtos';
 import { NotificationService } from '@modules/notifications/services';
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { ApiSuccessResponse } from '@shared/decorators';
 import { randomUUID } from 'node:crypto';
 
 @ApiTags('Уведомления')
@@ -28,10 +36,7 @@ export class NotificationIdControllerV1 {
   constructor(private readonly notificationService: NotificationService) {}
 
   @ApiOperation({ summary: 'Получить информацию о задаче' })
-  @ApiOkResponse({
-    type: NotificationDTO,
-    description: 'Успешный ответ',
-  })
+  @ApiSuccessResponse(NotificationDTO, HttpStatus.OK, 'Успешный ответ')
   @Get()
   public async getNotificationStatus(
     @Param('notification_id') notificationId: string,
@@ -40,10 +45,12 @@ export class NotificationIdControllerV1 {
   }
 
   @ApiOperation({ summary: 'Повторить отправку уведомления заново' })
-  @ApiOkResponse({
-    type: NotificationRetryResponseDTO,
-    description: 'Успешный ответ',
-  })
+  @ApiSuccessResponse(
+    NotificationRetryResponseDTO,
+    HttpStatus.OK,
+    'Успешный ответ',
+  )
+  @HttpCode(HttpStatus.OK)
   @Post('retry')
   public async retryNotification(
     @Param('notification_id') notificationId: string,

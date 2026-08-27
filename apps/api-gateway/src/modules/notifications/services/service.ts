@@ -210,6 +210,8 @@ export class NotificationService {
     const addNotificationList: INotificationLogCreateEntity[] = [];
 
     for (const recipient of recipients) {
+      const userIdNumber = Number(recipient.userId);
+
       if (clientHandledIds.has(recipient.userId)) {
         continue;
       }
@@ -228,7 +230,7 @@ export class NotificationService {
       // Если не удалось получить информацию о подключенном пользователе: пропускаем
       if (!(recipient.userId in clientsConnectedPlatforms)) {
         clientErrorList.push({
-          user_id: recipient.userId,
+          user_id: userIdNumber,
           message: 'Not found connected platforms',
         });
 
@@ -243,12 +245,10 @@ export class NotificationService {
           (p) => p.platform === recipient.platform,
         );
 
-        console.log('check platform', findPlatform);
-
         // Если не нашли - пропускаем и добавляем к ошибкам
         if (!findPlatform) {
           clientErrorList.push({
-            user_id: recipient.userId,
+            user_id: userIdNumber,
             message: `Platform does not exists: ${recipient.platform}`,
           });
 
@@ -259,7 +259,7 @@ export class NotificationService {
         // Если платформа не подключена - пропускаем и добавляем к ошибкам
         if (!findPlatform.connected) {
           clientErrorList.push({
-            user_id: recipient.userId,
+            user_id: userIdNumber,
             message: `Client does not connected to ${recipient.platform}`,
           });
 

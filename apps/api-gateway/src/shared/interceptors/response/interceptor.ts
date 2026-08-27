@@ -10,7 +10,7 @@ export class TransformSuccessResponseInterceptor implements NestInterceptor {
       map((data) => ({
         ok: true,
         data: data,
-        timestamp: Date.now(),
+        timestamp: new Date().toISOString(),
       })),
     );
   }

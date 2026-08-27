@@ -1,5 +1,5 @@
 export interface INotificationBatchRecipientError {
-  user_id: string;
+  user_id: number;
   message: string;
 }
 
