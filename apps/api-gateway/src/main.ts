@@ -1,6 +1,5 @@
 import { setupAppCors } from '@common/cors';
 import { setupAppDocs } from '@common/documentation';
-import { setupAppFilters } from '@common/filters';
 import { setupAppLogging } from '@common/logger';
 import { connectAppMicroservices } from '@common/microservices';
 import { setupAppPipes } from '@common/pipes';
@@ -31,9 +30,6 @@ async function bootstrap() {
 
   // Добавляем CORS
   setupAppCors(app);
-
-  // Формируем фильтры
-  setupAppFilters(app);
 
   // Формируем PIPES
   setupAppPipes(app);
