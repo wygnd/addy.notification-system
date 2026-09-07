@@ -1,5 +1,6 @@
 import { IdentityRMQController } from '@modules/identity/controllers';
 import { IdentityModel } from '@modules/identity/models';
+import { IdentityProvider } from '@modules/identity/providers/provider';
 import { identityProviders } from '@modules/identity/providers/providers';
 import { OtpModule } from '@modules/opt/module';
 import { RedisModule } from '@modules/redis/module';
@@ -16,5 +17,6 @@ import { SequelizeModule } from '@nestjs/sequelize';
   ],
   controllers: [IdentityRMQController],
   providers: identityProviders,
+  exports: [IdentityProvider],
 })
 export class IdentityModule {}

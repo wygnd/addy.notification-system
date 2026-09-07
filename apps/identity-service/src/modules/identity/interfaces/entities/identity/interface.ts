@@ -15,3 +15,8 @@ export type TIdentityCreationEntity = Omit<
   IIdentityEntity,
   'id' | 'updatedAt' | 'createdAt'
 >;
+
+export interface IIdentityUpdateEntity {
+  id: string;
+  fields: Partial<TIdentityCreationEntity>;
+}

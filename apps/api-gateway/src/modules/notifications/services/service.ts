@@ -28,7 +28,6 @@ import { VkService } from '@modules/vk/services/service';
 import { Injectable } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { IPlatformMessenger } from '@shared/interfaces';
-import { randomBytes } from 'crypto';
 import { randomUUID } from 'node:crypto';
 
 @Injectable()
@@ -274,8 +273,6 @@ export class NotificationService {
         for (const clientPlatform of clientsConnectedPlatforms[
           recipient.userId
         ]) {
-          console.log('start', clientPlatform.platform);
-
           // Если платформа не подключена или не подключена до конца: пропускаем
           if (!clientPlatform.connected) {
             continue;
@@ -333,8 +330,6 @@ export class NotificationService {
       const platformUserId = clientIdPlatformUserIdMap.get(
         `${notification.userId}-${notification.channel}`,
       );
-
-      console.log(platformUserId);
 
       if (!platformUserId) {
         continue;

@@ -1,18 +1,21 @@
 import { PlatformEnum } from '@addy/common';
 import {
   IIdentityRepositoryPort,
+  IIdentityUpdateEntity,
   TIdentityCreationEntity,
 } from '@modules/identity/interfaces';
 import { IdentityModel } from '@modules/identity/models';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
+import { FindOptions, Op } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class IdentityRepository implements IIdentityRepositoryPort {
   constructor(
     @InjectModel(IdentityModel)
     private readonly repo: typeof IdentityModel,
+    private readonly sequelize: Sequelize,
   ) {}
 
   public async create(fields: TIdentityCreationEntity): Promise<IdentityModel> {
@@ -66,5 +69,35 @@ export class IdentityRepository implements IIdentityRepositoryPort {
         },
       },
     });
+  }
+
+  public async list(options?: FindOptions): Promise<IdentityModel[]> {
+    return this.repo.findAll(options);
+  }
+
+  public async bulkUpdate(items: IIdentityUpdateEntity[]): Promise<number> {
+    const transaction = await this.sequelize.transaction();
+
+    try {
+      let updatedCount = 0;
+      const updatedItems = await Promise.all(
+        items.map((item) =>
+          this.repo.update(item.fields, {
+            where: { id: item.id },
+          }),
+        ),
+      );
+
+      updatedItems.reduce((acc, [updated]) => {
+        acc += updated;
+        return acc;
+      }, updatedCount);
+
+      await transaction.commit();
+      return updatedCount;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }
 }

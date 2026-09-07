@@ -1,6 +1,7 @@
 import {
   IdentitySendPatternEnum,
   IIdentityMessageCheckConnectPayload,
+  IIdentityMessageDisconnectByIdPayload,
   IIdentityMessageGetConnectedPlatformsPayload,
   IIdentityMessageGetUserConnectionPayload,
   IIdentityMessageSendConnectPayloadFields,
@@ -42,6 +43,13 @@ export class IdentityService {
   ) {
     return this.identityProvider.send(
       IdentitySendPatternEnum.GET_CONNECTED_PLATFORMS,
+      fields,
+    );
+  }
+
+  public async disconnectClient(fields: IIdentityMessageDisconnectByIdPayload) {
+    return this.identityProvider.send(
+      IdentitySendPatternEnum.SEND_DISCONNECT,
       fields,
     );
   }

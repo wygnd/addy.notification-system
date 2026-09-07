@@ -2,6 +2,8 @@ import { IdentitySendPatternEnum } from '@src/enums';
 import {
   IIdentityMessageCheckConnectPayload,
   IIdentityMessageCheckConnectResponse,
+  IIdentityMessageDisconnectByIdPayload,
+  IIdentityMessageDisconnectByIdResponse,
   IIdentityMessageDisconnectPayload,
   IIdentityMessageDisconnectResponse,
   IIdentityMessageGetConnectedPlatformsPayload,
@@ -27,6 +29,7 @@ export interface IIdentitySendMessageMap {
   [IdentitySendPatternEnum.DISCONNECT]: IIdentityMessageDisconnectPayload;
   [IdentitySendPatternEnum.GET_USER_CONNECTIONS]: IIdentityMessageGetUserConnectionPayload;
   [IdentitySendPatternEnum.GET_CONNECTED_PLATFORMS]: IIdentityMessageGetConnectedPlatformsPayload;
+  [IdentitySendPatternEnum.SEND_DISCONNECT]: IIdentityMessageDisconnectByIdPayload;
 }
 
 export interface IIdentitySendMessageResponseMap {
@@ -38,4 +41,5 @@ export interface IIdentitySendMessageResponseMap {
   [IdentitySendPatternEnum.DISCONNECT]: IIdentityMessageDisconnectResponse;
   [IdentitySendPatternEnum.GET_USER_CONNECTIONS]: IIdentityMessageGetUserConnectionResponse;
   [IdentitySendPatternEnum.GET_CONNECTED_PLATFORMS]: IIdentityMessageGetConnectedPlatformsResponse;
+  [IdentitySendPatternEnum.SEND_DISCONNECT]: IIdentityMessageDisconnectByIdResponse;
 }

@@ -1,9 +1,4 @@
 import { PlatformEnum } from '@addy/common';
-import {
-  INotificationBatch,
-  INotificationBatchRecipient,
-  INotificationBatchRequest,
-} from '@modules/notifications/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
@@ -14,6 +9,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  IsUUID,
   ValidateNested,
 } from 'class-validator';
 import { randomUUID } from 'node:crypto';
@@ -90,5 +86,6 @@ export class NotificationBatchRequestDTO {
   })
   @IsNotEmpty({ message: 'notification_id is required' })
   @IsString({ message: 'notification_id must be a string' })
+  @IsUUID('4', { message: 'notification_id must have uuid format' })
   notification_id: string;
 }

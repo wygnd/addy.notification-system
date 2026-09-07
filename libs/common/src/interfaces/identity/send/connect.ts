@@ -73,9 +73,18 @@ export interface IIdentityMessageDisconnectResponse {
   message: string;
 }
 
+export interface IIdentityMessageDisconnectByIdPayload {
+  userId: string;
+  platform: PlatformEnum;
+}
+
+export interface IIdentityMessageDisconnectByIdResponse {
+  ok: boolean;
+}
+
 // ============= GET USER CONNECTIONS =============
 export interface IIdentityMessageGetUserConnectionPayload {
-  userId: string;
+  userId: number;
 }
 
 export interface IIdentityMessageGetUserConnectionItem {

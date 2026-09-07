@@ -1,12 +1,14 @@
 import { normalizeError } from '@addy/common';
-import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { throwError } from 'rxjs';
 
 @Catch()
 export class ExceptionsToRpcFilter implements ExceptionFilter {
+  private readonly logger = new Logger(ExceptionsToRpcFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost) {
-    console.log(exception);
+    this.logger.error(exception);
 
     if (exception instanceof RpcException) {
       return throwError(() => exception.getError());

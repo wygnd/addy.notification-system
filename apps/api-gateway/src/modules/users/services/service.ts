@@ -2,6 +2,7 @@ import { AppException, ErrorCodeEnum } from '@addy/common';
 import { PlatformEnum } from '@addy/common';
 import { IdentityService } from '@modules/identity/services/service';
 import { TelegramService } from '@modules/telegram/services/service';
+import { UserDisconnectQueryRequestDTO } from '@modules/users/dtos';
 import { IUserConnectFields } from '@modules/users/interfaces';
 import { VkService } from '@modules/vk/services/service';
 import { Injectable } from '@nestjs/common';
@@ -38,11 +39,23 @@ export class UserService {
     return { code, connection_link: connectionLink };
   }
 
-  public async getUserByID(userId: string) {
+  public async getUserByID(userId: number) {
     if (!userId) {
       throw new AppException(ErrorCodeEnum.USER_NOT_FOUND);
     }
 
     return this.identityService.getClientConnections({ userId });
+  }
+
+  public async disconnectUser(
+    userId: number,
+    fields: UserDisconnectQueryRequestDTO,
+  ) {
+    const response = await this.identityService.disconnectClient({
+      userId: userId.toString(),
+      platform: fields.platform,
+    });
+
+    return response.ok
   }
 }

@@ -18,9 +18,7 @@ export class OtpService {
     identity: string,
     payload: unknown = null,
   ): Promise<string> {
-    const { code, hash } = await this.generate();
-
-    console.log('check code', code, hash);
+    const { code } = await this.generate();
 
     await this.redisService.set<unknown>(
       REDIS_KEYS.CLIENT_CONNECT + `${identity}:${code}`,

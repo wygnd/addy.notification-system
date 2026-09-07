@@ -55,10 +55,7 @@ export class VkService implements IPlatformMessenger {
     });
 
     if (!response.status) {
-      throw new AppException(
-        ErrorCodeEnum.SERVICE_BAD_REQUEST,
-        response.message,
-      );
+      throw new AppException(ErrorCodeEnum.USER_NOT_SUBSCRIBE_TO_GROUP);
     }
 
     // Проверяем можно ли отправлять сообщения пользователю
@@ -72,7 +69,7 @@ export class VkService implements IPlatformMessenger {
 
     return this.identityService.connectClient({
       platform: PlatformEnum.VK,
-      userId: data.userId.toString(), // todo
+      userId: data.userId.toString(),
       platformUserId: data.platformUserId,
     });
   }

@@ -1,9 +1,34 @@
-import { AppRpcException, ErrorCodeEnum, IdentityStatusEnum, IIdentityMessageCheckConnectPayload, IIdentityMessageCheckConnectResponse, IIdentityMessageDisconnectPayload, IIdentityMessageDisconnectResponse, IIdentityMessageExistsClientPlatformPayload, IIdentityMessageExistsClientPlatformResponse, IIdentityMessageGetConnectedPlatformsPayload, IIdentityMessageGetConnectedPlatformsResponse, IIdentityMessageGetUserConnectionItem, IIdentityMessageGetUserConnectionPayload, IIdentityMessageGetUserConnectionResponse, IIdentityMessageSendConnectPayloadFields, IIdentityMessageSendConnectResponse, IIdentityMessageVerifyConnectPayload, normalizeError, PlatformEnum } from '@addy/common';
+import {
+  AppRpcException,
+  ErrorCodeEnum,
+  IdentityStatusEnum,
+  IIdentityMessageCheckConnectPayload,
+  IIdentityMessageCheckConnectResponse,
+  IIdentityMessageDisconnectByIdPayload,
+  IIdentityMessageDisconnectByIdResponse,
+  IIdentityMessageDisconnectPayload,
+  IIdentityMessageDisconnectResponse,
+  IIdentityMessageExistsClientPlatformPayload,
+  IIdentityMessageExistsClientPlatformResponse,
+  IIdentityMessageGetConnectedPlatformsPayload,
+  IIdentityMessageGetConnectedPlatformsResponse,
+  IIdentityMessageGetUserConnectionItem,
+  IIdentityMessageGetUserConnectionPayload,
+  IIdentityMessageGetUserConnectionResponse,
+  IIdentityMessageSendConnectPayloadFields,
+  IIdentityMessageSendConnectResponse,
+  IIdentityMessageVerifyConnectPayload,
+  normalizeError,
+  PlatformEnum,
+} from '@addy/common';
 import { IdentityAddCommand } from '@modules/identity/commands';
 import { IdentityUpdateCommand } from '@modules/identity/commands/update/command';
-import { IdentityDTO } from '@modules/identity/dtos';
 import { TIdentityCreationEntity } from '@modules/identity/interfaces';
-import { IdentityGetClientByExternalIDQuery, IdentityGetClientByExternalIDsQuery } from '@modules/identity/queries/client/[external-id]';
+import { IdentityProvider } from '@modules/identity/providers/provider';
+import {
+  IdentityGetClientByExternalIDQuery,
+  IdentityGetClientByExternalIDsQuery,
+} from '@modules/identity/queries/client/[external-id]';
 import { IdentityExistsPlatformQuery } from '@modules/identity/queries/exists/platform/query';
 import { IdentityExistsQuery } from '@modules/identity/queries/exists/query';
 import { OtpService } from '@modules/opt/services/service';
@@ -15,29 +40,12 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { RmqContext } from '@nestjs/microservices';
 import { randomBytes } from 'node:crypto';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @Injectable()
 export class IdentityService {
   private readonly logger = new Logger(IdentityService.name);
 
   constructor(
+    private readonly identityProvider: IdentityProvider,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly redisService: RedisService,
@@ -263,8 +271,9 @@ export class IdentityService {
   ): Promise<IIdentityMessageCheckConnectResponse> {
     const { userId, platform } = data;
 
-    const client = await this.queryBus.execute(
-      new IdentityExistsQuery(userId, platform),
+    const client = await this.identityProvider.getClientByExternalId(
+      userId,
+      platform,
     );
 
     if (!client) {
@@ -295,8 +304,9 @@ export class IdentityService {
     try {
       const { platform, platformUserId } = data;
 
-      const client = await this.queryBus.execute(
-        new IdentityExistsPlatformQuery(platformUserId, platform),
+      const client = await this.identityProvider.getClientByPlatformId(
+        platformUserId,
+        platform,
       );
 
       if (!client) {
@@ -337,7 +347,7 @@ export class IdentityService {
         this.queryBus.execute(
           new IdentityExistsPlatformQuery(platformUserId, platform),
         ),
-        this.queryBus.execute(new IdentityExistsQuery(userId, platform)),
+        this.identityProvider.getClientByExternalId(userId, platform),
       ]);
 
       if (!identity) {
@@ -458,7 +468,7 @@ export class IdentityService {
     const { userId } = data;
 
     const clientPlatformList = await this.queryBus.execute(
-      new IdentityGetClientByExternalIDQuery(userId),
+      new IdentityGetClientByExternalIDQuery(userId.toString()),
     );
 
     if (clientPlatformList.length === 0) {
@@ -531,6 +541,39 @@ export class IdentityService {
     };
   }
 
+  private async disconnectClientByExternalId(
+    fields: IIdentityMessageDisconnectByIdPayload,
+  ): Promise<IIdentityMessageDisconnectByIdResponse> {
+    try {
+      const { userId, platform } = fields;
+      const client = await this.identityProvider.getClientByExternalId(
+        userId,
+        platform,
+      );
+
+      if (!client) {
+        throw new AppRpcException(ErrorCodeEnum.USER_NOT_FOUND);
+      }
+
+      if (client.status !== IdentityStatusEnum.VERIFIED || !client.verifiedAt) {
+        throw new AppRpcException(ErrorCodeEnum.USER_NOT_VERIFIED);
+      }
+
+      return {
+        ok: await this.identityProvider.updateIdentity(client.id, {
+          status: IdentityStatusEnum.REVOKED,
+        }),
+      };
+    } catch (error) {
+      this.logger.error({
+        handler: this.disconnectClientFromPlatform.name,
+        error: normalizeError(error),
+      });
+
+      throw error;
+    }
+  }
+
   /* ========================== PUBLIC HANDLERS ========================== */
   public async handleConnectClient(
     context: RmqContext,
@@ -599,6 +642,15 @@ export class IdentityService {
   ) {
     return this.handleSendWithAck(context, () =>
       this.getConnectedPlatforms(data),
+    );
+  }
+
+  public async handleDisconnectUserByExternalId(
+    context: RmqContext,
+    data: IIdentityMessageDisconnectByIdPayload,
+  ) {
+    return this.handleSendWithAck(context, () =>
+      this.disconnectClientByExternalId(data),
     );
   }
 }

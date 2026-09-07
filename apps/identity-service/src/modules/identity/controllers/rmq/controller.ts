@@ -83,4 +83,13 @@ export class IdentityRMQController {
   ) {
     return this.identityService.handleGetConnectedPlatforms(context, data);
   }
+
+  @MessagePattern(IdentitySendPatternEnum.SEND_DISCONNECT)
+  public async disconnectClientByExternalId(
+    @Payload()
+    data: IIdentitySendMessageMap[IdentitySendPatternEnum.SEND_DISCONNECT],
+    @Ctx() context: RmqContext,
+  ) {
+    return this.identityService.handleDisconnectUserByExternalId(context, data);
+  }
 }

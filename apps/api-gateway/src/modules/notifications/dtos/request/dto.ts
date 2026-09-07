@@ -8,6 +8,7 @@ import {
   IsNotEmpty,
   IsObject,
   IsString,
+  IsUUID,
   ValidateNested,
 } from 'class-validator';
 import { randomUUID } from 'node:crypto';
@@ -67,5 +68,6 @@ export class NotificationRequestDTO {
   })
   @IsNotEmpty({ message: 'notification_id is required' })
   @IsString({ message: 'notification_id must be a string' })
+  @IsUUID('4', { message: 'notification_id must have uuid format' })
   notification_id: string;
 }

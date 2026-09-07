@@ -20,7 +20,7 @@ import {
     {
       name: 'idx_platform_identities_platform_user',
       fields: ['platform', 'platform_user_id'],
-      unique: true,
+      unique: false,
     },
   ],
 })

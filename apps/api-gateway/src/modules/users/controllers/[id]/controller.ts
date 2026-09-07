@@ -1,6 +1,17 @@
-import { UserGetByIdResponseDTO } from '@modules/users/dtos';
+import {
+  UserDisconnectQueryRequestDTO,
+  UserGetByIdResponseDTO,
+} from '@modules/users/dtos';
 import { UserService } from '@modules/users/services/service';
-import { Controller, Get, HttpStatus, Param } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import {
   ApiBadResponse,
@@ -18,7 +29,7 @@ import { ApiUserNotFoundDTO } from '@shared/dto';
 @ApiErrorResponseExample()
 @ApiParam({
   name: 'user_id',
-  type: String,
+  type: Number,
   description: 'ID пользователя',
   required: true,
   example: 1,
@@ -33,7 +44,18 @@ export class UserIDControllerV1 {
   @ApiOperation({ summary: 'Проверка подключенного пользователя' })
   @ApiSuccessResponse(UserGetByIdResponseDTO, HttpStatus.OK, 'Успешный ответ')
   @Get()
-  public async getUserById(@Param('user_id') userId: string) {
+  public async getUserById(
+    @Param('user_id', new ParseIntPipe()) userId: number,
+  ) {
     return this.userService.getUserByID(userId);
+  }
+
+  @ApiOperation({ summary: 'Отключить пользователя от площадки' })
+  @Delete()
+  public async disconnectUser(
+    @Param('user_id', new ParseIntPipe()) userId: number,
+    @Query() query: UserDisconnectQueryRequestDTO,
+  ) {
+    return this.userService.disconnectUser(userId, query);
   }
 }

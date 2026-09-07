@@ -15,12 +15,6 @@ export class TelegramBotMenuConnectService {
         ctx.from!.id.toString(),
       );
 
-      console.log(
-        this.getConnectMenu.name.toUpperCase(),
-        'check is connected',
-        isConnected,
-      );
-
       if (isConnected.status) {
         menuRange.text(TELEGRAM_BOT_MESSAGE_HEAR_CONSTANTS.CLIENT_DISCONNECT);
       } else {

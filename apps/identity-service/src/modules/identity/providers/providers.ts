@@ -1,18 +1,25 @@
-import { IdentityAddCommandHandler } from '@modules/identity/commands';
-import { IdentityUpdateCommandHandler } from '@modules/identity/commands/update/handler';
+import {
+  IdentityAddCommandHandler,
+  IdentityUpdateCommandHandler,
+} from '@modules/identity/commands';
 import { IDENTITY_REPOSITORY } from '@modules/identity/constants/constants';
 import {
   IdentityExistsQueryHandler,
   IdentityExitsPlatformQueryHandler,
   IdentityGetClientByExternalIDQueryHandler,
   IdentityGetClientByExternalIDsQueryHandler,
+  IdentityListQueryHandler,
 } from '@modules/identity/queries';
 import '@modules/identity/queries/exists/handler';
 import '@modules/identity/queries/exists/platform/handler';
 import { IdentityRepository } from '@modules/identity/repositories/repository';
 import { IdentityService } from '@modules/identity/services/service';
+import { IdentityProvider } from './provider';
 
 export const identityProviders = [
+  // Providers
+  IdentityProvider,
+
   // SERVICES
   IdentityService,
 
@@ -31,4 +38,5 @@ export const identityProviders = [
   IdentityExitsPlatformQueryHandler,
   IdentityGetClientByExternalIDQueryHandler,
   IdentityGetClientByExternalIDsQueryHandler,
+  IdentityListQueryHandler,
 ];

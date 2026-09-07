@@ -28,6 +28,10 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
     status: HttpStatus.BAD_REQUEST,
     message: 'Пользователь заблокировал отправку сообщений',
   },
+  [ErrorCodeEnum.USER_NOT_SUBSCRIBE_TO_GROUP]: {
+    status: HttpStatus.BAD_REQUEST,
+    message: 'Пользователь не подписан на сообщество',
+  },
 
   /* ======================= NOTIFICATIONS ======================= */
   [ErrorCodeEnum.NOTIFICATION_NOT_FOUND]: {
