@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { DatabaseModule } from './database/module';
 import { IdentityModule } from './identity/module';
+import { ScheduleModule } from '@modules/schedule/module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { IdentityModule } from './identity/module';
     IdentityModule,
     RedisModule,
     OtpModule,
+    ScheduleModule
   ],
   providers: scheduleIdentityProviders,
 })
