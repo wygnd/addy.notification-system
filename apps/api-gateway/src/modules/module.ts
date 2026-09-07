@@ -81,7 +81,7 @@ import { join } from 'node:path';
     CqrsModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'public'),
-      exclude: ['/api/*'],
+      exclude: ['/api/'],
       serveStaticOptions: {
         cacheControl: true,
       },
