@@ -5,6 +5,7 @@ import {
   NotificationLogStatusEnum,
   PlatformEnum,
 } from '@addy/common';
+import { RedisService } from '@modules/redis/services/service';
 import { TELEGRAM_BOT } from '@modules/telegram/constants';
 import { TelegramNotificationProvider } from '@modules/telegram/providers/provider';
 import { TelegramBotApiService } from '@modules/telegram/services/api';
@@ -25,6 +26,7 @@ export class TelegramService {
     private readonly bot: Bot,
     private readonly telegramBotService: TelegramBotApiService,
     private readonly telegramNotificationProvider: TelegramNotificationProvider,
+    private readonly redisService: RedisService,
   ) {}
 
   /**
@@ -110,8 +112,18 @@ export class TelegramService {
   }
 
   private async health(): Promise<ITelegramHealthResponse> {
+    const states: boolean[] = [];
+
+    const isBotInit = this.bot.isInited();
+    const isRedisInit = await this.redisService.isInit();
+
+    states.push(isBotInit);
+    states.push(isRedisInit);
+
     return {
-      ok: true,
+      ok: states.filter((state) => !state).length === 0,
+      bot: isBotInit,
+      redis: isRedisInit,
     };
   }
 

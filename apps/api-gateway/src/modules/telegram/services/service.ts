@@ -84,6 +84,8 @@ export class TelegramService implements IPlatformMessenger {
 
       return {
         ok: false,
+        bot: false,
+        redis: false,
       };
     }
   }

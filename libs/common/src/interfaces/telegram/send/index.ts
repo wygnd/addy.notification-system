@@ -12,4 +12,6 @@ export interface ITelegramHealthPayload {}
 
 export interface ITelegramHealthResponse {
   ok: boolean;
+  bot: boolean;
+  redis: boolean;
 }

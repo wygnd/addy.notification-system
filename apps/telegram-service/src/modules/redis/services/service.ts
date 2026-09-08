@@ -1,23 +1,16 @@
+import { normalizeError } from '@addy/common';
 import { Inject, Injectable } from '@nestjs/common';
-import { isJSON, isString } from 'class-validator';
+import { isString } from 'class-validator';
 import Redis from 'ioredis';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { REDIS_CLIENT } from '../constants/constants';
-
-
-
-
-
-
-
-
-
-
-
-
 
 @Injectable()
 export class RedisService {
   constructor(
+    @InjectPinoLogger(RedisService.name)
+    private readonly logger: PinoLogger,
+
     @Inject(REDIS_CLIENT)
     private readonly redisClient: Redis,
   ) {}
@@ -65,5 +58,20 @@ export class RedisService {
 
   public async expire(key: string, seconds: number) {
     await this.redisClient.expire(key, seconds);
+  }
+
+  public async isInit(): Promise<boolean> {
+    try {
+      const pong = await this.redisClient.ping();
+
+      return pong === 'PONG';
+    } catch (error) {
+      this.logger.error({
+        handler: this.isInit.name,
+        error: normalizeError(error),
+      });
+
+      return false;
+    }
   }
 }

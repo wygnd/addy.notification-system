@@ -67,7 +67,7 @@ export class TelegramBotApiService
       // await this.bot.api.deleteWebhook();
       await this.bot.start({
         onStart: (info) => {
-          this.logger.warn(`Bot started: ${info.id}`);
+          this.logger.warn({ bot_info: info }, `Bot started`);
         },
       });
     }
