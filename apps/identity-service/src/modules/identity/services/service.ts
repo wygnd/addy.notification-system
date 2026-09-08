@@ -558,6 +558,13 @@ export class IdentityService {
         throw new AppRpcException(ErrorCodeEnum.USER_NOT_FOUND);
       }
 
+      if (
+        client.status === IdentityStatusEnum.REVOKED ||
+        client.status === IdentityStatusEnum.FAILED
+      ) {
+        throw new AppRpcException(ErrorCodeEnum.USER_NOT_CONNECTED);
+      }
+
       if (client.status !== IdentityStatusEnum.VERIFIED || !client.verifiedAt) {
         throw new AppRpcException(ErrorCodeEnum.USER_NOT_VERIFIED);
       }

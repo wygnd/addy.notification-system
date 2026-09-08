@@ -2,16 +2,16 @@ import { PlatformEnum } from '@addy/common';
 import { type INotificationRequestPayload } from '@modules/notifications/interfaces/request/interface';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import {
-  IsIn,
-  IsInt,
-  IsNotEmpty,
-  IsObject,
-  IsString,
-  IsUUID,
-  ValidateNested,
-} from 'class-validator';
+import { IsIn, IsInt, IsNotEmpty, IsObject, IsString, IsUUID, ValidateNested } from 'class-validator';
 import { randomUUID } from 'node:crypto';
+
+
+
+
+
+
+
+
 
 export class NotificationRequestPayloadDTO implements INotificationRequestPayload {
   @ApiProperty({
@@ -35,7 +35,7 @@ export class NotificationRequestDTO {
   })
   @IsNotEmpty({ message: 'platform is required' })
   @IsString({ message: 'platform must be a string' })
-  @IsIn(Object.values(PlatformEnum).filter((p) => p !== 'unknown'))
+  @IsIn(Object.values(PlatformEnum).filter((p) => !['unknown', 'max'].includes(p)))
   platform: PlatformEnum;
 
   @ApiProperty({

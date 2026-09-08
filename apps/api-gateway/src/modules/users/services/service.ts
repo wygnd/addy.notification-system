@@ -3,6 +3,7 @@ import { PlatformEnum } from '@addy/common';
 import { IdentityService } from '@modules/identity/services/service';
 import { TelegramService } from '@modules/telegram/services/service';
 import { UserDisconnectQueryRequestDTO } from '@modules/users/dtos';
+import { UserDisconnectResponseDto } from '@modules/users/dtos/[id]/disconnect/response/dto';
 import { IUserConnectFields } from '@modules/users/interfaces';
 import { VkService } from '@modules/vk/services/service';
 import { Injectable } from '@nestjs/common';
@@ -50,12 +51,19 @@ export class UserService {
   public async disconnectUser(
     userId: number,
     fields: UserDisconnectQueryRequestDTO,
-  ) {
+  ): Promise<UserDisconnectResponseDto> {
     const response = await this.identityService.disconnectClient({
       userId: userId.toString(),
       platform: fields.platform,
     });
 
-    return response.ok
+    if (!response.ok) {
+      throw new AppException(ErrorCodeEnum.USER_INVALID_DISCONNECT);
+    }
+
+    return {
+      user_id: userId,
+      message: 'Пользователь успешно отключен',
+    };
   }
 }

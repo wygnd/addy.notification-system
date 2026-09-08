@@ -1,17 +1,19 @@
 import { PlatformEnum } from '@addy/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsIn, IsInt, IsNotEmpty, IsObject, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 import { randomUUID } from 'node:crypto';
 import { NotificationRequestPayloadDTO } from '../dto';
-
-
-
-
-
-
-
-
 
 class NotificationBatchRequestUserDTO {
   @ApiProperty({
@@ -26,7 +28,9 @@ class NotificationBatchRequestUserDTO {
   })
   @IsOptional()
   @IsString({ message: 'platform must be a string' })
-  @IsIn(Object.values(PlatformEnum).filter((p) => p !== 'unknown'))
+  @IsIn(
+    Object.values(PlatformEnum).filter((p) => !['unknown', 'max'].includes(p)),
+  )
   platform?: PlatformEnum;
 
   @ApiProperty({

@@ -14,7 +14,7 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
   },
   [ErrorCodeEnum.USER_WAS_REVOKED]: {
     status: HttpStatus.CONFLICT,
-    message: 'Пользователь отключен',
+    message: 'Пользователь не подключен к площадке',
   },
   [ErrorCodeEnum.USER_NOT_MATCHED]: {
     status: HttpStatus.CONFLICT,
@@ -31,6 +31,15 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
   [ErrorCodeEnum.USER_NOT_SUBSCRIBE_TO_GROUP]: {
     status: HttpStatus.BAD_REQUEST,
     message: 'Пользователь не подписан на сообщество',
+  },
+  [ErrorCodeEnum.USER_INVALID_DISCONNECT]: {
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    message: 'Ошибка отключения пользователя',
+  },
+
+  [ErrorCodeEnum.USER_NOT_CONNECTED]: {
+    status: HttpStatus.BAD_REQUEST,
+    message: 'Пользователь не подключен',
   },
 
   /* ======================= NOTIFICATIONS ======================= */
