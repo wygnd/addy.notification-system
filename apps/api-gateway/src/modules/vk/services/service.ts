@@ -2,8 +2,10 @@ import {
   AppException,
   ErrorCodeEnum,
   IVkSendMessageMap,
+  normalizeError,
   PlatformEnum,
   VkEmitPatternEnum,
+  VkSendHealthResponse,
   VkSendIsClientMemberResponse,
   VkSendPatternEnum,
 } from '@addy/common';
@@ -18,10 +20,14 @@ import {
   IPlatformMessenger,
   IPlatformSendMessagePayload,
 } from '@shared/interfaces';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class VkService implements IPlatformMessenger {
   constructor(
+    @InjectPinoLogger(VkService.name)
+    private readonly logger: PinoLogger,
+
     private readonly vkProvider: VkProvider,
     private readonly identityService: IdentityService,
   ) {}
@@ -98,5 +104,20 @@ export class VkService implements IPlatformMessenger {
     );
 
     return status;
+  }
+
+  public async health(): Promise<VkSendHealthResponse> {
+    try {
+      return await this.vkProvider.send(VkSendPatternEnum.HEALTH, {}, 150);
+    } catch (error) {
+      this.logger.error({
+        handler: this.health.name,
+        error: normalizeError(error),
+      });
+
+      return {
+        ok: false,
+      };
+    }
   }
 }

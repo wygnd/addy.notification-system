@@ -1,4 +1,5 @@
 import {
+  ITelegramHealthResponse,
   ITelegramSendMessagePayload,
   normalizeError,
   NotificationLogStatusEnum,
@@ -7,16 +8,19 @@ import {
 import { TELEGRAM_BOT } from '@modules/telegram/constants';
 import { TelegramNotificationProvider } from '@modules/telegram/providers/provider';
 import { TelegramBotApiService } from '@modules/telegram/services/api';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { RmqContext } from '@nestjs/microservices';
 import { Channel, Message } from 'amqplib';
 import { Bot } from 'grammy';
 import type { Update } from 'grammy/types';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class TelegramService {
-  private readonly logger = new Logger(TelegramService.name);
   constructor(
+    @InjectPinoLogger(TelegramService.name)
+    private readonly logger: PinoLogger,
+
     @Inject(TELEGRAM_BOT)
     private readonly bot: Bot,
     private readonly telegramBotService: TelegramBotApiService,
@@ -105,6 +109,12 @@ export class TelegramService {
     }
   }
 
+  private async health(): Promise<ITelegramHealthResponse> {
+    return {
+      ok: true,
+    };
+  }
+
   public async handleWebhook(body: Update) {
     await this.bot.handleUpdate(body);
   }
@@ -114,5 +124,9 @@ export class TelegramService {
     data: ITelegramSendMessagePayload,
   ): Promise<void> {
     return this.handleEmitWithAck(context, () => this.sendMessage(data));
+  }
+
+  public async handleHealth(context: RmqContext) {
+    return this.handleSendWithAck(context, () => this.health());
   }
 }

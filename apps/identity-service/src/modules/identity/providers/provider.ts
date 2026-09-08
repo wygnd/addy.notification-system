@@ -14,15 +14,17 @@ import {
   IdentityExistsQuery,
   IdentityListQuery,
 } from '@modules/identity/queries';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { FindOptions } from 'sequelize';
 
 @Injectable()
 export class IdentityProvider {
-  private readonly logger = new Logger(IdentityProvider.name);
-
   constructor(
+    @InjectPinoLogger(IdentityProvider.name)
+    private readonly logger: PinoLogger,
+
     private readonly queryBus: QueryBus,
     private readonly commandBus: CommandBus,
   ) {}

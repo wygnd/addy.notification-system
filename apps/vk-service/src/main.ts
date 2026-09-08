@@ -2,6 +2,14 @@ import { AppModule } from '@modules/module';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ExceptionsToRpcFilter } from '@shared/exceptions';
+import { Logger } from 'nestjs-pino';
+
+
+
+
+
+
+
 
 async function bootstrap() {
   const rabbitMQUrl = process.env.RABBITMQ_URL;
@@ -32,12 +40,21 @@ async function bootstrap() {
           },
         },
         noAck: false, // Сообщение не будет удаляться из очереди до успешного подтверждения
-        prefetchCount: 25 // Кол-во одновременных обработок сообщений брокером
+        prefetchCount: 25, // Кол-во одновременных обработок сообщений брокером
       },
+      bufferLogs: true,
     },
   );
 
   app.useGlobalFilters(new ExceptionsToRpcFilter());
+
+  const logger = app.get(Logger);
+
+  app.useLogger(logger);
+
+  app.status.subscribe((status) => {
+    logger.log({ msg: `Status updated`, driverStatus: status }, 'Bootstrap');
+  });
 
   await app.listen();
 }

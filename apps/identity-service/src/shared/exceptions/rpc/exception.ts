@@ -1,11 +1,15 @@
 import { normalizeError } from '@addy/common';
-import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { throwError } from 'rxjs';
 
 @Catch()
 export class ExceptionsToRpcFilter implements ExceptionFilter {
-  private readonly logger = new Logger(ExceptionsToRpcFilter.name);
+  constructor(
+    @InjectPinoLogger(ExceptionsToRpcFilter.name)
+    private readonly logger: PinoLogger,
+  ) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
     this.logger.error(exception);

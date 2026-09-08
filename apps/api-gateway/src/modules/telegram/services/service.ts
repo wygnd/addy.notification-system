@@ -2,8 +2,11 @@ import {
   AppException,
   ErrorCodeEnum,
   ITelegramEventEmitMap,
+  ITelegramHealthResponse,
+  normalizeError,
   PlatformEnum,
   TelegramEmitPatternEnum,
+  TelegramSendPatternEnum,
 } from '@addy/common';
 import { IdentityService } from '@modules/identity/services/service';
 import { TelegramProvider } from '@modules/telegram/providers/provider';
@@ -16,10 +19,14 @@ import {
   IPlatformMessenger,
   IPlatformSendMessagePayload,
 } from '@shared/interfaces';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class TelegramService implements IPlatformMessenger {
   constructor(
+    @InjectPinoLogger(TelegramService.name)
+    private readonly logger: PinoLogger,
+
     private readonly telegramProvider: TelegramProvider,
     private readonly identityService: IdentityService,
   ) {}
@@ -57,8 +64,27 @@ export class TelegramService implements IPlatformMessenger {
       userId: data.userId,
     });
 
-    console.log('CHECK RES', resp)
+    console.log('CHECK RES', resp);
 
     return resp;
+  }
+
+  public async health(): Promise<ITelegramHealthResponse> {
+    try {
+      return await this.telegramProvider.send(
+        TelegramSendPatternEnum.HEALTH,
+        {},
+        150,
+      );
+    } catch (error) {
+      this.logger.error({
+        handler: this.health.name,
+        error: normalizeError(error),
+      });
+
+      return {
+        ok: false,
+      };
+    }
   }
 }

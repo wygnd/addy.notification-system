@@ -42,4 +42,9 @@ export class VkController {
   ) {
     return this.vkBotService.handleIsAllowSendMessage(context, data);
   }
+
+  @MessagePattern(VkSendPatternEnum.HEALTH)
+  public async health(@Ctx() context: RmqContext) {
+    return this.vkBotService.handleHealth(context);
+  }
 }

@@ -1,14 +1,18 @@
 import { IdentityStatusEnum, IResponse, normalizeError } from '@addy/common';
 import { IIdentityUpdateEntity } from '@modules/identity/interfaces';
 import { IdentityProvider } from '@modules/identity/providers/provider';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Op } from 'sequelize';
 
 @Injectable()
 export class ScheduleIdentityHandler {
-  private readonly logger = new Logger(ScheduleIdentityHandler.name);
+  constructor(
+    @InjectPinoLogger(ScheduleIdentityHandler.name)
+    private readonly logger: PinoLogger,
 
-  constructor(private readonly identityService: IdentityProvider) {}
+    private readonly identityService: IdentityProvider,
+  ) {}
 
   /**
    * Отчистка подключений, которые висят в статусе `PENDING` более 10 минут

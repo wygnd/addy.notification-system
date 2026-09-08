@@ -1,3 +1,5 @@
 import { scheduleIdentityProviders } from './identity';
 
-export const scheduleProviders = [...scheduleIdentityProviders];
+export const scheduleProviders = [
+  ...scheduleIdentityProviders,
+];

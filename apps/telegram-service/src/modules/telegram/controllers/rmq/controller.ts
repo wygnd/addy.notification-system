@@ -1,4 +1,8 @@
-import { ITelegramEventEmitMap, TelegramEmitPatternEnum } from '@addy/common';
+import {
+  ITelegramEventEmitMap,
+  TelegramEmitPatternEnum,
+  TelegramSendPatternEnum,
+} from '@addy/common';
 import { TelegramService } from '@modules/telegram/services';
 import { Controller } from '@nestjs/common';
 import {
@@ -19,5 +23,10 @@ export class TelegramRMQController {
     @Ctx() context: RmqContext,
   ) {
     return this.telegramService.handleSendMessage(context, data);
+  }
+
+  @MessagePattern(TelegramSendPatternEnum.HEALTH)
+  public async health(@Ctx() context: RmqContext) {
+    return this.telegramService.handleHealth(context);
   }
 }

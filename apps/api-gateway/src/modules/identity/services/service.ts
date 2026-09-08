@@ -4,6 +4,7 @@ import {
   IIdentityMessageDisconnectByIdPayload,
   IIdentityMessageGetConnectedPlatformsPayload,
   IIdentityMessageGetUserConnectionPayload,
+  IIdentityMessageHealthResponse,
   IIdentityMessageSendConnectPayloadFields,
 } from '@addy/common';
 import { IdentityProvider } from '@modules/identity/providers/provider';
@@ -52,5 +53,21 @@ export class IdentityService {
       IdentitySendPatternEnum.SEND_DISCONNECT,
       fields,
     );
+  }
+
+  public async health(): Promise<IIdentityMessageHealthResponse> {
+    try {
+      return await this.identityProvider.send(
+        IdentitySendPatternEnum.HEALTH,
+        {},
+        500,
+      );
+    } catch (error) {
+      return {
+        ok: false,
+        database: false,
+        redis: false,
+      };
+    }
   }
 }

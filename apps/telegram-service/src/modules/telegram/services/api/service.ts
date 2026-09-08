@@ -4,20 +4,21 @@ import { TelegramConnectionMiddleware } from '@modules/telegram/middlewares';
 import {
   Inject,
   Injectable,
-  Logger,
   OnApplicationBootstrap,
   OnModuleDestroy,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Bot } from 'grammy';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class TelegramBotApiService
   implements OnApplicationBootstrap, OnModuleDestroy
 {
-  private readonly logger = new Logger(TelegramBotApiService.name);
-
   constructor(
+    @InjectPinoLogger(TelegramBotApiService.name)
+    private readonly logger: PinoLogger,
+
     @Inject(TELEGRAM_BOT)
     private readonly bot: Bot,
     private readonly configService: ConfigService,
@@ -66,7 +67,7 @@ export class TelegramBotApiService
       // await this.bot.api.deleteWebhook();
       await this.bot.start({
         onStart: (info) => {
-          this.logger.verbose(`Bot started: ${info.id}`);
+          this.logger.warn(`Bot started: ${info.id}`);
         },
       });
     }

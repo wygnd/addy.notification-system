@@ -15,6 +15,7 @@ import {
   IIdentityMessageGetUserConnectionItem,
   IIdentityMessageGetUserConnectionPayload,
   IIdentityMessageGetUserConnectionResponse,
+  IIdentityMessageHealthResponse,
   IIdentityMessageSendConnectPayloadFields,
   IIdentityMessageSendConnectResponse,
   IIdentityMessageVerifyConnectPayload,
@@ -34,17 +35,19 @@ import { IdentityExistsQuery } from '@modules/identity/queries/exists/query';
 import { OtpService } from '@modules/opt/services/service';
 import { REDIS_KEYS } from '@modules/redis/constants/constants';
 import { RedisService } from '@modules/redis/services/service';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { RmqContext } from '@nestjs/microservices';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { randomBytes } from 'node:crypto';
 
 @Injectable()
 export class IdentityService {
-  private readonly logger = new Logger(IdentityService.name);
-
   constructor(
+    @InjectPinoLogger(IdentityService.name)
+    private readonly logger: PinoLogger,
+
     private readonly identityProvider: IdentityProvider,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
@@ -574,6 +577,14 @@ export class IdentityService {
     }
   }
 
+  private async health(): Promise<IIdentityMessageHealthResponse> {
+    return {
+      ok: true,
+      database: false,
+      redis: await this.redisService.isInit(),
+    };
+  }
+
   /* ========================== PUBLIC HANDLERS ========================== */
   public async handleConnectClient(
     context: RmqContext,
@@ -652,5 +663,9 @@ export class IdentityService {
     return this.handleSendWithAck(context, () =>
       this.disconnectClientByExternalId(data),
     );
+  }
+
+  public async handleHealth(context: RmqContext) {
+    return this.handleSendWithAck(context, () => this.health());
   }
 }

@@ -2,15 +2,17 @@ import { normalizeError } from '@addy/common';
 import { VK_API_SERVICE } from '@modules/vk/constants';
 import { type IVkApiPort } from '@modules/vk/interfaces';
 import { IVkMessageAllowedResponse } from '@modules/vk/interfaces/api/groups';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class VkGroupService {
-  private readonly logger = new Logger(VkGroupService.name);
   private readonly vkGroupId: string;
 
   constructor(
+    @InjectPinoLogger(VkGroupService.name)
+    private readonly logger: PinoLogger,
     private readonly configService: ConfigService,
     @Inject(VK_API_SERVICE)
     private readonly vkApiService: IVkApiPort,

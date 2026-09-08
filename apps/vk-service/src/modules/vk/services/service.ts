@@ -1,6 +1,7 @@
 import {
   AppRpcException,
   ErrorCodeEnum,
+  IVkSendMessagePayload,
   normalizeError,
   NotificationLogStatusEnum,
   NotificationResultEnum,
@@ -8,24 +9,24 @@ import {
   VkSendIsAllowSendMessagePayload,
   VkSendIsAllowSendMessageResponse,
   VkSendIsClientMemberPayload,
-  IVkSendMessagePayload,
 } from '@addy/common';
 import '@modules/vk/interfaces';
 import { VkNotificationProvider } from '@modules/vk/providers/provider';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { RmqContext } from '@nestjs/microservices';
 import { Channel, Message } from 'amqplib';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { VkGroupService } from './group';
 import { VkMessageService } from './message';
 
 @Injectable()
 export class VkService {
-  private readonly logger = new Logger(VkService.name);
-
   constructor(
     private readonly vkNotificationProvider: VkNotificationProvider,
     private readonly vkGroupService: VkGroupService,
     private readonly vkMessageService: VkMessageService,
+    @InjectPinoLogger(VkService.name)
+    private readonly logger: PinoLogger,
   ) {}
 
   private async emitWithAck<T>(
@@ -152,6 +153,12 @@ export class VkService {
     return { status: result.allowed };
   }
 
+  private async health() {
+    return {
+      ok: true,
+    }
+  }
+
   public async handleSendNotification(
     context: RmqContext,
     data: IVkSendMessagePayload,
@@ -171,5 +178,9 @@ export class VkService {
     data: VkSendIsAllowSendMessagePayload,
   ): Promise<VkSendIsAllowSendMessageResponse> {
     return this.sendWithAck(context, () => this.isAllowSendMessage(data));
+  }
+
+  public async handleHealth(context: RmqContext) {
+    return this.sendWithAck(context, () => this.health())
   }
 }

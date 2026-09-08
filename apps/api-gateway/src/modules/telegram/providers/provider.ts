@@ -1,6 +1,9 @@
 import {
   ITelegramEventEmitMap,
+  ITelegramSendMessageMap,
+  ITelegramSendMessageResponseMap,
   TelegramEmitPatternEnum,
+  TelegramSendPatternEnum,
 } from '@addy/common';
 import { TELEGRAM_RABBITMQ_SERVICE } from '@modules/telegram/constants/constants';
 import {
@@ -10,7 +13,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, timeout } from 'rxjs';
 
 @Injectable()
 export class TelegramProvider implements OnModuleInit, OnModuleDestroy {
@@ -32,5 +35,20 @@ export class TelegramProvider implements OnModuleInit, OnModuleDestroy {
     data: ITelegramEventEmitMap[T],
   ): Promise<void> {
     await firstValueFrom(this.client.emit(pattern, data));
+  }
+
+  public async send<T extends TelegramSendPatternEnum>(
+    pattern: T,
+    data: ITelegramSendMessageMap[T],
+    timeoutMs = 10_000,
+  ): Promise<ITelegramSendMessageResponseMap[T]> {
+    return firstValueFrom(
+      this.client.send<ITelegramSendMessageResponseMap[T]>(pattern, data).pipe(
+        timeout(timeoutMs),
+        catchError((err) => {
+          throw err;
+        }),
+      ),
+    );
   }
 }

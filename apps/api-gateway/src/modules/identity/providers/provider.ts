@@ -43,10 +43,11 @@ export class IdentityProvider implements OnModuleInit, OnModuleDestroy {
   public async send<T extends IdentitySendPatternEnum>(
     pattern: T,
     data: IIdentitySendMessageMap[T],
+    timeoutMs = 10_000,
   ): Promise<IIdentitySendMessageResponseMap[T]> {
     return firstValueFrom(
       this.client.send<IIdentitySendMessageResponseMap[T]>(pattern, data).pipe(
-        timeout(10_000),
+        timeout(timeoutMs),
         catchError((err) => {
           this.logger.error(normalizeError(err));
           throw err;

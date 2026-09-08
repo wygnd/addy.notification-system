@@ -37,13 +37,20 @@ export class VkProvider implements OnModuleInit, OnModuleDestroy {
     await firstValueFrom(this.client.emit(pattern, data));
   }
 
+  /**
+   * Отправляет запрос, ожидая ответа
+   * @param {string} pattern
+   * @param {unknown} data
+   * @param {number} timeoutMs - Количество миллисекунд, которые готовы ждать, чтобы получить ответ
+   */
   public async send<T, U extends VkSendPatternEnum>(
     pattern: U,
     data: IVkSendMessageMap[U],
+    timeoutMs = 10_000,
   ): Promise<IVkSendMessageResponseMap[U]> {
     return firstValueFrom(
       this.client.send<IVkSendMessageResponseMap[U]>(pattern, data).pipe(
-        timeout(10_000),
+        timeout(timeoutMs),
         catchError((err) => {
           throw err;
         }),

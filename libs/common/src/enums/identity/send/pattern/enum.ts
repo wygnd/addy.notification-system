@@ -7,5 +7,6 @@ export enum IdentitySendPatternEnum {
   DISCONNECT = 'identity.disconnect',
   GET_USER_CONNECTIONS = 'identity.user.connections',
   GET_CONNECTED_PLATFORMS = 'identity.users.platform.connected',
-  SEND_DISCONNECT = 'identity.users.platform.disconnect'
+  SEND_DISCONNECT = 'identity.users.platform.disconnect',
+  HEALTH = 'identity.health',
 }

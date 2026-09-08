@@ -68,6 +68,6 @@ export class NotificationRequestDTO {
   })
   @IsNotEmpty({ message: 'notification_id is required' })
   @IsString({ message: 'notification_id must be a string' })
-  @IsUUID('4', { message: 'notification_id must have uuid format' })
+  @IsUUID('4', { message: 'notification_id must be UUID v4' })
   notification_id: string;
 }

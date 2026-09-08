@@ -1,4 +1,4 @@
-import { normalizeError } from '@addy/common';
+import { configurePinoLogger } from '@addy/common';
 import { DatabaseModule } from '@modules/database/module';
 import { HealthModule } from '@modules/health/module';
 import { IdentityModule } from '@modules/identity/module';
@@ -17,65 +17,11 @@ import { AuthGuard } from '@shared/guards';
 import { TransformSuccessResponseInterceptor } from '@shared/interceptors';
 import { RpcExceptionInterceptor } from '@shared/interceptors/exception';
 import { LoggerModule } from 'nestjs-pino';
-import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 
 @Module({
   imports: [
-    LoggerModule.forRoot({
-      pinoHttp: {
-        messageKey: 'message',
-        transport: IS_PRODUCTION
-          ? undefined
-          : {
-              target: 'pino-pretty',
-              options: {
-                colorize: true,
-                translateTime: 'SYS:yyyy-mm-dd HH:MM:ss',
-                messageKey: 'message',
-              },
-            },
-        level: IS_PRODUCTION ? 'info' : 'debug',
-        formatters: {
-          level: (label) => ({ label }),
-        },
-        genReqId: (req) =>
-          req.headers['x-request-id']?.toString() ?? randomUUID(),
-        autoLogging: true,
-        timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
-        customProps: (req) => ({
-          request_id: req.id,
-          environment: IS_PRODUCTION ? 'production' : 'development',
-          body: (req as any).body,
-        }),
-        customReceivedObject: (req) => ({
-          type: 'REQUEST',
-          method: req.method,
-          path: req.url,
-        }),
-        customSuccessObject: (req, res) => ({
-          type: 'RESPONSE',
-          method: req.method,
-          path: req.url,
-          status_code: res.statusCode,
-        }),
-        customErrorObject: (req, res, error) => {
-          const { message, statusCode, code } = normalizeError(error);
-
-          return {
-            type: 'ERROR',
-            method: req.method,
-            path: req.url,
-            status_code: statusCode,
-            error_code: code,
-            error_message: message,
-          };
-        },
-        base: {
-          service: 'GATEWAY',
-        },
-      },
-    }),
+    LoggerModule.forRoot(configurePinoLogger(IS_PRODUCTION)),
 
     ConfigModule.forRoot({}),
     CqrsModule.forRoot(),

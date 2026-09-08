@@ -92,4 +92,9 @@ export class IdentityRMQController {
   ) {
     return this.identityService.handleDisconnectUserByExternalId(context, data);
   }
+
+  @MessagePattern(IdentitySendPatternEnum.HEALTH)
+  public async health(@Ctx() context: RmqContext) {
+    return this.identityService.handleHealth(context);
+  }
 }
