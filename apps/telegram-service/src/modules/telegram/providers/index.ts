@@ -37,10 +37,9 @@ export const TelegramProviders = [
 
       return new Bot(botToken, {
         client: {
-          // baseFetchConfig: {
-          //   agent: proxyAgent,
-          // },
-          apiRoot: proxyURL
+          baseFetchConfig: {
+            agent: proxyAgent,
+          },
         },
       });
     },
