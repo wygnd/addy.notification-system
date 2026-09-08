@@ -17,7 +17,7 @@ import {
 } from '@modules/telegram/services';
 import { ConfigService } from '@nestjs/config';
 import { Bot } from 'grammy';
-import { ProxyAgent } from 'undici';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 export const TelegramProviders = [
   {
@@ -33,12 +33,12 @@ export const TelegramProviders = [
         return new Bot(botToken);
       }
 
-      const proxyDispatcher = new ProxyAgent(proxyURL);
+      const proxyAgent = new HttpsProxyAgent(proxyURL);
 
       return new Bot(botToken, {
         client: {
           baseFetchConfig: {
-            dispatcher: proxyDispatcher,
+            agent: proxyAgent,
           },
         },
       });
