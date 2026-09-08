@@ -8,8 +8,11 @@ import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    LoggerModule.forRoot(configurePinoLogger(IS_PRODUCTION)),
+    ConfigModule.forRoot({
+      cache: true,
+      envFilePath: ['.env'],
+    }),
+    LoggerModule.forRoot(configurePinoLogger(IS_PRODUCTION, 'TELEGRAM-SERVICE')),
 
     RedisModule,
     TelegramModule,

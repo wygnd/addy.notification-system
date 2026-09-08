@@ -8,7 +8,7 @@ import { LoggerModule } from 'nestjs-pino';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    LoggerModule.forRoot(configurePinoLogger(IS_PRODUCTION)),
+    LoggerModule.forRoot(configurePinoLogger(IS_PRODUCTION, 'VK-SERVICE')),
     VkModule,
   ],
   controllers: [],

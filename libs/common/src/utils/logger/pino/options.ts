@@ -2,7 +2,10 @@ import { normalizeError } from '@src/utils';
 import { Params } from 'nestjs-pino';
 import { randomUUID } from 'node:crypto';
 
-export const configurePinoLogger = (isProduction: boolean = false): Params => ({
+export const configurePinoLogger = (
+  isProduction: boolean = false,
+  service: string,
+): Params => ({
   pinoHttp: {
     messageKey: 'message',
     transport: isProduction
@@ -65,7 +68,7 @@ export const configurePinoLogger = (isProduction: boolean = false): Params => ({
       }),
     },
     base: {
-      service: 'GATEWAY',
+      service: service,
     },
   },
 });

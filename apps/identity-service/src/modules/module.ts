@@ -14,7 +14,9 @@ import { IdentityModule } from './identity/module';
   imports: [
     ConfigModule.forRoot(),
     CqrsModule.forRoot(),
-    LoggerModule.forRoot(configurePinoLogger(IS_PRODUCTION)),
+    LoggerModule.forRoot(
+      configurePinoLogger(IS_PRODUCTION, 'IDENTITY-SERVICE'),
+    ),
 
     DatabaseModule,
     IdentityModule,

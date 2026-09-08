@@ -21,7 +21,7 @@ import { join } from 'node:path';
 
 @Module({
   imports: [
-    LoggerModule.forRoot(configurePinoLogger(IS_PRODUCTION)),
+    LoggerModule.forRoot(configurePinoLogger(IS_PRODUCTION, 'GATEWAY')),
 
     ConfigModule.forRoot({}),
     CqrsModule.forRoot(),
