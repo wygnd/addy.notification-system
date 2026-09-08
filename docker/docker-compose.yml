@@ -247,6 +247,14 @@ services:
         limits:
           memory: 512M
 
+  sub2socks:
+    image: sub2socks:latest
+    container_name: ns-sub2socs
+    ports:
+      - "${SUB2SOCKS_PORT}:1080"
+    environment:
+      SUB_URL: "${SUB2SOCKS_SUB_URL}"
+
 volumes:
   rabbitmq_data:
   postgres_data:
