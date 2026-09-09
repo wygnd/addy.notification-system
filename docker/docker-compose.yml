@@ -211,6 +211,8 @@ services:
 
   loki:
     image: "grafana/loki:3.6"
+    ports:
+      - "127.0.0.1:3100-3101:3100"
     volumes:
       - ../config/loki/config.yaml:/etc/loki/loki-config.yaml:ro
       - loki_data:/loki
