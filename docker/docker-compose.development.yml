@@ -105,6 +105,7 @@ services:
 
   pushgateway:
     image: "prom/pushgateway:v1.6.2"
+    container_name: ns-pushgateway
     ports:
       - 9091:9091
     networks:

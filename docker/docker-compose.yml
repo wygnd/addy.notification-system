@@ -256,8 +256,6 @@ services:
   sub2socks:
     image: sub2socks:latest
     container_name: ns-sub2socks
-    ports:
-      - "${SUB2SOCKS_PORT}:1080"
     networks:
       - private
       - public
