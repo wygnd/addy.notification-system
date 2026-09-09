@@ -153,6 +153,7 @@ services:
     networks:
       - public
       - private
+      - monitoring
     depends_on:
       - prometheus
     deploy:
@@ -175,6 +176,7 @@ services:
       - prometheus_data:/prometheus
     networks:
       - private
+      - monitoring
     command:
       - "--config.file=/etc/prometheus/prometheus-config.yaml"
       - "--web.config.file=/etc/prometheus/web-config.yaml"
@@ -193,6 +195,7 @@ services:
       - 9091:9091
     networks:
       - private
+      - monitoring
     volumes:
       - ../config/prometheus/web-config.yaml:/etc/prometheus/web-config.yaml:ro
     command:
@@ -214,6 +217,7 @@ services:
       - loki_data:/loki
     networks:
       - private
+      - monitoring
     command:
       - "--config.file=/etc/loki/loki-config.yaml"
     deploy:
@@ -237,6 +241,7 @@ services:
       HOST_HOSTNAME: "{{.Node.Hostname}}"
     networks:
       - private
+      - monitoring
     command:
       - "--config.file=/etc/promtail/config.yml"
       - "--config.expand-env=true"
@@ -262,4 +267,6 @@ networks:
     driver: bridge
     internal: true
   public:
+    driver: bridge
+  monitoring:
     driver: bridge
