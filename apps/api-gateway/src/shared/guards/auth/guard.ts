@@ -1,6 +1,8 @@
 import { AppException, ErrorCodeEnum } from '@addy/common';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
+import { IS_PUBLIC_KEY } from '@shared/decorators';
 import { FastifyReply } from 'fastify';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
@@ -10,11 +12,21 @@ export class AuthGuard implements CanActivate {
     private readonly configService: ConfigService,
     @InjectPinoLogger(AuthGuard.name)
     private readonly logger: PinoLogger,
+
+    private readonly reflector: Reflector,
   ) {}
 
   public canActivate(context: ExecutionContext): boolean {
     try {
       const request = context.switchToHttp().getRequest<FastifyReply>();
+      const isPublic = this.reflector.getAllAndOverride<boolean>(
+        IS_PUBLIC_KEY,
+        [context.getHandler(), context.getClass()],
+      );
+
+      if (isPublic) {
+        return true;
+      }
 
       const authorization = request.headers['authorization'];
 
