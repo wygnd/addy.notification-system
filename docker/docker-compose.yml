@@ -211,7 +211,6 @@ services:
 
   loki:
     image: "grafana/loki:3.6"
-    container_name: ns-loki
     volumes:
       - ../config/loki/config.yaml:/etc/loki/loki-config.yaml:ro
       - loki_data:/loki
@@ -222,7 +221,7 @@ services:
       - "--config.file=/etc/loki/loki-config.yaml"
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       update_config:
         order: stop-first
       resources:
