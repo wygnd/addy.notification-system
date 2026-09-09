@@ -145,15 +145,14 @@ services:
       - '127.0.0.1:${GRAFANA_PORT}:3000'
     volumes:
       - grafana_data:/var/lib/grafana
-      - ../config/grafana:/etc/grafana-config:ro
       - ../config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
     environment:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
     networks:
-      - private
       - public
+      - private
     depends_on:
       - prometheus
     deploy:
@@ -171,13 +170,13 @@ services:
     ports:
       - '127.0.0.1:${PROMETHEUS_PORT}:9090'
     volumes:
-      - /mnt/common_volume/swarm/grafana/config/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
-      - /mnt/common_volume/swarm/grafana/config/web-config.yaml:/etc/prometheus/web-config.yaml:ro
+      - ../config/prometheus/prometheus.yaml:/etc/prometheus/prometheus-config.yaml:ro
+      - ../config/prometheus/web-config.yaml:/etc/prometheus/web-config.yaml:ro
       - prometheus_data:/prometheus
     networks:
       - private
     command:
-      - "--config.file=/etc/prometheus/prometheus.yaml"
+      - "--config.file=/etc/prometheus/prometheus-config.yaml"
       - "--web.config.file=/etc/prometheus/web-config.yaml"
     deploy:
       mode: replicated
@@ -192,8 +191,10 @@ services:
     image: "prom/pushgateway:v1.6.2"
     ports:
       - 9091:9091
+    networks:
+      - private
     volumes:
-      - /mnt/common_volume/swarm/grafana/config/web-config.yaml:/etc/prometheus/web-config.yaml:ro
+      - ../config/prometheus/web-config.yaml:/etc/prometheus/web-config.yaml:ro
     command:
       - "--web.config.file=/etc/prometheus/web-config.yaml"
     deploy:
@@ -209,12 +210,12 @@ services:
     image: "grafana/loki:2.9.0"
     container_name: ns-loki
     volumes:
-      - ../config/grafana/config/loki.yaml:/etc/loki/loki.yaml:ro
+      - ../config/loki/config.yaml:/etc/loki/loki-config.yaml:ro
       - loki_data:/loki
     networks:
       - private
     command:
-      - "--config.file=/etc/loki/loki.yaml"
+      - "--config.file=/etc/loki/loki-config.yaml"
     deploy:
       mode: replicated
       replicas: 1
@@ -228,7 +229,7 @@ services:
     image: "grafana/promtail:2.9.0"
     container_name: ns-promtail
     volumes:
-      - ../config/grafana/promtail.yaml:/etc/promtail/promtail.yaml:ro
+      - ../config/promtail/config.yml:/etc/promtail/config.yml:ro
       - promtail_data:/var/promtail
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/log:/var/log:ro
@@ -237,7 +238,7 @@ services:
     networks:
       - private
     command:
-      - "--config.file=/etc/promtail/promtail.yaml"
+      - "--config.file=/etc/promtail/config.yml"
       - "--config.expand-env=true"
     deploy:
       mode: global
@@ -246,14 +247,6 @@ services:
       resources:
         limits:
           memory: 512M
-
-  sub2socks:
-    image: sub2socks:latest
-    container_name: ns-sub2socs
-    ports:
-      - "${SUB2SOCKS_PORT}:1080"
-    environment:
-      SUB_URL: "${SUB2SOCKS_SUB_URL}"
 
 volumes:
   rabbitmq_data:
