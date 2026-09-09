@@ -210,7 +210,7 @@ services:
           memory: 512M
 
   loki:
-    image: "grafana/loki:2.9.0"
+    image: "grafana/loki:3.6"
     container_name: ns-loki
     volumes:
       - ../config/loki/config.yaml:/etc/loki/loki-config.yaml:ro

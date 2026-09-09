@@ -11,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { IS_PRODUCTION } from '@shared/constants';
 import { TransformErrorFilter } from '@shared/filters';
 import { AuthGuard } from '@shared/guards';
@@ -22,7 +23,6 @@ import { join } from 'node:path';
 @Module({
   imports: [
     LoggerModule.forRoot(configurePinoLogger(IS_PRODUCTION, 'GATEWAY')),
-
     ConfigModule.forRoot({}),
     CqrsModule.forRoot(),
     ServeStaticModule.forRoot({
@@ -32,6 +32,9 @@ import { join } from 'node:path';
         cacheControl: true,
       },
       serveRoot: '/',
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 60000, limit: 50 }],
     }),
 
     HealthModule,
@@ -47,6 +50,7 @@ import { join } from 'node:path';
     { provide: APP_INTERCEPTOR, useClass: TransformSuccessResponseInterceptor },
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_FILTER, useClass: TransformErrorFilter },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
 export class AppModule {}

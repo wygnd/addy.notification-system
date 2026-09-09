@@ -34,6 +34,7 @@
     "@nestjs/sequelize": "^11.0.1",
     "@nestjs/serve-static": "5.0.4",
     "@nestjs/swagger": "^11.4.6",
+    "@nestjs/throttler": "^6.5.0",
     "@opentelemetry/instrumentation-pino": "^0.67.0",
     "@scalar/nestjs-api-reference": "^1.2.11",
     "amqp-connection-manager": "^5.0.0",
