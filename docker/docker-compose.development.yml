@@ -171,6 +171,7 @@ services:
       - private
     environment:
       SUB_URL: "${SUB2SOCKS_SUB_URL}"
+      DNS_SERVER: "${SUB2SOCKS_DNS_SERVER}"
 
 volumes:
   rabbitmq_data:
