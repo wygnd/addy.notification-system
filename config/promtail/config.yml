@@ -9,6 +9,8 @@ positions:
 clients:
   - url: http://loki:3100/loki/api/v1/push
 
+auth_enabled: false
+
 scrape_configs:
 
   - job_name: system
