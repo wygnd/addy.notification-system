@@ -26,7 +26,7 @@ export class ScheduleIdentityHandler {
         where: {
           status: IdentityStatusEnum.PENDING,
           updatedAt: {
-            [Op.gt]: new Date(dateNowTimestamp - 60 * 10 * 1000),
+            [Op.lte]: new Date(dateNowTimestamp - 60 * 10 * 1000).toISOString(),
           },
         },
       });

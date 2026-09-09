@@ -88,7 +88,7 @@ export class IdentityRepository implements IIdentityRepositoryPort {
         ),
       );
 
-      updatedItems.reduce((acc, [updated]) => {
+      updatedCount = updatedItems.reduce((acc, [updated]) => {
         acc += updated;
         return acc;
       }, updatedCount);

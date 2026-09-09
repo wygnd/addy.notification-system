@@ -6,6 +6,15 @@ import { buildMainKeyboard } from '@modules/telegram/builderd';
 import { Injectable } from '@nestjs/common';
 import { Context, NextFunction } from 'grammy';
 
+
+
+
+
+
+
+
+
+
 @Injectable()
 export class TelegramConnectionMiddleware {
   constructor(
@@ -50,15 +59,22 @@ export class TelegramConnectionMiddleware {
       return;
     }
 
-    if (ctx.message?.text && !ctx.message.text.startsWith('/')) {
+    if (
+      ctx.message?.text &&
+      !ctx.message.text.startsWith('/') &&
+      ctx.message?.text.split('-').length === 2
+    ) {
       await this.maybeConfirmCode(ctx, userId, ctx.message.text);
       return;
     }
 
     await ctx.reply(
       'Чтобы пользоваться ботом, подключите аккаунт:\n\n' +
-        '1. Перейдите по ссылке из личного кабинета, либо\n' +
-        '2. Введите код подключения прямо сюда сообщением',
+        'Перейдите *по ссылке* из личного кабинета\n' +
+        'Или введите *код* подключения прямо сюда сообщением',
+      {
+        parse_mode: 'MarkdownV2',
+      }
     );
   }
 

@@ -1,7 +1,7 @@
 import { configurePinoLogger } from '@addy/common';
 import { OtpModule } from '@modules/opt/module';
 import { RedisModule } from '@modules/redis/module';
-import { scheduleIdentityProviders } from '@modules/schedule/providers/identity';
+import { ScheduleModule } from '@modules/schedule/module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -22,7 +22,7 @@ import { IdentityModule } from './identity/module';
     IdentityModule,
     RedisModule,
     OtpModule,
+    ScheduleModule,
   ],
-  providers: scheduleIdentityProviders,
 })
 export class AppModule {}

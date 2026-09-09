@@ -1,5 +1,5 @@
 import {
-  IdentityAddCommandHandler,
+  IdentityAddCommandHandler, IdentityBulkUpdateCommandHandler,
   IdentityUpdateCommandHandler,
 } from '@modules/identity/commands';
 import { IDENTITY_REPOSITORY } from '@modules/identity/constants/constants';
@@ -32,6 +32,7 @@ export const identityProviders = [
   // COMMAND HANDLERS
   IdentityAddCommandHandler,
   IdentityUpdateCommandHandler,
+  IdentityBulkUpdateCommandHandler,
 
   // QUERY HANDLERS
   IdentityExistsQueryHandler,
