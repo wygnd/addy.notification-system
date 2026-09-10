@@ -221,10 +221,6 @@ services:
       - monitoring
     command:
       - "--config.file=/etc/loki/loki-config.yaml"
-    # Одна реплика: общий volume loki_data + ring inmemory.
-    # TSDB shipper берёт эксклюзивную блокировку index-каталога,
-    # вторая релика не сможет запуститься. Для кластера — нужен отдельный
-    # statefulset-развёрнутый с object store и ring на KV-стор.
     deploy:
       mode: replicated
       replicas: 1
