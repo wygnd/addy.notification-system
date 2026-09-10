@@ -44,7 +44,6 @@ compactor:
 
 limits_config:
   reject_old_samples: false
-  max_catchup_time: 168h
 
 ruler:
   storage:
