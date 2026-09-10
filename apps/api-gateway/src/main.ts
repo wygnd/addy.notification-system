@@ -1,6 +1,7 @@
 import { setupAppCors } from '@common/cors';
 import { setupAppDocs } from '@common/documentation';
 import { setupAppLogging } from '@common/logger';
+import { setupAppMetrics } from '@common/metrics';
 import { connectAppMicroservices } from '@common/microservices';
 import { setupAppPipes } from '@common/pipes';
 import { setupAppVersioning } from '@common/versioning';
@@ -39,6 +40,9 @@ async function bootstrap() {
 
   // Изменяем логирование системы
   setupAppLogging(app);
+
+  // Настраиваем сбор метрик
+  await setupAppMetrics(app);
 
   // Подключаем микросервисы
   await connectAppMicroservices(app);

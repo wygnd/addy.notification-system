@@ -6,7 +6,10 @@ import { apiReference } from '@scalar/nestjs-api-reference';
 
 export const setupAppDocs = (app: NestFastifyApplication): void => {
   app.setGlobalPrefix('api', {
-    exclude: [{ path: 'docs', method: RequestMethod.GET }],
+    exclude: [
+      { path: 'docs', method: RequestMethod.GET },
+      { path: 'health', method: RequestMethod.GET },
+    ],
   });
 
   const config = app.get(ConfigService);
@@ -37,18 +40,13 @@ export const setupAppDocs = (app: NestFastifyApplication): void => {
       disabled: true,
     },
     pageTitle: title,
+    hideModels: true,
+    hideTestRequestButton: true,
   });
 
   const fastify = app.getHttpAdapter().getInstance();
 
   fastify.get('/docs', async (req, reply) => {
-    (handler as (req: unknown, res: NodeJS.WritableStream) => void)(
-      req.raw,
-      reply.raw,
-    );
-  });
-
-  fastify.get('/docs/*', async (req, reply) => {
     (handler as (req: unknown, res: NodeJS.WritableStream) => void)(
       req.raw,
       reply.raw,
