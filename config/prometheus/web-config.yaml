@@ -1,0 +1,25 @@
+# Конфиг web-сервера Prometheus / Pushgateway.
+# Монтируется в оба контейнера как /etc/prometheus/web-config.yaml.
+#
+# Все поля опциональные. Текущая конфигурация:
+#   - Prometheus и Pushgateway слушают только 127.0.0.1 (см. docker-compose.yml),
+#     поэтому TLS и Basic Auth не требуются.
+#
+# Когда понадобится:
+#   - Basic Auth — заведите пользователей через `promtool web config`
+#   - TLS — сгенерируйте сертификаты и раскомментируйте tls_server_config
+#   - CORS — для доступа из браузеров, если выключаете reverse-proxy
+#
+# Пример:
+# tls_server_config:
+#   cert_file: /etc/prometheus/tls/cert.pem
+#   key_file: /etc/prometheus/tls/key.pem
+#   key_type: rsa
+#
+# http_config:
+#   basic_auth_users:
+#     admin: <sha256-hash>
+#
+# allow_cors: false
+#
+# clients_certs: []

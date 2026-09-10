@@ -3,7 +3,8 @@ server:
   grpc_listen_port: 0
 
 positions:
-  filename: /tmp/promtail/positions.yaml
+  # Храним в volume, чтобы после рестарта не перечитывать логи с нуля
+  filename: /var/promtail/positions.yaml
   sync_period: 10s
 
 clients:
@@ -35,8 +36,9 @@ scrape_configs:
             attrs: attrs
             tag: attrs.tag
 
+      # Формат tag от Docker: full_image:tag|container_name|image_id|container_id
       - regex:
-          expression: (?P<image_name>(?:[^|]*[^|])).(?P<container_name>(?:[^|]*[^|])).(?P<image_id>(?:[^|]*[^|])).(?P<container_id>(?:[^|]*[^|]))
+          expression: (?P<image_name>(?:[^|]*[^|]))\|(?P<container_name>(?:[^|]*[^|]))\|(?P<image_id>(?:[^|]*[^|]))\|(?P<container_id>(?:[^|]*[^|]))
           source: "tag"
 
       - labels:

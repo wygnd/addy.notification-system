@@ -125,7 +125,10 @@ services:
           memory: 512M
 
   loki:
-    image: "grafana/loki:2.9.0"
+    image: "grafana/loki:3.6"
+    # Опциональный проброс для доступа с хоста (по умолчанию не пробрасывается):
+    # ports:
+    #   - "127.0.0.1:${LOKI_PORT:-3100}:3100"
     volumes:
       - ../config/loki/config.yaml:/etc/loki/loki-config.yaml:ro
       - loki_data:/loki
@@ -134,9 +137,12 @@ services:
       - monitoring
     command:
       - "--config.file=/etc/loki/loki-config.yaml"
+    # Одна реплика: общий volume loki_data + ring inmemory.
+    # TSDB shipper берёт эксклюзивную блокировку index-каталога,
+    # вторая реплика не сможет запуститься.
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       update_config:
         order: stop-first
       resources:
@@ -144,7 +150,7 @@ services:
           memory: 1024M
 
   promtail:
-    image: "grafana/promtail:2.9.0"
+    image: "grafana/promtail:3.6.0"
     container_name: ns-promtail
     volumes:
       - ../config/promtail/config.yml:/etc/promtail/config.yml:ro

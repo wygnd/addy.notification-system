@@ -1,0 +1,72 @@
+# Prometheus — конфигурация сбора метрик стека ADDY notification-system.
+# Монтируется в ns-prometheus как /etc/prometheus/prometheus-config.yaml.
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Опционально: remote write в VictoriaMetrics / Thanos / Mimir.
+# remote_write:
+#   - url: "http://victoriametrics:8428/api/v1/write"
+
+alerting:
+  # Alertmanager в стеке не развёрнут — targets пуст.
+  # Когда добавите: targets: ['alertmanager:9093']
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Правила alerting подключаются сюда, когда понадобятся:
+# rule_files:
+#   - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+  # Сам Prometheus
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Pushgateway — принимает метрики от batch-скриптов / jobs
+  - job_name: pushgateway
+    honor_labels: true
+    static_configs:
+      - targets: ['pushgateway:9091']
+
+  # Loki — встроенный /metrics
+  - job_name: loki
+    static_configs:
+      - targets: ['loki:3100']
+
+  # Promtail — встроенный /metrics
+  - job_name: promtail
+    static_configs:
+      - targets: ['promtail:9080']
+
+  # Grafana — встроенный /metrics
+  - job_name: grafana
+    static_configs:
+      - targets: ['grafana:3000']
+
+  # Node-сервисы стека.
+  # ВАЖНО: в текущем состоянии ни один сервис не экспортирует /metrics
+  # (нет prom-client / @nestjs/terminus). После подключения — раскомментировать:
+  #
+  # - job_name: api-gateway
+  #   metrics_path: /metrics
+  #   static_configs:
+  #     - targets: ['gateway:3000']
+  #
+  # - job_name: identity-service
+  #   metrics_path: /metrics
+  #   static_configs:
+  #     - targets: ['identity-service:3000']
+  #
+  # - job_name: telegram-service
+  #   metrics_path: /metrics
+  #   static_configs:
+  #     - targets: ['telegram-service:3000']
+  #
+  # - job_name: vk-service
+  #   metrics_path: /metrics
+  #   static_configs:
+  #     - targets: ['vk-service:3000']
