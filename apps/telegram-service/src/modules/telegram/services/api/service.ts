@@ -31,7 +31,6 @@ export class TelegramBotApiService
       this.configService.getOrThrow<string>('TELEGRAM_USE_WEBHOOK') === 'true';
 
     this.bot.catch(async (err) => {
-      console.log(err);
       this.logger.fatal(`Bot error: ${err.message}`);
 
       await err.ctx.reply('Произошла непредвиденная ошибка :(');

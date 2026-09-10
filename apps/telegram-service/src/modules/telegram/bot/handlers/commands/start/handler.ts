@@ -41,8 +41,6 @@ export class TelegramBotStartCommandHandler implements ITelegramCommandHandler {
         if (status) {
           message += resultMessage;
         } else {
-          console.log('Error auto connecting', resultMessage);
-
           message +=
             'Чтобы подключить аккаунт, отправьте код из личного кабинета ADDY';
           await this.redisService.set<boolean>(

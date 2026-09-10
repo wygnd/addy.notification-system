@@ -17,8 +17,6 @@ export class TelegramBotDisconnectMessageHandler implements ITelegramMessageHand
       return;
     }
 
-    console.log('HANDLE DISCONNECT');
-
     let message: string;
     const disconnectResult = await this.identityService.disconnectClient(
       ctx.from.id.toString(),
@@ -27,7 +25,6 @@ export class TelegramBotDisconnectMessageHandler implements ITelegramMessageHand
     if (disconnectResult) {
       message = 'Аккаунт успешно отключен';
     } else {
-      console.log('DISCONNECT ERROR', disconnectResult);
       message = 'Что-то пошло не так. Попробуйте позже';
     }
 

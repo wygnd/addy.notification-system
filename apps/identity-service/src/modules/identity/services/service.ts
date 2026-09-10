@@ -440,8 +440,6 @@ export class IdentityService {
     } catch (error) {
       const { message } = normalizeError(error);
 
-      console.log(error);
-
       return {
         status: false,
         message: message,

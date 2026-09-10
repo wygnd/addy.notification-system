@@ -59,14 +59,10 @@ export class TelegramService implements IPlatformMessenger {
       );
     }
 
-    const resp = await this.identityService.connectClient({
+    return this.identityService.connectClient({
       platform: data.platform,
       userId: data.userId,
     });
-
-    console.log('CHECK RES', resp);
-
-    return resp;
   }
 
   public async health(): Promise<ITelegramHealthResponse> {
