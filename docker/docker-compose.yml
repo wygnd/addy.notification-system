@@ -213,15 +213,15 @@ services:
     image: "grafana/loki:3.6"
     container_name: ns-loki
     ports:
-      - "127.0.0.1:${LOKI_PORT:-3100}:3100"
+      - "127.0.0.1:${LOKI_PORT}:3100"
     volumes:
-      - ../config/loki/config.yaml:/etc/loki/loki-config.yaml:ro
+      - ../config/loki/config.yaml:/etc/loki/local-config.yaml:ro
       - loki_data:/loki
     networks:
       - private
       - monitoring
     command:
-      - "--config.file=/etc/loki/loki-config.yaml"
+      - "--config.file=/etc/loki/local-config.yaml"
       - "--config.expand-env=true"
     deploy:
       mode: replicated
