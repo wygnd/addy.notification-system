@@ -52,3 +52,6 @@ ruler:
     kvstore:
       store: inmemory
   enable_api: true
+
+commonConfig:
+  replication_factor: 1
