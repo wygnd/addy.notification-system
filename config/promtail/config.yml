@@ -46,13 +46,10 @@ scrape_configs:
             values: [ "running" ]
 
     relabel_configs:
-      # Чистый container_name из meta-лейбла (compose container_name: ns-*)
       - source_labels: [ "__meta_docker_container_name" ]
-        regex: "/(.*)"
+        regex: "ns-/(.*)"
         target_label: container_name
 
-      # Разбиваем node-сервисы на отдельные jobs.
-      # Не совпавшие контейнеры сохраняют job_name: containers.
       - source_labels: [ "__meta_docker_container_name" ]
         regex: "ns-gateway"
         target_label: job
