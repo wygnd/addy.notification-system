@@ -1,6 +1,5 @@
 services:
 
-  # OTHER CONTAINERS
   postgres:
     image: postgres:18-alpine
     container_name: ns-postgres
@@ -10,6 +9,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB_NAME}
     ports:
       - '5433:5432'
+    networks:
+      - private
     volumes:
       - postgres_data:/var/lib/postgresql
     restart: always
@@ -26,6 +27,8 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    networks:
+      - private
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -42,6 +45,8 @@ services:
     container_name: ns-redis
     command: redis-server --requirepass ${REDIS_PASSWORD}
     restart: always
+    networks:
+      - private
     ports:
       - "6379:6379"
     volumes:
@@ -105,7 +110,6 @@ services:
 
   pushgateway:
     image: "prom/pushgateway:v1.6.2"
-    container_name: ns-pushgateway
     ports:
       - 9091:9091
     networks:
@@ -126,9 +130,9 @@ services:
 
   loki:
     image: "grafana/loki:3.6"
-    # Опциональный проброс для доступа с хоста (по умолчанию не пробрасывается):
-    # ports:
-    #   - "127.0.0.1:${LOKI_PORT:-3100}:3100"
+    container_name: ns-loki
+    ports:
+      - "127.0.0.1:${LOKI_PORT:-3100}:3100"
     volumes:
       - ../config/loki/config.yaml:/etc/loki/loki-config.yaml:ro
       - loki_data:/loki
@@ -137,9 +141,7 @@ services:
       - monitoring
     command:
       - "--config.file=/etc/loki/loki-config.yaml"
-    # Одна реплика: общий volume loki_data + ring inmemory.
-    # TSDB shipper берёт эксклюзивную блокировку index-каталога,
-    # вторая реплика не сможет запуститься.
+      - "--config.expand-env=true"
     deploy:
       mode: replicated
       replicas: 1
@@ -157,8 +159,6 @@ services:
       - promtail_data:/var/promtail
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/log:/var/log:ro
-    environment:
-      HOST_HOSTNAME: "{{.Node.Hostname}}"
     networks:
       - private
       - monitoring
@@ -173,12 +173,9 @@ services:
         limits:
           memory: 512M
 
-
   sub2socks:
     image: sub2socks:latest
     container_name: ns-sub2socks
-    ports:
-      - "${SUB2SOCKS_PORT}:1080"
     networks:
       - private
       - public
@@ -198,7 +195,6 @@ volumes:
 networks:
   private:
     driver: bridge
-    internal: true
   public:
     driver: bridge
   monitoring:

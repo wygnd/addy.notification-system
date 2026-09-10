@@ -6,6 +6,7 @@ export interface IIdentityEntity {
   platform: PlatformEnum;
   platformUserId: string | null;
   status: IdentityStatusEnum;
+  isActive: boolean;
   verifiedAt: string | null;
   updatedAt: string;
   createdAt: string;

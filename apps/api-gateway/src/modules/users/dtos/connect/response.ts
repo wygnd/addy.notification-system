@@ -4,6 +4,13 @@ import { ApiProperty } from '@nestjs/swagger';
 export class UserConnectResponseDTO {
   @ApiProperty({
     type: String,
+    description: 'Сообщение',
+    required: true,
+  })
+  message: string;
+
+  @ApiProperty({
+    type: String,
     description: 'Одноразовый код для подключения',
     required: true,
     example: 'XXX-YYY',

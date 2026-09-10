@@ -66,6 +66,13 @@ export class IdentityModel extends Model<
   })
   declare verifiedAt: string | null;
 
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  })
+  declare isActive: boolean;
+
   @CreatedAt
   declare createdAt: Date;
 

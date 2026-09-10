@@ -91,6 +91,7 @@ export interface IIdentityMessageGetUserConnectionItem {
   platform: PlatformEnum;
   connected: boolean;
   platformUserId: string | null;
+  isActive: boolean;
 }
 
 export interface IIdentityMessageGetUserConnectionResponse {

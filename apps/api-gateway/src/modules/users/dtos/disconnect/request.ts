@@ -5,7 +5,7 @@ import { IsIn, IsNotEmpty, IsString } from 'class-validator';
 export class UserDisconnectQueryRequestDTO {
   @ApiProperty({
     type: String,
-    description: 'Платформа для подключения',
+    description: 'Платформа, которую надо отключить',
     enum: PlatformEnum,
     required: true,
     example: PlatformEnum.VK,

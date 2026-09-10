@@ -22,6 +22,9 @@ export class IdentityDTO implements IIdentityEntity {
   verifiedAt: string | null;
 
   @Expose()
+  isActive: boolean;
+
+  @Expose()
   updatedAt: string;
 
   @Expose()

@@ -31,6 +31,14 @@ class UserGetByIdResponseItemDTO implements IIdentityMessageGetUserConnectionIte
     example: '76843578',
   })
   platformUserId: string | null;
+
+  @ApiProperty({
+    type: Boolean,
+    description: 'Активно ли подписка на уведомления',
+    required: true,
+    example: true,
+  })
+  isActive: boolean;
 }
 
 export class UserGetByIdResponseDTO implements IIdentityMessageGetUserConnectionResponse {

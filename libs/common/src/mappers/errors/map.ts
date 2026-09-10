@@ -36,10 +36,13 @@ export const ERROR_CODE: Record<ErrorCodeEnum, IErrorCodeEntry> = {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     message: 'Ошибка отключения пользователя',
   },
-
   [ErrorCodeEnum.USER_NOT_CONNECTED]: {
     status: HttpStatus.BAD_REQUEST,
     message: 'Пользователь не подключен',
+  },
+  [ErrorCodeEnum.USER_DISABLED_CONNECTION]: {
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    message: 'Пользователь отключил возможность принимать уведомления',
   },
 
   /* ======================= NOTIFICATIONS ======================= */

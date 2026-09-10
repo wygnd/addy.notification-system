@@ -35,12 +35,16 @@ export class UserService {
       throw new AppException(ErrorCodeEnum.NOT_ALLOWED, 'Invalid platform');
     }
 
-    const { code, connectionLink } = await messenger.connect(request);
+    const result = await messenger.connect(request);
 
-    return { code, connection_link: connectionLink };
+    return {
+      message: result.message,
+      code: result.code,
+      connection_link: result.connectionLink,
+    };
   }
 
-  public async getUserByID(userId: number) {
+  public async getUserBuId(userId: number) {
     if (!userId) {
       throw new AppException(ErrorCodeEnum.USER_NOT_FOUND);
     }
