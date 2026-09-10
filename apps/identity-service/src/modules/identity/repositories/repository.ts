@@ -1,9 +1,9 @@
-import { PlatformEnum } from '@addy/common';
 import {
-  IIdentityRepositoryPort,
   IIdentityUpdateEntity,
+  PlatformEnum,
   TIdentityCreationEntity,
-} from '@modules/identity/interfaces';
+} from '@addy/common';
+import { IIdentityRepositoryPort } from '@modules/identity/interfaces';
 import { IdentityModel } from '@modules/identity/models';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -46,12 +46,9 @@ export class IdentityRepository implements IIdentityRepositoryPort {
     });
   }
 
-  public async update(
-    id: string,
-    updateFields: Partial<TIdentityCreationEntity>,
-  ): Promise<boolean> {
-    const updated = await this.repo.update(updateFields, {
-      where: { id: id },
+  public async update(fields: IIdentityUpdateEntity): Promise<boolean> {
+    const updated = await this.repo.update(fields.fields, {
+      where: { id: fields.id },
     });
 
     return updated[0] > 0;

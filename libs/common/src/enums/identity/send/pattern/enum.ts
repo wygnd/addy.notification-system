@@ -9,4 +9,5 @@ export enum IdentitySendPatternEnum {
   GET_CONNECTED_PLATFORMS = 'identity.users.platform.connected',
   SEND_DISCONNECT = 'identity.users.platform.disconnect',
   HEALTH = 'identity.health',
+  UPDATE_CLIENT = 'identity.client.update',
 }

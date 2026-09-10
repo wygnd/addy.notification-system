@@ -1,6 +1,7 @@
 import {
   IdentitySendPatternEnum,
   IIdentityMessageCheckConnectPayload,
+  IIdentityMessageClientUpdatePayload,
   IIdentityMessageDisconnectByIdPayload,
   IIdentityMessageGetConnectedPlatformsPayload,
   IIdentityMessageGetUserConnectionPayload,
@@ -62,12 +63,19 @@ export class IdentityService {
         {},
         500,
       );
-    } catch (error) {
+    } catch {
       return {
         ok: false,
         database: false,
         redis: false,
       };
     }
+  }
+
+  public async updateClient(fields: IIdentityMessageClientUpdatePayload) {
+    return this.identityProvider.send(
+      IdentitySendPatternEnum.UPDATE_CLIENT,
+      fields,
+    );
   }
 }

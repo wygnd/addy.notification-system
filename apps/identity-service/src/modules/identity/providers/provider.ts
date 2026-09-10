@@ -1,14 +1,14 @@
-import { normalizeError, PlatformEnum } from '@addy/common';
+import {
+  IIdentityEntity,
+  IIdentityUpdateEntity,
+  normalizeError,
+  PlatformEnum,
+} from '@addy/common';
 import {
   IdentityBulkUpdateCommand,
   IdentityUpdateCommand,
 } from '@modules/identity/commands';
 import { IdentityDTO } from '@modules/identity/dtos';
-import {
-  IIdentityEntity,
-  IIdentityUpdateEntity,
-  TIdentityCreationEntity,
-} from '@modules/identity/interfaces';
 import {
   IdentityExistsPlatformQuery,
   IdentityExistsQuery,
@@ -76,17 +76,11 @@ export class IdentityProvider {
 
   /**
    * Обновление клиента
-   * @param id
    * @param fields
    */
-  public async updateIdentity(
-    id: string,
-    fields: Partial<TIdentityCreationEntity>,
-  ): Promise<boolean> {
+  public async updateIdentity(fields: IIdentityUpdateEntity): Promise<boolean> {
     try {
-      return await this.commandBus.execute(
-        new IdentityUpdateCommand(id, fields),
-      );
+      return await this.commandBus.execute(new IdentityUpdateCommand(fields));
     } catch (error) {
       this.logger.error({
         handler: this.updateIdentity.name,

@@ -1,8 +1,8 @@
-import { PlatformEnum } from '@addy/common';
 import {
   IIdentityUpdateEntity,
+  PlatformEnum,
   TIdentityCreationEntity,
-} from '@modules/identity/interfaces';
+} from '@addy/common';
 import { IdentityModel } from '@modules/identity/models';
 import { FindOptions } from 'sequelize';
 
@@ -15,10 +15,7 @@ export interface IIdentityRepositoryPort {
     platformUserId: string,
     platform: PlatformEnum,
   ): Promise<IdentityModel | null>;
-  update(
-    id: string,
-    updateFields: Partial<TIdentityCreationEntity>,
-  ): Promise<boolean>;
+  update(fields: IIdentityUpdateEntity): Promise<boolean>;
   list(options?: FindOptions): Promise<IdentityModel[]>;
   bulkUpdate(items: IIdentityUpdateEntity[]): Promise<number>;
 }

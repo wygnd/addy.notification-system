@@ -1,5 +1,5 @@
+import { IIdentityEntity } from '@addy/common';
 import { IdentityDTO } from '@modules/identity/dtos';
-import { IIdentityEntity } from '@modules/identity/interfaces';
 import { Query } from '@nestjs/cqrs';
 import { FindOptions } from 'sequelize';
 

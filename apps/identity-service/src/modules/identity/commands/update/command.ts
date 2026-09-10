@@ -1,10 +1,9 @@
-import { TIdentityCreationEntity } from '@modules/identity/interfaces';
+import { IIdentityUpdateEntity } from '@addy/common';
 import { Command } from '@nestjs/cqrs';
 
 export class IdentityUpdateCommand extends Command<boolean> {
   constructor(
-    public readonly id: string,
-    public readonly updateFields: Partial<TIdentityCreationEntity>,
+    public readonly fields: IIdentityUpdateEntity,
   ) {
     super();
   }

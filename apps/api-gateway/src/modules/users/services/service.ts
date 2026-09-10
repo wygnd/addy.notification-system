@@ -4,7 +4,10 @@ import { IdentityService } from '@modules/identity/services/service';
 import { TelegramService } from '@modules/telegram/services/service';
 import { UserDisconnectQueryRequestDTO } from '@modules/users/dtos';
 import { UserDisconnectResponseDto } from '@modules/users/dtos/[id]/disconnect/response/dto';
-import { IUserConnectFields } from '@modules/users/interfaces';
+import {
+  IUserConnectFields,
+  IUserUpdateFields,
+} from '@modules/users/interfaces';
 import { VkService } from '@modules/vk/services/service';
 import { Injectable } from '@nestjs/common';
 import { IPlatformMessenger } from '@shared/interfaces';
@@ -69,5 +72,19 @@ export class UserService {
       user_id: userId,
       message: 'Пользователь успешно отключен',
     };
+  }
+
+  public async updateUser(request: IUserUpdateFields) {
+    if (Object.keys(request.fields).length === 0) {
+      return false;
+    }
+
+    const result = await this.identityService.updateClient({
+      userId: request.userId,
+      platform: request.platform,
+      fields: request.fields,
+    });
+
+    return result.ok;
   }
 }

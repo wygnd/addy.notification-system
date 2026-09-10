@@ -1,5 +1,9 @@
-import { IdentityStatusEnum, IResponse, normalizeError } from '@addy/common';
-import { IIdentityUpdateEntity } from '@modules/identity/interfaces';
+import {
+  IdentityStatusEnum,
+  IIdentityUpdateEntity,
+  IResponse,
+  normalizeError,
+} from '@addy/common';
 import { IdentityProvider } from '@modules/identity/providers/provider';
 import { Injectable } from '@nestjs/common';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';

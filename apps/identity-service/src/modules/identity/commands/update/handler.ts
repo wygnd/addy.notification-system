@@ -12,6 +12,6 @@ export class IdentityUpdateCommandHandler implements ICommandHandler<IdentityUpd
   ) {}
 
   public async execute(command: IdentityUpdateCommand): Promise<boolean> {
-    return this.repo.update(command.id, command.updateFields);
+    return this.repo.update(command.fields);
   }
 }

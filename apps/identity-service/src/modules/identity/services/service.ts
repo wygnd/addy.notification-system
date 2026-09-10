@@ -4,6 +4,8 @@ import {
   IdentityStatusEnum,
   IIdentityMessageCheckConnectPayload,
   IIdentityMessageCheckConnectResponse,
+  IIdentityMessageClientUpdatePayload,
+  IIdentityMessageClientUpdateResponse,
   IIdentityMessageDisconnectByIdPayload,
   IIdentityMessageDisconnectByIdResponse,
   IIdentityMessageDisconnectPayload,
@@ -21,10 +23,9 @@ import {
   IIdentityMessageVerifyConnectPayload,
   normalizeError,
   PlatformEnum,
+  TIdentityCreationEntity,
 } from '@addy/common';
 import { IdentityAddCommand } from '@modules/identity/commands';
-import { IdentityUpdateCommand } from '@modules/identity/commands/update/command';
-import { TIdentityCreationEntity } from '@modules/identity/interfaces';
 import { IdentityProvider } from '@modules/identity/providers/provider';
 import {
   IdentityGetClientByExternalIDQuery,
@@ -246,9 +247,10 @@ export class IdentityService {
     }
     // Нашли: обновляем поля
     else {
-      await this.commandBus.execute(
-        new IdentityUpdateCommand(identity.id, identityCreationFields),
-      );
+      await this.identityProvider.updateIdentity({
+        id: identity.id,
+        fields: identityCreationFields,
+      });
     }
 
     await this.redisService.del(rateLimitRedisKey);
@@ -266,11 +268,12 @@ export class IdentityService {
     } catch (error) {
       this.logger.error(normalizeError(error));
 
-      await this.commandBus.execute(
-        new IdentityUpdateCommand(identity.id, {
+      await this.identityProvider.updateIdentity({
+        id: identity.id,
+        fields: {
           status: IdentityStatusEnum.FAILED,
-        }),
-      );
+        },
+      });
 
       throw new AppRpcException(ErrorCodeEnum.SERVICE_INTERNAL_ERROR);
     }
@@ -378,13 +381,14 @@ export class IdentityService {
         );
       }
 
-      await this.commandBus.execute(
-        new IdentityUpdateCommand(identity.id, {
+      await this.identityProvider.updateIdentity({
+        id: identity.id,
+        fields: {
           status: IdentityStatusEnum.VERIFIED,
           verifiedAt: new Date().toISOString(),
           platformUserId: platformUserId,
-        }),
-      );
+        },
+      });
 
       return {
         status: true,
@@ -420,13 +424,14 @@ export class IdentityService {
         throw new Error('Этот аккаунт уже привязан к другому пользователю');
       }
 
-      await this.commandBus.execute(
-        new IdentityUpdateCommand(existing.id, {
+      await this.identityProvider.updateIdentity({
+        id: existing.id,
+        fields: {
           platformUserId: platformUserId,
           status: IdentityStatusEnum.VERIFIED,
           verifiedAt: new Date().toISOString(),
-        }),
-      );
+        },
+      });
 
       return {
         status: true,
@@ -458,13 +463,14 @@ export class IdentityService {
         throw new AppRpcException(ErrorCodeEnum.IDENTITY_ACCOUNT_NOT_CONNECTED);
       }
 
-      await this.commandBus.execute(
-        new IdentityUpdateCommand(existing.id, {
+      await this.identityProvider.updateIdentity({
+        id: existing.id,
+        fields: {
           status: IdentityStatusEnum.REVOKED,
           platformUserId: null,
           verifiedAt: null,
-        }),
-      );
+        },
+      });
 
       return {
         status: true,
@@ -588,9 +594,12 @@ export class IdentityService {
       }
 
       return {
-        ok: await this.identityProvider.updateIdentity(client.id, {
-          status: IdentityStatusEnum.REVOKED,
-          isActive: false,
+        ok: await this.identityProvider.updateIdentity({
+          id: client.id,
+          fields: {
+            status: IdentityStatusEnum.REVOKED,
+            isActive: false,
+          },
         }),
       };
     } catch (error) {
@@ -609,6 +618,37 @@ export class IdentityService {
       database: false,
       redis: await this.redisService.isInit(),
     };
+  }
+
+  private async updateClient(
+    fields: IIdentityMessageClientUpdatePayload,
+  ): Promise<IIdentityMessageClientUpdateResponse> {
+    try {
+      const identity = await this.identityProvider.getClientByExternalId(
+        fields.userId.toString(),
+        fields.platform,
+      );
+
+      if (!identity) {
+        throw new AppRpcException(ErrorCodeEnum.USER_NOT_FOUND);
+      }
+
+      const updated = await this.identityProvider.updateIdentity({
+        id: identity.id,
+        fields: fields.fields,
+      });
+
+      return {
+        ok: updated,
+      };
+    } catch (error) {
+      this.logger.error({
+        handler: this.updateClient.name,
+        error: normalizeError(error),
+      });
+
+      throw error;
+    }
   }
 
   /* ========================== PUBLIC HANDLERS ========================== */
@@ -693,5 +733,12 @@ export class IdentityService {
 
   public async handleHealth(context: RmqContext) {
     return this.handleSendWithAck(context, () => this.health());
+  }
+
+  public async handleUpdateClient(
+    context: RmqContext,
+    data: IIdentityMessageClientUpdatePayload,
+  ) {
+    return this.handleSendWithAck(context, () => this.updateClient(data));
   }
 }

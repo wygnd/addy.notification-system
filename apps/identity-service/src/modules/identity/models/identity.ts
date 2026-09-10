@@ -1,8 +1,4 @@
-import { IdentityStatusEnum, PlatformEnum } from '@addy/common';
-import {
-  IIdentityEntity,
-  TIdentityCreationEntity,
-} from '@modules/identity/interfaces';
+import { IdentityStatusEnum, PlatformEnum, IIdentityEntity, TIdentityCreationEntity } from '@addy/common';
 import {
   Column,
   CreatedAt,

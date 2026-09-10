@@ -97,4 +97,13 @@ export class IdentityRMQController {
   public async health(@Ctx() context: RmqContext) {
     return this.identityService.handleHealth(context);
   }
+
+  @MessagePattern(IdentitySendPatternEnum.UPDATE_CLIENT)
+  public async updateUser(
+    @Payload()
+    data: IIdentitySendMessageMap[IdentitySendPatternEnum.UPDATE_CLIENT],
+    @Ctx() context: RmqContext,
+  ) {
+    return this.identityService.handleUpdateClient(context, data);
+  }
 }

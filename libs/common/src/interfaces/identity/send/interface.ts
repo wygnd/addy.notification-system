@@ -1,18 +1,30 @@
 import { IdentitySendPatternEnum } from '@src/enums';
-import { IIdentityMessageHealthPayload, IIdentityMessageHealthResponse } from '@src/interfaces/identity/send/health';
-import { IIdentityMessageCheckConnectPayload, IIdentityMessageCheckConnectResponse, IIdentityMessageDisconnectByIdPayload, IIdentityMessageDisconnectByIdResponse, IIdentityMessageDisconnectPayload, IIdentityMessageDisconnectResponse, IIdentityMessageGetConnectedPlatformsPayload, IIdentityMessageGetConnectedPlatformsResponse, IIdentityMessageGetUserConnectionPayload, IIdentityMessageGetUserConnectionResponse, IIdentityMessageSendConnectPayloadFields, IIdentityMessageSendConnectResponse, IIdentityMessageVerifyConnectPayload, IIdentityMessageVerifyConnectResponse } from './connect';
-import { IIdentityMessageExistsClientPlatformPayload, IIdentityMessageExistsClientPlatformResponse } from './exists';
-
-
-
-
-
-
-
-
-
-
-
+import {
+  IIdentityMessageClientUpdatePayload,
+  IIdentityMessageClientUpdateResponse,
+} from './client';
+import {
+  IIdentityMessageCheckConnectPayload,
+  IIdentityMessageCheckConnectResponse,
+  IIdentityMessageDisconnectByIdPayload,
+  IIdentityMessageDisconnectByIdResponse,
+  IIdentityMessageDisconnectPayload,
+  IIdentityMessageDisconnectResponse,
+  IIdentityMessageExistsClientPlatformPayload,
+  IIdentityMessageExistsClientPlatformResponse,
+  IIdentityMessageGetConnectedPlatformsPayload,
+  IIdentityMessageGetConnectedPlatformsResponse,
+  IIdentityMessageGetUserConnectionPayload,
+  IIdentityMessageGetUserConnectionResponse,
+  IIdentityMessageSendConnectPayloadFields,
+  IIdentityMessageSendConnectResponse,
+  IIdentityMessageVerifyConnectPayload,
+  IIdentityMessageVerifyConnectResponse,
+} from './connection';
+import {
+  IIdentityMessageHealthPayload,
+  IIdentityMessageHealthResponse,
+} from './health';
 
 export interface IIdentitySendMessageMap {
   [IdentitySendPatternEnum.SEND_CONNECT]: IIdentityMessageSendConnectPayloadFields;
@@ -25,6 +37,7 @@ export interface IIdentitySendMessageMap {
   [IdentitySendPatternEnum.GET_CONNECTED_PLATFORMS]: IIdentityMessageGetConnectedPlatformsPayload;
   [IdentitySendPatternEnum.SEND_DISCONNECT]: IIdentityMessageDisconnectByIdPayload;
   [IdentitySendPatternEnum.HEALTH]: IIdentityMessageHealthPayload;
+  [IdentitySendPatternEnum.UPDATE_CLIENT]: IIdentityMessageClientUpdatePayload;
 }
 
 export interface IIdentitySendMessageResponseMap {
@@ -38,4 +51,5 @@ export interface IIdentitySendMessageResponseMap {
   [IdentitySendPatternEnum.GET_CONNECTED_PLATFORMS]: IIdentityMessageGetConnectedPlatformsResponse;
   [IdentitySendPatternEnum.SEND_DISCONNECT]: IIdentityMessageDisconnectByIdResponse;
   [IdentitySendPatternEnum.HEALTH]: IIdentityMessageHealthResponse;
+  [IdentitySendPatternEnum.UPDATE_CLIENT]: IIdentityMessageClientUpdateResponse;
 }

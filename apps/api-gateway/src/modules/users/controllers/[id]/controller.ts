@@ -1,16 +1,20 @@
+import { PlatformEnum } from '@addy/common';
 import {
+  UpdateUserRequestDTO,
   UserDisconnectQueryRequestDTO,
   UserGetByIdResponseDTO,
 } from '@modules/users/dtos';
 import { UserDisconnectResponseDto } from '@modules/users/dtos/[id]/disconnect/response/dto';
 import { UserService } from '@modules/users/services/service';
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
@@ -20,6 +24,7 @@ import {
   ApiSuccessResponse,
 } from '@shared/decorators';
 import { ApiUserNotFoundDTO } from '@shared/dto';
+import { ParsePlatformPipe } from '@shared/pipes';
 
 @ApiTags('Пользователи')
 @ApiBadResponse(
@@ -63,5 +68,19 @@ export class UserIDControllerV1 {
     @Query() query: UserDisconnectQueryRequestDTO,
   ): Promise<UserDisconnectResponseDto> {
     return this.userService.disconnectUser(userId, query);
+  }
+
+  @ApiOperation({ summary: 'Обновить пользователя' })
+  @Patch(':platform')
+  public async updateUser(
+    @Param('user_id', new ParseIntPipe()) userId: number,
+    @Param('platform', new ParsePlatformPipe()) platform: PlatformEnum,
+    @Body() body: UpdateUserRequestDTO,
+  ) {
+    return this.userService.updateUser({
+      userId: userId,
+      platform: platform,
+      fields: body,
+    });
   }
 }

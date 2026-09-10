@@ -1,4 +1,7 @@
-import { IdentityStatusEnum, PlatformEnum } from '@addy/common';
+import { IdentityStatusEnum, PlatformEnum } from '@src/enums';
+
+
+
 
 export interface IIdentityEntity {
   id: string;
@@ -17,7 +20,18 @@ export type TIdentityCreationEntity = Omit<
   'id' | 'updatedAt' | 'createdAt'
 >;
 
+export type TIdentityUpdateFields = Partial<
+  Omit<
+    IIdentityEntity,
+    | 'id'
+    | 'externalUserId'
+    | 'platform'
+    | 'updatedAt'
+    | 'createdAt'
+  >
+>;
+
 export interface IIdentityUpdateEntity {
   id: string;
-  fields: Partial<TIdentityCreationEntity>;
+  fields: TIdentityUpdateFields;
 }
