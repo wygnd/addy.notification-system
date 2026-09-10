@@ -240,7 +240,6 @@ services:
       - promtail_data:/var/promtail
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/log:/var/log:ro
-      # Docker service discovery (перечисляет контейнеры и их container_name)
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - private

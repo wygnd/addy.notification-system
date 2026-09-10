@@ -13,7 +13,6 @@ scrape_configs:
 
   # ---------------------------------------------------------------------------
   # Системные логи хоста (только верхний уровень /var/log/*.log).
-  # Глоб * не заходит в подкаталоги (не перескакивает через /).
   # ---------------------------------------------------------------------------
   - job_name: varlogs
     static_configs:
@@ -75,8 +74,8 @@ scrape_configs:
       # Для node-сервисов разбираем pino-JSON и поднимаем полезные (низко-
       # кардинальные) лейблы. Инфра-контейнеры (plain text) не трогаем.
       - match:
-          source: container_name
-          selector: "ns-(gateway|identity|telegram|vk|max)"
+          # Stream-селектор (LogQL) по лейблу container_name, который ставит relabel выше
+          selector: '{container_name=~"ns-(gateway|identity|telegram|vk|max)"}'
           stages:
             - json:
                 expressions:
