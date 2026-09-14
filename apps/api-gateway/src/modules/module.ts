@@ -1,5 +1,6 @@
 import { configurePinoLogger } from '@addy/common';
 import { DatabaseModule } from '@modules/database/module';
+import { EventModule } from '@modules/events/module';
 import { HealthModule } from '@modules/health/module';
 import { IdentityModule } from '@modules/identity/module';
 import { NotificationModule } from '@modules/notifications/module';
@@ -44,6 +45,7 @@ import { join } from 'node:path';
     IdentityModule,
     RedisModule,
     UsersModule,
+    EventModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: RpcExceptionInterceptor },
