@@ -3,6 +3,7 @@ import {
   IIdentityMessageCheckConnectPayload,
   IIdentityMessageClientUpdatePayload,
   IIdentityMessageDisconnectByIdPayload,
+  IIdentityMessageExistsClientPlatformPayload,
   IIdentityMessageGetConnectedPlatformsPayload,
   IIdentityMessageGetUserConnectionPayload,
   IIdentityMessageHealthResponse,
@@ -75,6 +76,15 @@ export class IdentityService {
   public async updateClient(fields: IIdentityMessageClientUpdatePayload) {
     return this.identityProvider.send(
       IdentitySendPatternEnum.UPDATE_CLIENT,
+      fields,
+    );
+  }
+
+  public async existsClientByPlatformUserId(
+    fields: IIdentityMessageExistsClientPlatformPayload,
+  ) {
+    return this.identityProvider.send(
+      IdentitySendPatternEnum.EXISTS_CLIENT_PLATFORM,
       fields,
     );
   }

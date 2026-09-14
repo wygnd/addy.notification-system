@@ -73,10 +73,26 @@ export class VkService implements IPlatformMessenger {
       throw new AppException(ErrorCodeEnum.USER_BLOCK_SEND_MESSAGE);
     }
 
+    const hasPlatform = await this.identityService.existsClientByPlatformUserId(
+      {
+        platform: PlatformEnum.VK,
+        platformUserId: data.platformUserId,
+      },
+    );
+
+    if (hasPlatform.status) {
+      throw new AppException(
+        ErrorCodeEnum.USER_WAS_CONNECTING_TO_PLATFORM,
+        hasPlatform.message,
+      );
+    }
+
+    console.log('test');
+
     return this.identityService.connectClient({
       platform: PlatformEnum.VK,
       userId: data.userId.toString(),
-      platformUserId: data.platformUserId.toString(),
+      platformUserId: data.platformUserId,
     });
   }
 

@@ -1,8 +1,36 @@
-import { AppRpcException, ErrorCodeEnum, IdentityStatusEnum, IIdentityMessageCheckConnectPayload, IIdentityMessageCheckConnectResponse, IIdentityMessageClientUpdatePayload, IIdentityMessageClientUpdateResponse, IIdentityMessageDisconnectByIdPayload, IIdentityMessageDisconnectByIdResponse, IIdentityMessageDisconnectPayload, IIdentityMessageDisconnectResponse, IIdentityMessageExistsClientPlatformPayload, IIdentityMessageExistsClientPlatformResponse, IIdentityMessageGetConnectedPlatformsPayload, IIdentityMessageGetConnectedPlatformsResponse, IIdentityMessageGetUserConnectionItem, IIdentityMessageGetUserConnectionPayload, IIdentityMessageGetUserConnectionResponse, IIdentityMessageHealthResponse, IIdentityMessageSendConnectPayloadFields, IIdentityMessageSendConnectResponse, IIdentityMessageVerifyConnectPayload, normalizeError, PlatformEnum, TIdentityCreationEntity } from '@addy/common';
+import {
+  AppRpcException,
+  ErrorCodeEnum,
+  IdentityStatusEnum,
+  IIdentityMessageCheckConnectPayload,
+  IIdentityMessageCheckConnectResponse,
+  IIdentityMessageClientUpdatePayload,
+  IIdentityMessageClientUpdateResponse,
+  IIdentityMessageDisconnectByIdPayload,
+  IIdentityMessageDisconnectByIdResponse,
+  IIdentityMessageDisconnectPayload,
+  IIdentityMessageDisconnectResponse,
+  IIdentityMessageExistsClientPlatformPayload,
+  IIdentityMessageExistsClientPlatformResponse,
+  IIdentityMessageGetConnectedPlatformsPayload,
+  IIdentityMessageGetConnectedPlatformsResponse,
+  IIdentityMessageGetUserConnectionItem,
+  IIdentityMessageGetUserConnectionPayload,
+  IIdentityMessageGetUserConnectionResponse,
+  IIdentityMessageHealthResponse,
+  IIdentityMessageSendConnectPayloadFields,
+  IIdentityMessageSendConnectResponse,
+  IIdentityMessageVerifyConnectPayload,
+  normalizeError,
+  PlatformEnum,
+  TIdentityCreationEntity,
+} from '@addy/common';
 import { IdentityAddCommand } from '@modules/identity/commands';
 import { IdentityProvider } from '@modules/identity/providers/provider';
-import { IdentityListQuery } from '@modules/identity/queries';
-import { IdentityGetClientByExternalIDQuery, IdentityGetClientByExternalIDsQuery } from '@modules/identity/queries/client/[external-id]';
+import {
+  IdentityGetClientByExternalIDQuery,
+  IdentityGetClientByExternalIDsQuery,
+} from '@modules/identity/queries/client/[external-id]';
 import { IdentityExistsPlatformQuery } from '@modules/identity/queries/exists/platform/query';
 import { IdentityExistsQuery } from '@modules/identity/queries/exists/query';
 import { OtpService } from '@modules/opt/services/service';
@@ -14,24 +42,6 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { RmqContext } from '@nestjs/microservices';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { randomBytes } from 'node:crypto';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 @Injectable()
 export class IdentityService {
@@ -214,32 +224,6 @@ export class IdentityService {
 
     switch (platform) {
       case PlatformEnum.VK:
-        const identities = await this.queryBus.execute(
-          new IdentityListQuery({
-            where: { platformUserId: `${data.platformUserId}` },
-          }),
-        );
-
-        this.logger.debug({ ids: identities }, 'check identities');
-
-        const filterIdentities = identities.filter(
-          (id) =>
-            id.status === IdentityStatusEnum.VERIFIED &&
-            id.platform === PlatformEnum.VK &&
-            id.platformUserId == data.platformUserId,
-        );
-
-        this.logger.debug(
-          { ids: filterIdentities },
-          'check filtered identities',
-        );
-
-        if (filterIdentities.length > 0) {
-          throw new AppRpcException(
-            ErrorCodeEnum.USER_WAS_CONNECTING_TO_PLATFORM,
-          );
-        }
-
         identityCreationFields['platformUserId'] = data.platformUserId;
         identityCreationFields['status'] = IdentityStatusEnum.VERIFIED;
         identityCreationFields['verifiedAt'] = new Date().toISOString();

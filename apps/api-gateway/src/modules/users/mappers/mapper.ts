@@ -8,7 +8,7 @@ export class UserMapper {
       return {
         platform: dto.platform,
         userId: dto.user_id.toString(),
-        platformUserId: dto.platform_user_id!,
+        platformUserId: dto.platform_user_id!.toString(),
       };
     }
 
