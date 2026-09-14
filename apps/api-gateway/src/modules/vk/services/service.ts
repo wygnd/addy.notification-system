@@ -76,7 +76,7 @@ export class VkService implements IPlatformMessenger {
     return this.identityService.connectClient({
       platform: PlatformEnum.VK,
       userId: data.userId.toString(),
-      platformUserId: data.platformUserId,
+      platformUserId: data.platformUserId.toString(),
     });
   }
 
