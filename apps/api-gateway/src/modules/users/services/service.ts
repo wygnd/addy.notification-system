@@ -34,7 +34,8 @@ export class UserService {
   }
 
   public async connectUser(request: IUserConnectFields) {
-    const { userId, platform } = request;
+    const { userId: userIdString, platform } = request;
+    const userId = Number(userIdString);
 
     const messenger = this.messengers[platform];
 
@@ -44,10 +45,25 @@ export class UserService {
 
     const result = await messenger.connect(request);
 
-    this.eventEmitter.emit(
-      EventEnum.CLIENT_CONNECTED,
-      new EventClientConnected(Number(userId), platform),
-    );
+    const clientConnections = await this.identityService.getClientConnections({
+      userId: userId,
+    });
+
+    // Формируем кол-во подключенных аккаунтов
+    const clientConnectionCount = clientConnections.items.reduce((acc, c) => {
+      if (c.connected) {
+        acc += 1;
+      }
+      return acc;
+    }, 0);
+
+    // Если это первый аккаунт, отправляем событие в ADDY
+    if (clientConnectionCount <= 1) {
+      this.eventEmitter.emit(
+        EventEnum.CLIENT_CONNECTED,
+        new EventClientConnected(userId, platform),
+      );
+    }
 
     return {
       message: result.message,
